@@ -10,4 +10,9 @@ public class ApplicationController {
 	public String index() {
 		return "index";
 	}
+	
+	@GetMapping("/index1")
+	public String index1() {
+		return "index1";
+	}
 }
