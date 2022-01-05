@@ -11,8 +11,8 @@ public class ApplicationController {
 		return "index";
 	}
 	
-	@GetMapping("/index1")
+	@GetMapping("admin/index")
 	public String index1() {
-		return "index1";
+		return "admin/index";
 	}
 }
