@@ -11,8 +11,23 @@ public class ApplicationController {
 		return "index";
 	}
 	
-	@GetMapping("admin/index")
-	public String index1() {
-		return "admin/index";
+	@GetMapping("/admin")
+	public String adminDashboard() {
+		return "/admin/index.html";
+	}
+	
+	@GetMapping("/employee")
+	public String employeeDashboard() {
+		return "/employee/index.html";
+	}
+	
+	@GetMapping("/eventorganizer")
+	public String eventOrganizerDashboard() {
+		return "/eventorganizer/index.html";
+	}
+	
+	@GetMapping("/serviceprovider")
+	public String serviceProviderDashboard() {
+		return "/serviceprovider/index.html";
 	}
 }
