@@ -41,7 +41,7 @@
                         <h4 class="mt-0">Sign Up</h4>
 
                         <!-- form -->
-                        <form action="#">
+                        <form  th:action="@{/customer-registration}" th:object="${userDetailsDTO}" method="post">
                             <div class="mb-3">
                                 <label for="firstname" class="form-label">First Name</label>
                                 <input class="form-control" type="text" id="firstname" placeholder="Enter your First name" required>
@@ -83,19 +83,13 @@
                                 <div class="mb-3 col-md-6">
                                     <label for="inputCountry" class="form-label">Country</label>
                                     <select id="inputCountry" class="form-select">
-                                        <option>Select a Country</option>
-                                        <option>Option 1</option>
-                                        <option>Option 2</option>
-                                        <option>Option 3</option>
+                                       <option th:each="country : ${countries}" th:value="${country.countryId}" th:text="${country.country}"></option>
                                     </select>
                                 </div>
                                 <div class="mb-3 col-md-6">
                                     <label for="inputState" class="form-label">State</label>
                                     <select id="inputState" class="form-select">
-                                        <option>Select a State</option>
-                                        <option>Option 1</option>
-                                        <option>Option 2</option>
-                                        <option>Option 3</option>
+                                       <option value="">--Select State--</option>
                                     </select>
                                 </div>
                             </div>
@@ -148,7 +142,26 @@
         <!-- bundle -->
         <script src="assets/js/vendor.min.js"></script>
         <script src="assets/js/app.min.js"></script>
-
+		<script type="text/javascript">
+		$("#inputCountry").change(function() {
+			var selectedValue = $(this)
+					.find(":selected")
+					.val();
+			$.ajax({
+						type : "GET",
+						dataType : 'json',
+						url : "getStates/"+ selectedValue+ '',
+						success : function(result) {
+							$("#inputState").empty();
+							$("#inputState").append($("<option></option>").val("").html("--Select State--"));
+							$.each(result,function() {
+								$("#inputState").append($("<option></option>").val(this['stateId']).html(this['state']));
+							});
+						}
+					});
+		
+		});
+		</script>
     </body>
 
 

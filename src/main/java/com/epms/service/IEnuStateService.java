@@ -12,4 +12,5 @@ public interface IEnuStateService {
 	public EnuStateDTO findById(Long stateId);
 
 	public List<EnuStateDTO> findByNamedParameters(MapSqlParameterSource paramSource);
+
 }
