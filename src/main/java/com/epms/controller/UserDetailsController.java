@@ -1,8 +1,8 @@
 package com.epms.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
@@ -28,16 +28,14 @@ public class UserDetailsController {
 	IEnuCountryService enuCountryService;
 
 	@GetMapping
-	public String homePage() {
-		return "index";
+	public ModelAndView homePage() {
+		 return new ModelAndView("index");
 	}
 
 	@GetMapping("load-customer-registration")
 	public ModelAndView customerRegistrationPage() {
 		log.info("Load customer registration page");
 		final ModelAndView modelandmap = new ModelAndView("customerRegisteration");
-		modelandmap.addObject("cities", enuCityService.findAll());
-		modelandmap.addObject("states", enuStateService.findAll());
 		modelandmap.addObject("country", enuCountryService.findAll());
 		return modelandmap;
 	}
