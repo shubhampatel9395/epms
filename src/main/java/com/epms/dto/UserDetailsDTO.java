@@ -13,20 +13,20 @@ public class UserDetailsDTO {
 
 	private Integer userDetailsId;
 	private Integer addressId;
-	private int isCustomer;
-	private int isEmployee;
-	private int isAuth;
+	private boolean isCustomer;
+	private boolean isEmployee;
+	private boolean isAuth;
 	private String firstName;
 	private String lastName;
 	private String serviceProviderName;
 	private String email;
 	private String password;
 	private String mobileNumber;
-	private int isAdmin;
-	private int isServiceProvider;
+	private boolean isAdmin;
+	private boolean isServiceProvider;
 	private Date createdAt;
 	private Date updatedAt;
-	private int isActive;
+	private boolean isActive;
 	private Integer createdBy;
 	private Integer updatedBy;
 

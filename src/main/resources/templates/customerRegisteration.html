@@ -41,28 +41,28 @@
                         <h4 class="mt-0">Sign Up</h4>
 
                         <!-- form -->
-                        <form  th:action="@{/customer-registration}" th:object="${userDetailsDTO}" method="post">
+                        <form  th:action="@{/customer-registration}" method="post">
                             <div class="mb-3">
                                 <label for="firstname" class="form-label">First Name</label>
-                                <input class="form-control" type="text" id="firstname" placeholder="Enter your First name" required>
+                                <input class="form-control" name="firstName" th:value="${userDetailsDTO.firstName}" type="text" id="firstname" placeholder="Enter your First name" required>
                             </div>
                             <div class="mb-3">
                                 <label for="lastname" class="form-label">Last Name</label>
-                                <input class="form-control" type="text" id="lastname" placeholder="Enter your Last name" required>
+                                <input class="form-control" name="lastName" th:value="${userDetailsDTO.lastName}" type="text" id="lastname" placeholder="Enter your Last name" required>
                             </div>
                             
 
                             <div class="mb-3">
                                 <label for="emailaddress" class="form-label">Email address</label>
-                                <input class="form-control" type="email" id="emial" required placeholder="Enter your email">
+                                <input class="form-control" name="email" th:value="${userDetailsDTO.email}" type="email" id="email" required placeholder="Enter your email">
                             </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
-                                <input class="form-control" type="password" required id="password" placeholder="Enter your password">
+                                <input class="form-control" name="password" th:value="${userDetailsDTO.password}" type="password" required id="password" placeholder="Enter your password">
                             </div>
                             <div class="mb-3">
                                 <label for="mobileNumber" class="form-label">Mobile Number</label>
-                                <input type="text" class="form-control" id="mobileNumber" required placeholder="Enter your mobile number" data-toggle="input-mask" data-mask-format="0000000000">
+                                <input type="text" class="form-control" name="mobileNumber" th:value="${userDetailsDTO.mobileNumber}" id="mobileNumber" required placeholder="Enter your mobile number" data-toggle="input-mask" data-mask-format="0000000000">
                             </div>
                             <div class="mb-3">
                                 <label for="inputAddress" class="form-label">Address</label>
@@ -83,6 +83,7 @@
                                 <div class="mb-3 col-md-6">
                                     <label for="inputCountry" class="form-label">Country</label>
                                     <select id="inputCountry" class="form-select">
+                                     <option value="" readonly>--Select Country--</option>
                                        <option th:each="country : ${countries}" th:value="${country.countryId}" th:text="${country.country}"></option>
                                     </select>
                                 </div>
