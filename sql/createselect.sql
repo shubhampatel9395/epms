@@ -434,7 +434,8 @@ CREATE TABLE `payment` (
 
 CREATE TABLE `serviceprovider` (
   `serviceProviderId` int unsigned NOT NULL AUTO_INCREMENT,
-  `userDetailsId` int unsigned NOT NULL,
+  `userDetailsId` int unsigned DEFAULT NULL,
+  `venueId` int unsigned DEFAULT NULL,
   `serviceTypeId` int unsigned NOT NULL,
   `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -447,10 +448,12 @@ CREATE TABLE `serviceprovider` (
   KEY `fk_serviceType_serviceProvider_idx` (`serviceTypeId`),
   KEY `fk_createdByserviceprovider_idx` (`createdBy`),
   KEY `fk_updatedByserviceprovider_idx` (`updatedBy`),
+  KEY `fk_venueId_serviceprovider_idx` (`venueId`),
   CONSTRAINT `fk_createdByserviceprovider` FOREIGN KEY (`createdBy`) REFERENCES `userdetails` (`userDetailsId`),
   CONSTRAINT `fk_serviceType_serviceProvider` FOREIGN KEY (`serviceTypeId`) REFERENCES `enuservicetype` (`serviceTypeId`),
   CONSTRAINT `fk_updatedByserviceprovider` FOREIGN KEY (`updatedBy`) REFERENCES `userdetails` (`userDetailsId`),
-  CONSTRAINT `fk_userDetails_serviceprovider` FOREIGN KEY (`userDetailsId`) REFERENCES `userdetails` (`userDetailsId`)
+  CONSTRAINT `fk_userDetails_serviceprovider` FOREIGN KEY (`userDetailsId`) REFERENCES `userdetails` (`userDetailsId`),
+  CONSTRAINT `fk_venueId_serviceprovider` FOREIGN KEY (`venueId`) REFERENCES `venue` (`venueId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `userdetails` (
