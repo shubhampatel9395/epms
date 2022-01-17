@@ -13,7 +13,7 @@ public class AddressDTO {
 	private Integer addressId;
 	private String address1;
 	private String address2;
-	private String city;
+	private Integer cityId;
 	private Integer stateId;
 	private Integer countryId;
 	private String postalCode;

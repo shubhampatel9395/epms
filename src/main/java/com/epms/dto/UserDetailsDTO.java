@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDetailsDTO {
-
 	private Integer userDetailsId;
 	private Integer addressId;
 	private boolean isCustomer;
@@ -29,5 +28,4 @@ public class UserDetailsDTO {
 	private boolean isActive;
 	private Integer createdBy;
 	private Integer updatedBy;
-
 }

@@ -16,11 +16,16 @@ import groovy.util.logging.Slf4j;
 public class UserDetailsService implements IUserDetailsService {
 
 	@Autowired
-	IUserDetailsDAO userDetailsDAO;
+	private IUserDetailsDAO userDetailsDAO;
 	
 	@Override
 	public UserDetailsDTO insert(UserDetailsDTO userDetailsDTO) {
 		return userDetailsDAO.insert(userDetailsDTO);
 	}
-
+	
+	@Override
+	public UserDetailsDTO findById(Long id)
+	{
+		return userDetailsDAO.findById(id);
+	}
 }

@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EnuCityDTO {
-	private Integer cityId;
-	private String city;
-	private Integer stateId;
-	private Integer countryId;
+public class EnuServiceTypeDTO {
+	private Integer serviceTypeId;
+	private String service;
+	private String description;
+	private Boolean isActive;
 }

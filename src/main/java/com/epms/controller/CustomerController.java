@@ -16,12 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.epms.dto.AddressDTO;
+import com.epms.dto.EnuCityDTO;
 import com.epms.dto.EnuStateDTO;
 import com.epms.dto.UserDetailsDTO;
 import com.epms.service.IAddressService;
+import com.epms.service.IEnuCityService;
 import com.epms.service.IEnuCountryService;
 import com.epms.service.IEnuStateService;
 import com.epms.service.IUserDetailsService;
+import com.epms.service.impl.EnuCityService;
 
 import groovyjarjarantlr4.v4.runtime.misc.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +32,9 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/")
 @Slf4j
-public class UserDetailsController {
+public class CustomerController {
+	@Autowired
+	IEnuCityService enuCityService;
 
 	@Autowired
 	IEnuStateService enuStateService;
@@ -48,22 +53,20 @@ public class UserDetailsController {
 		return new ModelAndView("index");
 	}
 
-	@GetMapping("load-customer-registration")
-	public ModelAndView customerRegistrationPage() {
-		log.info("Load customer registration page");
-		final ModelAndView modelandmap = new ModelAndView("customerRegisteration");
-		modelandmap.addObject("countries", enuCountryService.findAll());
-		modelandmap.addObject("userDetailsDTO", new UserDetailsDTO());
-		modelandmap.addObject("addressDTO", new AddressDTO());
-		return modelandmap;
-	}
-
 	@GetMapping("getStates/{countryId}")
-	public List<EnuStateDTO> customerRegistrationPage(@PathVariable @NotNull Integer countryId) {
-		log.info("Load customer registration page");
+	public List<EnuStateDTO> getStates(@PathVariable @NotNull Integer countryId) {
+		log.info("Loading states in registration page");
 		MapSqlParameterSource paramSource = new MapSqlParameterSource();
 		paramSource.addValue("countryId", countryId);
 		return enuStateService.findByNamedParameters(paramSource);
+	}
+	
+	@GetMapping("getCities/{stateId}")
+	public List<EnuCityDTO> getCities(@PathVariable @NotNull Integer stateId) {
+		log.info("Loading cities in registration page");
+		MapSqlParameterSource paramSource = new MapSqlParameterSource();
+		paramSource.addValue("stateId", stateId);
+		return enuCityService.findByNamedParameters(paramSource);
 	}
 	
 	/*
@@ -75,9 +78,19 @@ public class UserDetailsController {
 		return "/customer-registration";
 	}
 	*/
+	
+	@GetMapping("customer-registration")
+	public ModelAndView loadCustomerRegistrationPage() {
+		log.info("Load customer registration page");
+		final ModelAndView modelandmap = new ModelAndView("customerRegisteration");
+		modelandmap.addObject("countries", enuCountryService.findAll());
+		modelandmap.addObject("userDetailsDTO", new UserDetailsDTO());
+		modelandmap.addObject("addressDTO", new AddressDTO());
+		return modelandmap;
+	}
 
 	@PostMapping("customer-registration")
-	public ModelAndView customerRegistration(@Valid @ModelAttribute("userDetailsDTO")UserDetailsDTO userDetailsDTO,
+	public ModelAndView submitCustomerRegistration(@Valid @ModelAttribute("userDetailsDTO")UserDetailsDTO userDetailsDTO,
 			@Valid @ModelAttribute("addressDTO")AddressDTO addressDTO) {
 		AddressDTO insertAddressDTO = addressService.insert(addressDTO);
 		userDetailsDTO.setAddressId(insertAddressDTO.getAddressId());
@@ -86,5 +99,4 @@ public class UserDetailsController {
 		modelandmap.addObject("userDetailsDTO", insertUserDetailsDTO);
 		return modelandmap;
 	}
-
 }

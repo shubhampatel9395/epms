@@ -52,10 +52,9 @@ public class AddressDAO implements IAddressDAO {
 
 	@Override
 	public AddressDTO findById(Long addressId) {
-		String sql = "select  addressId,address1,address2,city,stateId,countryId,postalCode"
-				+ "from address where addressId = :addressId";
+		String sql = "select  addressId,address1,address2,cityId,stateId,countryId,postalCode from address where addressId = :addressId";
 
-		SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("addressId", addressId);
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource().addValue("addressId", addressId);
 
 		try {
 			return jdbcTemplate.queryForObject(sql, namedParameters,
@@ -72,15 +71,15 @@ public class AddressDAO implements IAddressDAO {
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		parameterSource.addValue("address1", entity.getAddress1());
 		parameterSource.addValue("address2", entity.getAddress2());
-		parameterSource.addValue("city", entity.getCity());
+		parameterSource.addValue("cityId", entity.getCityId());
 		parameterSource.addValue("stateId", entity.getStateId());
 		parameterSource.addValue("countryId", entity.getCountryId());
 		parameterSource.addValue("postalCode", entity.getPostalCode());
 
 		int i = jdbcTemplate.update(
-				"insert into address(address1,address2,city,stateId,countryId,postalCode) "
-						+ "values(:address1,:address2,:city,:stateId,:countryId,:postalCode)",
-				parameterSource, keyHolder);
+				"insert into address(address1,address2,cityId,stateId,countryId,postalCode) "
+						+ "values(:address1,:address2,:cityId,:stateId,:countryId,:postalCode)",
+				parameterSource, keyHolder,new String[] { "addressId" });
 
 		return findById(keyHolder.getKey().longValue());
 	}

@@ -3,8 +3,11 @@ package com.epms.dao.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -33,26 +36,33 @@ public class UserDetailsDAO implements IUserDetailsDAO {
 
 	@Override
 	public UserDetailsDTO findById(Long id) {
-		return null;
+		String sql = "select * from userdetails where userDetailsId = :userDetailsId";
+
+		SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("userDetailsId", id);
+
+		try {
+			return jdbcTemplate.queryForObject(sql, namedParameters,
+					new BeanPropertyRowMapper<UserDetailsDTO>(UserDetailsDTO.class));
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public UserDetailsDTO insert(UserDetailsDTO entity) {
-		// TODO: add insert code 
 		KeyHolder keyHolder = new GeneratedKeyHolder();
-		
-		
 		
 		MapSqlParameterSource sc = new MapSqlParameterSource();
 		sc.addValue("firstName",entity.getFirstName());
 		sc.addValue("lastName",entity.getLastName());
+		sc.addValue("addressId", entity.getAddressId());
 		sc.addValue("email",entity.getEmail());
 		sc.addValue("password",entity.getPassword());
 		sc.addValue("mobileNumber",entity.getMobileNumber());
 		sc.addValue("isAuth",true);
 		
-		int i  = jdbcTemplate.update("insert into userDetails(name,gender,username,password) values(:name,:gender,:username,:password)", 
-					sc, keyHolder);
+		int i  = jdbcTemplate.update("insert into userDetails(firstName,lastName,addressId,email,password,mobileNumber,isAuth) values(:firstName,:lastName,:addressId,:email,:password,:mobileNumber,:isAuth)", 
+					sc, keyHolder,new String[] { "userDetailsId" });
 		
 		return findById(keyHolder.getKey().longValue());
 	}
