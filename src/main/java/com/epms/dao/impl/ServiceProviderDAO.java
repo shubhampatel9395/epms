@@ -63,14 +63,15 @@ public class ServiceProviderDAO implements IServiceProviderDAO {
 		sc.addValue("isServiceProvider", true);
 
 		int i = jdbcTemplate.update(
-				"insert into userDetails(serviceProviderName,addressId,email,password,mobileNumber,isAuth,isServiceProvider) values(:firstName,:lastName,:addressId,:email,:password,:mobileNumber,:isAuth,:isServiceProvider)",
+				"insert into userDetails(serviceProviderName,addressId,email,password,mobileNumber,isAuth,isServiceProvider) values(:serviceProviderName,:addressId,:email,:password,:mobileNumber,:isAuth,:isServiceProvider)",
 				sc, keyHolder, new String[] { "userDetailsId" });
 		
+		sc.addValue("userDetailsId", keyHolder.getKey().longValue());
 		sc.addValue("serviceTypeId", entity.getServiceTypeId());
 		sc.addValue("cost", entity.getCost());
 		
 		i = jdbcTemplate.update(
-				"insert into serviceprovider(serviceTypeId,cost) values(:serviceTypeId,:cost)",
+				"insert into serviceprovider(userDetailsId,serviceTypeId,cost) values(:userDetailsId,:serviceTypeId,:cost)",
 				sc, keyHolder, new String[] { "serviceProviderId" });
 
 		return findById(keyHolder.getKey().longValue());
