@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 <head>
     <meta charset="utf-8" />
-    <title>Dashboard | Hyper - Responsive Bootstrap 5 Admin Dashboard</title>
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Event Organizer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
     <meta content="Coderthemes" name="author" />
     <!-- App favicon -->
     <link rel="shortcut icon" href="assets/images/logoFavicon.png">
-    
+
     <!-- third party css -->
     <link href="assets/css/vendor/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
     <!-- third party css end -->
@@ -56,27 +56,35 @@
                     <li class="side-nav-title side-nav-item">Navigation</li>
 
                     <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#sidebarEcommerce" aria-expanded="false" aria-controls="sidebarEcommerce" class="side-nav-link">
-                            <i class="uil-users-alt"></i>
-                            <span> Users </span>
+                        <a data-bs-toggle="collapse" href="#sidebarDashboards" aria-expanded="false"
+                            aria-controls="sidebarDashboards" class="side-nav-link">
+                            <i class="uil-home-alt"></i>
+                            <span> Dashboard </span>
+                        </a>
+                    </li>
+
+                    <li class="side-nav-item">
+                        <a href="apps-file-manager.html" class="side-nav-link">
+                            <i class="mdi mdi-clipboard-list-outline"></i>
+                            <span> Assigned Events </span>
+                        </a>
+                    </li>
+
+                   
+
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarHistory" aria-expanded="false" aria-controls="sidebarHistory" class="side-nav-link">
+                            <i class="mdi mdi-history"></i>
+                            <span> History </span>
                             <span class="menu-arrow"></span>
                         </a>
-                        <div class="collapse" id="sidebarEcommerce">
+                        <div class="collapse" id="sidebarHistory">
                             <ul class="side-nav-second-level">
                                 <li>
-                                    <a href="apps-ecommerce-products.html">Admins</a>
+                                    <a href="apps-ecommerce-products.html">Events</a>
                                 </li>
                                 <li>
-                                    <a href="apps-ecommerce-products-details.html">Customers</a>
-                                </li>
-                                <li>
-                                    <a href="apps-ecommerce-orders.html">Employees</a>
-                                </li>
-                                <li>
-                                    <a href="apps-ecommerce-orders-details.html">Service Providers</a>
-                                </li>
-                                <li>
-                                    <a href="apps-ecommerce-orders-details.html">Venues</a>
+                                    <a href="apps-ecommerce-products-details.html">Payments</a>
                                 </li>
                             </ul>
                         </div>
@@ -84,61 +92,10 @@
 
                     <li class="side-nav-item">
                         <a href="apps-file-manager.html" class="side-nav-link">
-                            <i class="mdi mdi-package-variant"></i>
-                            <span> Packages </span>
+                            <i class="uil-feedback"></i>
+                            <span> Feedbacks </span>
                         </a>
-                    </li>
-
-                    <li class="side-nav-item">
-                        <a href="apps-social-feed.html" class="side-nav-link">
-                            <i class="mdi mdi-calendar-multiple-check"></i>
-                            <span>Events</span>
-                        </a>
-                    </li>
-
-                    <li class="side-nav-item">
-                        <a href="apps-file-manager.html" class="side-nav-link">
-                            <i class="mdi mdi-hand"></i>
-                            <span> Attendees </span>
-                        </a>
-                    </li>
-
-                    <li class="side-nav-item">
-                        <a href="apps-file-manager.html" class="side-nav-link">
-                            <i class="mdi mdi-currency-inr"></i>
-                            <span> Payments </span>
-                        </a>
-                    </li>
-
-                    <li class="side-nav-item">
-                        <a href="apps-file-manager.html" class="side-nav-link">
-                            <i class="mdi mdi-account-question"></i>
-                            <span> Enquiries </span>
-                        </a>
-                    </li>
-
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#sidebarReports" aria-expanded="false" aria-controls="sidebarReports" class="side-nav-link">
-                            <i class="dripicons-document-new"></i>
-                            <span> Reports </span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse" id="sidebarReports">
-                            <ul class="side-nav-second-level">
-                                <li>
-                                    <a href="apps-ecommerce-products.html">Report - 1</a>
-                                </li>
-                                <li>
-                                    <a href="apps-ecommerce-products-details.html">Report - 2</a>
-                                </li>
-                                <li>
-                                    <a href="apps-ecommerce-orders.html">Report - 3</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-
-                    
+                    </li>                    
                 </ul>
                 <!-- End Sidebar -->
 
@@ -371,6 +328,9 @@
                     </div>
                 </div>
                 <!-- end Topbar -->
+                <div layout:fragment="content">
+					<p>Changing contents</p>
+				</div>
             </div>
             <!-- content -->
 
@@ -405,6 +365,7 @@
     <!-- bundle -->
     <script src="assets/js/vendor.min.js"></script>
     <script src="assets/js/app.min.js"></script>
+
     <!-- third party js -->
     <script src="assets/js/vendor/apexcharts.min.js"></script>
     <script src="assets/js/vendor/jquery-jvectormap-1.2.2.min.js"></script>

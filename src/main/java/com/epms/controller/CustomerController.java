@@ -6,7 +6,6 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +23,6 @@ import com.epms.service.IEnuCityService;
 import com.epms.service.IEnuCountryService;
 import com.epms.service.IEnuStateService;
 import com.epms.service.IUserDetailsService;
-import com.epms.service.impl.EnuCityService;
 
 import groovyjarjarantlr4.v4.runtime.misc.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -69,16 +67,6 @@ public class CustomerController {
 		return enuCityService.findByNamedParameters(paramSource);
 	}
 	
-	/*
-	@GetMapping("customer-registration")
-	public String createRegistrationModel(Model model)
-	{
-		model.addAttribute("userDetailsDTO", new UserDetailsDTO());
-		model.addAttribute("addressDTO", new AddressDTO());
-		return "/customer-registration";
-	}
-	*/
-	
 	@GetMapping("customer-registration")
 	public ModelAndView loadCustomerRegistrationPage() {
 		log.info("Load customer registration page");
@@ -99,4 +87,5 @@ public class CustomerController {
 		modelandmap.addObject("userDetailsDTO", insertUserDetailsDTO);
 		return modelandmap;
 	}
+	
 }

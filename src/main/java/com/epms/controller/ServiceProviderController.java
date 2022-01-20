@@ -30,7 +30,7 @@ import groovyjarjarantlr4.v4.runtime.misc.NotNull;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/serviceprovider/")
+@RequestMapping("/serviceprovider")
 @Slf4j
 public class ServiceProviderController {
 	@Autowired
@@ -59,7 +59,7 @@ public class ServiceProviderController {
 		return new ModelAndView("serviceProvider/index");
 	}
 
-	@GetMapping("getStates/{countryId}")
+	@GetMapping("/getStates/{countryId}")
 	public List<EnuStateDTO> getStates(@PathVariable @NotNull Integer countryId) {
 		log.info("Loading states in registration page");
 		MapSqlParameterSource paramSource = new MapSqlParameterSource();
@@ -67,7 +67,7 @@ public class ServiceProviderController {
 		return enuStateService.findByNamedParameters(paramSource);
 	}
 	
-	@GetMapping("getCities/{stateId}")
+	@GetMapping("/getCities/{stateId}")
 	public List<EnuCityDTO> getCities(@PathVariable @NotNull Integer stateId) {
 		log.info("Loading cities in registration page");
 		MapSqlParameterSource paramSource = new MapSqlParameterSource();
@@ -75,7 +75,7 @@ public class ServiceProviderController {
 		return enuCityService.findByNamedParameters(paramSource);
 	}
 	
-	@GetMapping("serviceprovider-registration")
+	@GetMapping("/serviceprovider-registration")
 	public ModelAndView loadServiceProviderRegistrationPage() {
 		log.info("Load serviceprovider registration page");
 		final ModelAndView modelandmap = new ModelAndView("serviceProviderRegistration");
@@ -86,7 +86,7 @@ public class ServiceProviderController {
 		return modelandmap;
 	}
 
-	@PostMapping("serviceprovider-registration")
+	@PostMapping("/serviceprovider-registration")
 	public ModelAndView submitServiceProviderRegistration(@Valid @ModelAttribute("serviceProviderDTO")ServiceProviderDTO serviceProviderDTO,
 			@Valid @ModelAttribute("addressDTO")AddressDTO addressDTO) {
 		AddressDTO insertAddressDTO = addressService.insert(addressDTO);

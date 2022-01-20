@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 <head>
     <meta charset="utf-8" />
-    <title>Dashboard | Hyper - Responsive Bootstrap 5 Admin Dashboard</title>
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Service Provider</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
     <meta content="Coderthemes" name="author" />
@@ -54,6 +54,14 @@
                 <ul class="side-nav">
 
                     <li class="side-nav-title side-nav-item">Navigation</li>
+                    
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarDashboards" aria-expanded="false"
+                            aria-controls="sidebarDashboards" class="side-nav-link">
+                            <i class="uil-home-alt"></i>
+                            <span> Dashboard </span>
+                        </a>
+                    </li>
 
                     <li class="side-nav-item">
                         <a href="apps-file-manager.html" class="side-nav-link">
@@ -333,6 +341,9 @@
                     </div>
                 </div>
                 <!-- end Topbar -->
+                <div layout:fragment="content">
+					<p>Changing contents</p>
+				</div>
             </div>
             <!-- content -->
 
