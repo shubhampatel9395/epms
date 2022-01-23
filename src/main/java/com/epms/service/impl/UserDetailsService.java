@@ -1,6 +1,9 @@
 package com.epms.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,5 +30,10 @@ public class UserDetailsService implements IUserDetailsService {
 	public UserDetailsDTO findById(Long id)
 	{
 		return userDetailsDAO.findById(id);
+	}
+
+	@Override
+	public List<UserDetailsDTO> findByNamedParameters(MapSqlParameterSource paramSource) {
+		return userDetailsDAO.findByNamedParameters(paramSource);
 	}
 }

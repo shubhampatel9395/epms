@@ -6,6 +6,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,7 +59,7 @@ public class CustomerController {
 		paramSource.addValue("countryId", countryId);
 		return enuStateService.findByNamedParameters(paramSource);
 	}
-	
+
 	@GetMapping("getCities/{stateId}")
 	public List<EnuCityDTO> getCities(@PathVariable @NotNull Integer stateId) {
 		log.info("Loading cities in registration page");
@@ -66,7 +67,7 @@ public class CustomerController {
 		paramSource.addValue("stateId", stateId);
 		return enuCityService.findByNamedParameters(paramSource);
 	}
-	
+
 	@GetMapping("customer-registration")
 	public ModelAndView loadCustomerRegistrationPage() {
 		log.info("Load customer registration page");
@@ -78,14 +79,18 @@ public class CustomerController {
 	}
 
 	@PostMapping("customer-registration")
-	public ModelAndView submitCustomerRegistration(@Valid @ModelAttribute("userDetailsDTO")UserDetailsDTO userDetailsDTO,
-			@Valid @ModelAttribute("addressDTO")AddressDTO addressDTO) {
+	public ModelAndView submitCustomerRegistration(
+			@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
+			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
 		AddressDTO insertAddressDTO = addressService.insert(addressDTO);
 		userDetailsDTO.setAddressId(insertAddressDTO.getAddressId());
+		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		String encodedPassword = passwordEncoder.encode(userDetailsDTO.getPassword());
+		userDetailsDTO.setPassword(encodedPassword);
 		UserDetailsDTO insertUserDetailsDTO = userDetailsService.insert(userDetailsDTO);
 		final ModelAndView modelandmap = new ModelAndView("index");
 		modelandmap.addObject("userDetailsDTO", insertUserDetailsDTO);
 		return modelandmap;
 	}
-	
+
 }

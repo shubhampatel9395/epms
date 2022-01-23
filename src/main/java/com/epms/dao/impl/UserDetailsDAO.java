@@ -1,6 +1,7 @@
 package com.epms.dao.impl;
 
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -13,6 +14,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IUserDetailsDAO;
+import com.epms.dto.EnuStateDTO;
 import com.epms.dto.UserDetailsDTO;
 
 import groovy.util.logging.Slf4j;
@@ -32,6 +34,16 @@ public class UserDetailsDAO implements IUserDetailsDAO {
 	@Override
 	public List<UserDetailsDTO> findByFieldValue(String fieldName, Object fieldValue) {
 		return null;
+	}
+
+	@Override
+	public List<UserDetailsDTO> findByNamedParameters(MapSqlParameterSource paramSource) {
+		String sql = "select * from userdetails where 1=1 ";
+		for (Entry<String, Object> param : paramSource.getValues().entrySet()) {
+			sql += " and " + param.getKey() + " = :" + param.getKey();
+		}
+
+		return jdbcTemplate.query(sql, paramSource, new BeanPropertyRowMapper<UserDetailsDTO>(UserDetailsDTO.class));
 	}
 
 	@Override
