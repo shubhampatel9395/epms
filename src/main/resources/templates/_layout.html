@@ -5,7 +5,7 @@
 
 <head>
 	<meta charset="utf-8" />
-	<title>Unico - Event Planning and Management System</title>
+	<title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Unico</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
 	<meta content="Coderthemes" name="author" />
@@ -37,6 +37,15 @@
 
 		.nav-item .topnav-logo .topnav-logo-sm {
 			display: none
+		}
+
+		.topnav .nav-item.active>a {
+			color: #727cf5;
+		}
+
+		.navbar-light .navbar-nav .nav-link.active,
+		.navbar-light .navbar-nav .show>.nav-link {
+			color: #727cf5;
 		}
 
 		.nav-item .nav-link i {
@@ -146,33 +155,38 @@
 										</a>
 									</li>
 
-									<li class="nav-item" th:classappend="${#request.getRequestURI().startsWith('/') ? 'active' : '' }">
-										<a class="nav-link"  th:href="@{index}">
+									<li class="nav-item"
+										th:classappend="${#request.getRequestURI() == '/' ? 'active' : '' }">
+										<a class="nav-link" th:href="@{/}">
 											<i class="uil-home-alt"></i>
 											<span> Home </span>
 										</a>
 									</li>
 
-									<li class="nav-item" th:classappend="${#request.getRequestURI().startsWith('/events') ? 'active' : '' }">
-										<a class="nav-link" href="#">
+									<li class="nav-item"
+										th:classappend="${#request.getRequestURI().startsWith('/events') ? 'active' : '' }">
+										<a class="nav-link" href="/events">
 											<i class="mdi mdi-calendar-multiple-check"></i><span> Events </span>
 										</a>
 									</li>
 
-									<li class="nav-item" th:classappend="${#request.getRequestURI().startsWith('/packages') ? 'active' : '' }">
-										<a class="nav-link" href="#">
+									<li class="nav-item"
+										th:classappend="${#request.getRequestURI().startsWith('/packages') ? 'active' : '' }">
+										<a class="nav-link" href="/packages">
 											<i class="mdi mdi-package-variant"></i><span> Packages</span>
 										</a>
 									</li>
 
-									<li class="nav-item" th:classappend="${#request.getRequestURI().startsWith('/gallery') ? 'active' : '' }">
-										<a class="nav-link" href="#">
+									<li class="nav-item"
+										th:classappend="${#request.getRequestURI().startsWith('/gallery') ? 'active' : '' }">
+										<a class="nav-link" href="/gallery">
 											<i class="dripicons-photo-group"></i><span> Event Gallery</span>
 										</a>
 									</li>
 
-									<li class="nav-item" th:classappend="${#request.getRequestURI().startsWith('/enquiry') ? 'active' : '' }">
-										<a class="nav-link" href="#">
+									<li class="nav-item"
+										th:classappend="${#request.getRequestURI().startsWith('/enquiry') ? 'active' : '' }">
+										<a class="nav-link" href="/enquiry">
 											<i class="mdi mdi-account-question"></i><span> Inquire</span>
 										</a>
 									</li>

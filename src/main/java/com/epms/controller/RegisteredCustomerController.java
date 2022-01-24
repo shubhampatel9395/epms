@@ -15,4 +15,9 @@ public class RegisteredCustomerController {
 	public ModelAndView homePage() {
 		return new ModelAndView("customer/index");
 	}
+	
+	@GetMapping("/events/create")
+	public ModelAndView createEvent() {
+		return new ModelAndView("customer/create-event");
+	}
 }

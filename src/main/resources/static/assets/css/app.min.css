@@ -21441,7 +21441,6 @@ div.dataTables_scrollBody>table>:not(:first-child) {
 }
 
 .bootstrap-timepicker-widget {
-    left: 0 !important;
     right: auto !important
 }
 
