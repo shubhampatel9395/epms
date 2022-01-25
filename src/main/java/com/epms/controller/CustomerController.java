@@ -92,7 +92,7 @@ public class CustomerController {
 		modelandmap.addObject("userDetailsDTO", insertUserDetailsDTO);
 		return modelandmap;
 	}
-<<<<<<< HEAD
+
 	
 	@GetMapping("events")
 	public ModelAndView events()
@@ -121,7 +121,4 @@ public class CustomerController {
 		final ModelAndView modelandmap =  new ModelAndView("packages");
 		return modelandmap;
 	}
-=======
-
->>>>>>> 12d54308338979dd4955adc6621c0a89fd4e83ea
 }

@@ -19877,7 +19877,9 @@ body.authentication-bg .account-pages {
 }
 
 .bootstrap-timepicker-widget.dropdown-menu.open {
-    display: inline-block
+    display: inline-block;
+    top: 38px !important;
+    left: 38px !important;
 }
 
 .bootstrap-timepicker-widget.dropdown-menu:before {
@@ -20005,6 +20007,10 @@ body.authentication-bg .account-pages {
     .bootstrap-timepicker .dropdown-menu {
         width: 100%
     }
+    
+    .bootstrap-timepicker-widget.dropdown-menu.open {
+    top: 38px;
+}
 }
 
 .bootstrap-touchspin .input-group-btn-vertical {

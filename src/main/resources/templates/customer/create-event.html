@@ -102,8 +102,8 @@
 									<li class="nav-item" data-target-form="#profileForm">
 										<a href="#second" data-bs-toggle="tab" data-toggle="tab"
 											class="nav-link rounded-0 pt-2 pb-2">
-											<i class="dripicons-gear"></i>
-											<span class="d-none d-sm-inline">Services</span>
+											<i class="mdi mdi-package-variant"></i>
+											<span class="d-none d-sm-inline">Packages</span>
 										</a>
 									</li>
 									<li class="nav-item" data-target-form="#profileForm">
@@ -202,14 +202,19 @@
 															</div>
 														</div>
 													</div>
+													<div class="form-floating mb-3">
+														<input type="text" id="example-helping" class="form-control"
+															placeholder="Helping text">
+														<label for="floatingInput">Estimated Guests</label>
+													</div>
 
 													<div class="row g-2">
 														<div class="col-md">
 															<div>
-																<i class="mdi mdi-information-outline"
+																<i class="mdi mdi-calendar"
 																	style="font-size: 24px;padding-right: 0.5rem;"></i>
 																<h6 class="font-15 mt-3 mb-3"
-																	style="display: inline-block;">Date and time</h6>
+																	style="display: inline-block;">Date</h6>
 															</div>
 															<div class="form-floating mb-3">
 																<div class="mb-3 position-relative" id="datepicker4">
@@ -244,50 +249,51 @@
 															</div>
 														</div>
 														<div class="col-md">
-															<div id="extraDateTime" style="visibility: hidden;">
-																<i class="mdi mdi-information-outline"
+															<div>
+																<i class="mdi mdi-clock-outline"
 																	style="font-size: 24px;padding-right: 0.5rem;"></i>
 																<h6 class="font-15 mt-3 mb-3"
-																	style="display: inline-block;">Date and time</h6>
+																	style="display: inline-block;">Time</h6>
 															</div>
 															<div class="mb-3">
-																<div class="mb-3 position-relative ">
-																	<label class="form-label">Specify a step for the
-																		minute field E.g.
-																		<code>data-minute-step="5"</code></label>
+																	<label class="form-label">Event Start Time</label>
 																	<div class="input-group"
 																		id="timepicker-input-group3">
 																		<span class="input-group-addon"
 																			style="background: #727cf5;"><i
-																				class="mdi mdi-alarm"
+																				class="mdi mdi-clock-outline"
 																				style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
-																		<input id="timepicker" type="text"
+																		<input id="timepicker3" type="text"
 																			class="form-control"
-																			data-provide="timepicker">
+																			data-provide='timepicker'
+																			data-minute-step="5">
 																	</div>
-																</div>
 															</div>
-															<div class="form-floating mb-3">
-																<div class="mb-3 position-relative" id="datepicker4">
-																	<label class="form-label">Event Ends</label>
-																	<div class="input-group">
+															<div class="mb-3">
+																	<label class="form-label">Event End Time</label>
+																	<div class="input-group"
+																		id="timepicker-input-group4">
 																		<span class="input-group-addon"
 																			style="background: #727cf5;"><i
-																				class="mdi mdi-calendar"
+																				class="mdi mdi-clock-outline"
 																				style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
-																		<input type="text" class="form-control"
-																			data-provide="datepicker"
-																			data-date-autoclose="true"
-																			data-date-container="#datepicker4">
+																		<input id="timepicker4" type="text"
+																			class="form-control"
+																			data-provide='timepicker'
+																			data-minute-step="5">
 																	</div>
-																</div>
 															</div>
 
 														</div>
 													</div>
 
-													<h6 class="font-15 mt-3 mb-3">Who can see the event?</h6>
 													<div class="mt-3 mb-3">
+													<div>
+																<i class="mdi mdi-account-question-outline"
+																	style="font-size: 24px;padding-right: 0.5rem;"></i>
+																<h6 class="font-15 mt-3 mb-3"
+																	style="display: inline-block;">Who can see the event?</h6>
+															</div>
 														<div class="form-check">
 															<input type="radio" id="customRadio1" name="customRadio"
 																class="form-check-input" checked>
@@ -307,11 +313,7 @@
 																	audience</small></label>
 														</div>
 													</div>
-													<div class="form-floating mb-3">
-														<input type="text" id="example-helping" class="form-control"
-															placeholder="Helping text">
-														<label for="floatingInput">Estimated Guests</label>
-													</div>
+													
 
 
 
@@ -444,14 +446,11 @@
 
 
 	<!-- bundle -->
-
-
-
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
 	<script th:src="@{/assets/js/app.min.js}"></script>
-
-	<!-- demo app -->
 	<script th:src="@{/assets/js/pages/demo.form-wizard.js}"></script>
+
+	<!-- Timepicker -->
 	<script th:src="@{/assets/js/pages/demo.timepicker.js}"></script>
 	<!-- end demo js-->
 	<script>
