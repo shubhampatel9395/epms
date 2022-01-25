@@ -33,7 +33,12 @@ public class EnuCountryDAO implements IEnuCountryDAO {
 
 	@Override
 	public List<EnuCountryDTO> findByFieldValue(String fieldName, Object fieldValue) {
-		return null;
+		String sql = "select * from userdetails where :fieldName = :fieldValue";
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("fieldName", fieldName);
+		namedParameters.addValue("fieldValue", fieldValue);
+
+		return jdbcTemplate.query(sql, namedParameters, new BeanPropertyRowMapper<EnuCountryDTO>(EnuCountryDTO.class));
 	}
 
 	@Override

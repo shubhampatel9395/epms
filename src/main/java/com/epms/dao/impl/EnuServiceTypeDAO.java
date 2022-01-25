@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IEnuServiceTypeDAO;
-import com.epms.dto.EnuCountryDTO;
 import com.epms.dto.EnuServiceTypeDTO;
 
 import groovy.util.logging.Slf4j;
@@ -42,8 +41,12 @@ public class EnuServiceTypeDAO implements IEnuServiceTypeDAO {
 
 	@Override
 	public List<EnuServiceTypeDTO> findByFieldValue(String fieldName, Object fieldValue) {
-		// TODO Auto-generated method stub
-		return null;
+		String sql = "select * from userdetails where :fieldName = :fieldValue";
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("fieldName", fieldName);
+		namedParameters.addValue("fieldValue", fieldValue);
+
+		return jdbcTemplate.query(sql, namedParameters, new BeanPropertyRowMapper<EnuServiceTypeDTO>(EnuServiceTypeDTO.class));
 	}
 
 	@Override
