@@ -6,6 +6,10 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.config.annotation.web.configurers.AnonymousConfigurer;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -91,6 +95,16 @@ public class CustomerController {
 		final ModelAndView modelandmap = new ModelAndView("index");
 		modelandmap.addObject("userDetailsDTO", insertUserDetailsDTO);
 		return modelandmap;
+	}
+	
+	@GetMapping("/login")
+	public ModelAndView viewLoginPage() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+			return new ModelAndView("login");
+		}
+		return new ModelAndView("index");
+
 	}
 
 }
