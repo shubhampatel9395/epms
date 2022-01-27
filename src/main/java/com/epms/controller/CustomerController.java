@@ -107,4 +107,32 @@ public class CustomerController {
 
 	}
 
+	
+	@GetMapping("events")
+	public ModelAndView events()
+	{
+		final ModelAndView modelandmap =  new ModelAndView("events");
+		return modelandmap;
+	}
+	
+	@GetMapping("enquiry")
+	public ModelAndView enquiry()
+	{
+		final ModelAndView modelandmap =  new ModelAndView("enquiry");
+		return modelandmap;
+	}
+	
+	@GetMapping("gallery")
+	public ModelAndView gallery()
+	{
+		final ModelAndView modelandmap =  new ModelAndView("gallery");
+		return modelandmap;
+	}
+	
+	@GetMapping("packages")
+	public ModelAndView packages()
+	{
+		final ModelAndView modelandmap =  new ModelAndView("packages");
+		return modelandmap;
+	}
 }

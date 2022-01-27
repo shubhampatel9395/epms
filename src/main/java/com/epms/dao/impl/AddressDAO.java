@@ -8,14 +8,12 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IAddressDAO;
 import com.epms.dto.AddressDTO;
-import com.epms.dto.EnuCityDTO;
 
 import groovy.util.logging.Slf4j;
 
@@ -36,8 +34,12 @@ public class AddressDAO implements IAddressDAO {
 
 	@Override
 	public List<AddressDTO> findByFieldValue(String fieldName, Object fieldValue) {
-		// TODO Auto-generated method stub
-		return null;
+		String sql = "select * from userdetails where :fieldName = :fieldValue";
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("fieldName", fieldName);
+		namedParameters.addValue("fieldValue", fieldValue);
+
+		return jdbcTemplate.query(sql, namedParameters, new BeanPropertyRowMapper<AddressDTO>(AddressDTO.class));
 	}
 	
 	@Override

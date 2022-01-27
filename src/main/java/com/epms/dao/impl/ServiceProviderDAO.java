@@ -1,6 +1,7 @@
 package com.epms.dao.impl;
 
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -25,14 +26,30 @@ public class ServiceProviderDAO implements IServiceProviderDAO {
 
 	@Override
 	public List<ServiceProviderDTO> findAll() {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder sql = new StringBuilder();
+		sql.append("select * from serviceprovider");
+		return jdbcTemplate.query(sql.toString(), new MapSqlParameterSource(),
+				new BeanPropertyRowMapper<ServiceProviderDTO>(ServiceProviderDTO.class));
 	}
 
 	@Override
 	public List<ServiceProviderDTO> findByFieldValue(String fieldName, Object fieldValue) {
-		// TODO Auto-generated method stub
-		return null;
+		String sql = "select * from userdetails where :fieldName = :fieldValue";
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("fieldName", fieldName);
+		namedParameters.addValue("fieldValue", fieldValue);
+
+		return jdbcTemplate.query(sql, namedParameters, new BeanPropertyRowMapper<ServiceProviderDTO>(ServiceProviderDTO.class));
+	}
+	
+	@Override
+	public List<ServiceProviderDTO> findByNamedParameters(MapSqlParameterSource paramSource) {
+		String sql = "select * from serviceprovider where 1=1 ";
+		for (Entry<String, Object> param : paramSource.getValues().entrySet()) {
+			sql += " and " + param.getKey() + " = :" + param.getKey();
+		}
+
+		return jdbcTemplate.query(sql, paramSource, new BeanPropertyRowMapper<ServiceProviderDTO>(ServiceProviderDTO.class));
 	}
 
 	@Override

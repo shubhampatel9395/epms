@@ -14,7 +14,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IUserDetailsDAO;
-import com.epms.dto.EnuStateDTO;
 import com.epms.dto.UserDetailsDTO;
 
 import groovy.util.logging.Slf4j;
@@ -28,12 +27,20 @@ public class UserDetailsDAO implements IUserDetailsDAO {
 	
 	@Override
 	public List<UserDetailsDTO> findAll() {
-		return null;
+		StringBuilder sql = new StringBuilder();
+		sql.append("select * from userdetails");
+		return jdbcTemplate.query(sql.toString(), new MapSqlParameterSource(),
+				new BeanPropertyRowMapper<UserDetailsDTO>(UserDetailsDTO.class));
 	}
 
 	@Override
 	public List<UserDetailsDTO> findByFieldValue(String fieldName, Object fieldValue) {
-		return null;
+		String sql = "select * from userdetails where :fieldName = :fieldValue";
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("fieldName", fieldName);
+		namedParameters.addValue("fieldValue", fieldValue);
+
+		return jdbcTemplate.query(sql, namedParameters, new BeanPropertyRowMapper<UserDetailsDTO>(UserDetailsDTO.class));
 	}
 
 	@Override

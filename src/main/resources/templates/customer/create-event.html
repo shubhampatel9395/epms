@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from coderthemes.com/hyper_2/saas/form-wizard.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 04 Jan 2022 06:46:59 GMT -->
+
+<head>
+	<meta charset="utf-8" />
+	<title>Create an event</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
+	<meta content="Coderthemes" name="author" />
+	<!-- App favicon -->
+	<link rel="shortcut icon" th:href="@{/assets/images/logoFavicon.png}">
+
+	<!-- App css -->
+	<link th:href="@{/assets/css/icons.min.css}" rel="stylesheet" type="text/css" />
+	<link th:href="@{/assets/css/app.min.css}" rel="stylesheet" type="text/css" id="light-style" />
+	<link th:href="@{/assets/css/app-dark.min.css}" rel="stylesheet" type="text/css" id="dark-style" />
+
+	<style>
+		.content-page {
+			margin-left: auto;
+		}
+
+		.footer {
+			left: auto;
+		}
+
+		.auth-fluid-form-box {
+			max-width: auto;
+			border-radius: 0;
+			z-index: 2;
+			padding: 3rem 2rem;
+			background-color: #fff;
+			position: relative;
+			width: 100%
+		}
+
+		#imageUpload {
+			display: none;
+		}
+
+		#profileImage {
+			cursor: pointer;
+		}
+
+		#profile-container {
+			width: 400px;
+			height: 300px;
+			overflow: hidden;
+		}
+
+		#profile-container img {
+			width: 400px;
+			height: 300px;
+			display: block;
+		}
+
+		.bootstrap-timepicker-widget {
+			right: auto !important;
+		}
+
+		@media (max-width:768px) {
+			#extraDateTime {
+				display: none;
+			}
+		}
+	</style>
+
+</head>
+
+<body class="loading"
+	data-layout-config='{"leftSideBarTheme":"dark","layoutBoxed":false, "leftSidebarCondensed":false, "leftSidebarScrollable":false,"darkMode":false, "showRightSidebarOnStart": true}'>
+
+	<div>
+		<div class="auth-fluid-form-box">
+			<div class="content">
+				<div class="row">
+					<div class="card">
+						<div class="card-body">
+
+							<div class="auth-brand text-center text-lg-start">
+								<a href="index.html" class="logo-dark">
+									<span><img th:src="@{/assets/images/logoUnico.png}" alt="" height="40"></span>
+								</a>
+								<a href="index.html" class="logo-light">
+									<span><img th:src="@{/assets/images/logoFavicon.png}" alt="" height="20"></span>
+								</a>
+							</div>
+
+							<h4 class="mt-0">Create Event</h4>
+
+							<div id="rootwizard">
+								<ul class="nav nav-pills nav-justified form-wizard-header mb-3">
+									<li class="nav-item" data-target-form="#accountForm">
+										<a href="#first" data-bs-toggle="tab" data-toggle="tab"
+											class="nav-link rounded-0 pt-2 pb-2">
+											<i class="mdi mdi-information-outline"></i>
+											<span class="d-none d-sm-inline">Basic Info</span>
+										</a>
+									</li>
+									<li class="nav-item" data-target-form="#profileForm">
+										<a href="#second" data-bs-toggle="tab" data-toggle="tab"
+											class="nav-link rounded-0 pt-2 pb-2">
+											<i class="mdi mdi-package-variant"></i>
+											<span class="d-none d-sm-inline">Packages</span>
+										</a>
+									</li>
+									<li class="nav-item" data-target-form="#profileForm">
+										<a href="#second" data-bs-toggle="tab" data-toggle="tab"
+											class="nav-link rounded-0 pt-2 pb-2">
+											<i class="mdi mdi-ticket-percent-outline"></i>
+											<span class="d-none d-sm-inline">Tickets</span>
+										</a>
+									</li>
+									<li class="nav-item" data-target-form="#otherForm">
+										<a href="#third" data-bs-toggle="tab" data-toggle="tab"
+											class="nav-link rounded-0 pt-2 pb-2">
+											<i class="mdi mdi-currency-inr"></i>
+											<span class="d-none d-sm-inline">Payment</span>
+										</a>
+									</li>
+								</ul>
+
+								<div class="tab-content mb-0 b-0">
+									<div id="bar" class="progress mb-3" style="height: 7px;">
+										<div
+											class="bar progress-bar progress-bar-striped progress-bar-animated bg-success">
+										</div>
+									</div>
+
+									<div class="tab-pane" id="first">
+										<form id="accountForm" method="post" action="#" class="form-horizontal">
+											<div class="row">
+												<div class="col-12">
+													<div class="row g-2">
+														<div class="col-md">
+															<div>
+																<i class="mdi mdi-information-outline"
+																	style="font-size: 24px;padding-right: 0.5rem;"></i>
+																<h6 class="font-15 mt-3 mb-3"
+																	style="display: inline-block;">Event Basic
+																	Information</h6>
+															</div>
+															<div class="form-floating mb-3">
+																<input type="text" id="example-helping"
+																	class="form-control" placeholder="Helping text">
+																<label for="floatingInput">Event
+																	Title</label>
+															</div>
+
+															<div class="form-floating mb-3">
+																<textarea class="form-control" rows="10"
+																	placeholder="Leave a comment here"
+																	id="floatingTextarea"
+																	style="height: 210px;"></textarea>
+																<label for="floatingTextarea">Event Objective</label>
+															</div>
+														</div>
+														<div class="col-md">
+															<div>
+																<i class="dripicons-photo"
+																	style="font-size: 24px;padding-right: 0.5rem;"></i>
+																<h6 class="font-15 mt-3 mb-3"
+																	style="display: inline-block;">Event Banner</h6>
+															</div>
+															<div class="mb-3" id="profile-container">
+																<img id="profileImage"
+																	th:src="@{/assets/images/img-placeholder.png}"
+																	class="img-fluid img-thumbnail" />
+																<input id="imageUpload" type="file" name="profile_photo"
+																	placeholder="Photo" required=""
+																	accept="image/png, image/jpg, image/jpeg" capture>
+															</div>
+
+														</div>
+													</div>
+													<div class="row g-2">
+														<div class="col-md">
+															<div class="form-floating mb-3">
+																<select class="form-select" id="floatingSelect"
+																	aria-label="Floating label select example">
+																	<option selected>-- Select Event Type -- </option>
+																	<option value="1">One</option>
+																	<option value="2">Two</option>
+																	<option value="3">Three</option>
+																</select>
+																<label for="floatingSelect">Event Type</label>
+															</div>
+														</div>
+														<div class="col-md">
+															<div class="form-floating mb-3">
+																<select class="form-select" id="floatingSelect"
+																	aria-label="Floating label select example">
+																	<option selected>-- Select Event Sub-Type --
+																	</option>
+																	<option value="1">One</option>
+																	<option value="2">Two</option>
+																	<option value="3">Three</option>
+																</select>
+																<label for="floatingSelect">Event Sub-Type</label>
+															</div>
+														</div>
+													</div>
+													<div class="form-floating mb-3">
+														<input type="text" id="example-helping" class="form-control"
+															placeholder="Helping text">
+														<label for="floatingInput">Estimated Guests</label>
+													</div>
+
+													<div class="row g-2">
+														<div class="col-md">
+															<div>
+																<i class="mdi mdi-calendar"
+																	style="font-size: 24px;padding-right: 0.5rem;"></i>
+																<h6 class="font-15 mt-3 mb-3"
+																	style="display: inline-block;">Date</h6>
+															</div>
+															<div class="form-floating mb-3">
+																<div class="mb-3 position-relative" id="datepicker4">
+																	<label class="form-label">Event Starts</label>
+																	<div class="input-group">
+																		<span class="input-group-addon"
+																			style="background: #727cf5;"><i
+																				class="mdi mdi-calendar"
+																				style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
+																		<input type="text" class="form-control"
+																			data-provide="datepicker"
+																			data-date-autoclose="true"
+																			data-date-container="#datepicker4">
+																	</div>
+																</div>
+															</div>
+
+															<div class="form-floating mb-3">
+																<div class="mb-3 position-relative" id="datepicker4">
+																	<label class="form-label">Event Ends</label>
+																	<div class="input-group">
+																		<span class="input-group-addon"
+																			style="background: #727cf5;"><i
+																				class="mdi mdi-calendar"
+																				style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
+																		<input type="text" class="form-control"
+																			data-provide="datepicker"
+																			data-date-autoclose="true"
+																			data-date-container="#datepicker4">
+																	</div>
+																</div>
+															</div>
+														</div>
+														<div class="col-md">
+															<div>
+																<i class="mdi mdi-clock-outline"
+																	style="font-size: 24px;padding-right: 0.5rem;"></i>
+																<h6 class="font-15 mt-3 mb-3"
+																	style="display: inline-block;">Time</h6>
+															</div>
+															<div class="mb-3">
+																	<label class="form-label">Event Start Time</label>
+																	<div class="input-group"
+																		id="timepicker-input-group3">
+																		<span class="input-group-addon"
+																			style="background: #727cf5;"><i
+																				class="mdi mdi-clock-outline"
+																				style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
+																		<input id="timepicker3" type="text"
+																			class="form-control"
+																			data-provide='timepicker'
+																			data-minute-step="5">
+																	</div>
+															</div>
+															<div class="mb-3">
+																	<label class="form-label">Event End Time</label>
+																	<div class="input-group"
+																		id="timepicker-input-group4">
+																		<span class="input-group-addon"
+																			style="background: #727cf5;"><i
+																				class="mdi mdi-clock-outline"
+																				style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
+																		<input id="timepicker4" type="text"
+																			class="form-control"
+																			data-provide='timepicker'
+																			data-minute-step="5">
+																	</div>
+															</div>
+
+														</div>
+													</div>
+
+													<div class="mt-3 mb-3">
+													<div>
+																<i class="mdi mdi-account-question-outline"
+																	style="font-size: 24px;padding-right: 0.5rem;"></i>
+																<h6 class="font-15 mt-3 mb-3"
+																	style="display: inline-block;">Who can see the event?</h6>
+															</div>
+														<div class="form-check">
+															<input type="radio" id="customRadio1" name="customRadio"
+																class="form-check-input" checked>
+															<label class="form-check-label"
+																for="customRadio1">Public<small
+																	style="display: block; font-size: 0.75rem; color:  #808080;">Anyone
+																	visiting the website</small></label>
+
+														</div>
+														<div class="form-check">
+															<input type="radio" id="customRadio2" name="customRadio"
+																class="form-check-input">
+															<label class="form-check-label"
+																for="customRadio2">Private<small
+																	style="display: block; font-size: 0.75rem; color:  #808080;">Only
+																	available to a selected
+																	audience</small></label>
+														</div>
+													</div>
+													
+
+
+
+												</div> <!-- end col -->
+											</div> <!-- end row -->
+										</form>
+									</div>
+
+									<div class="tab-pane fade" id="second">
+										<form id="profileForm" method="post" action="#" class="form-horizontal">
+											<div class="row">
+												<div class="col-12">
+													<div class="row mb-3">
+														<label class="col-md-3 col-form-label" for="name3"> First
+															name</label>
+														<div class="col-md-9">
+															<input type="text" id="name3" name="name3"
+																class="form-control" required>
+														</div>
+													</div>
+													<div class="row mb-3">
+														<label class="col-md-3 col-form-label" for="surname3"> Last
+															name</label>
+														<div class="col-md-9">
+															<input type="text" id="surname3" name="surname3"
+																class="form-control" required>
+														</div>
+													</div>
+
+													<div class="row mb-3">
+														<label class="col-md-3 col-form-label"
+															for="email3">Email</label>
+														<div class="col-md-9">
+															<input type="email" id="email3" name="email3"
+																class="form-control" required>
+														</div>
+													</div>
+												</div>
+												<!-- end col -->
+											</div>
+											<!-- end row -->
+										</form>
+									</div>
+
+									<div class="tab-pane fade" id="third">
+										<form id="otherForm" method="post" action="#" class="form-horizontal">
+										</form>
+										<div class="row">
+											<div class="col-12">
+												<div class="text-center">
+													<h2 class="mt-0">
+														<i class="mdi mdi-check-all"></i>
+													</h2>
+													<h3 class="mt-0">Thank you !</h3>
+
+													<p class="w-75 mb-2 mx-auto">Quisque nec turpis at urna dictum
+														luctus.
+														Suspendisse convallis dignissim eros at volutpat. In egestas
+														mattis
+														dui. Aliquam mattis dictum aliquet.</p>
+
+													<div class="mb-3">
+														<div class="form-check d-inline-block">
+															<input type="checkbox" class="form-check-input"
+																id="customCheck4" required>
+															<label class="form-check-label" for="customCheck4">I
+																agree with
+																the
+																Terms and Conditions</label>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!-- end col -->
+										</div>
+										<!-- end row -->
+
+									</div>
+
+									<ul class="list-inline wizard mb-0">
+										<li class="previous list-inline-item"><a href="#"
+												class="btn btn-info">Previous</a>
+										</li>
+										<li class="next list-inline-item float-end"><a href="#"
+												class="btn btn-info">Next</a>
+										</li>
+									</ul>
+
+								</div> <!-- tab-content -->
+							</div> <!-- end #rootwizard-->
+							</form>
+
+						</div> <!-- end card-body -->
+
+					</div> <!-- container -->
+
+
+					<!-- Footer Start -->
+					<footer class="footer">
+						<div class="container-fluid">
+							<div class="row">
+								<div class="col-md-6">
+									<script>document.write(new Date().getFullYear())</script> © Unico - Unico.com
+								</div>
+								<div class="col-md-6">
+									<div class="text-md-end footer-links d-none d-md-block">
+										<a href="javascript: void(0);">About Us</a>
+										<a href="javascript: void(0);">Contact Us</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</footer>
+					<!-- end Footer -->
+
+				</div>
+
+				<!-- ============================================================== -->
+				<!-- End Page content -->
+				<!-- ============================================================== -->
+
+
+			</div>
+			<!-- END wrapper -->
+		</div>
+	</div>
+	<!-- Right Sidebar -->
+
+	<!-- /End-bar -->
+
+
+	<!-- bundle -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	<script th:src="@{/assets/js/app.min.js}"></script>
+	<script th:src="@{/assets/js/pages/demo.form-wizard.js}"></script>
+
+	<!-- Timepicker -->
+	<script th:src="@{/assets/js/pages/demo.timepicker.js}"></script>
+	<!-- end demo js-->
+	<script>
+		$("#profileImage").click(function (e) {
+			$("#imageUpload").click();
+		});
+
+		function fasterPreview(uploader) {
+			if (uploader.files && uploader.files[0]) {
+				$('#profileImage').attr('src',
+					window.URL.createObjectURL(uploader.files[0]));
+			}
+		}
+
+		$("#imageUpload").change(function () {
+			fasterPreview(this);
+		});
+	</script>
+</body>
+
+<!-- Mirrored from coderthemes.com/hyper_2/saas/form-wizard.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 04 Jan 2022 06:47:00 GMT -->
+
+</html>

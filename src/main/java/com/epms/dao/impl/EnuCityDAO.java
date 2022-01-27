@@ -33,8 +33,12 @@ public class EnuCityDAO implements IEnuCityDAO {
 
 	@Override
 	public List<EnuCityDTO> findByFieldValue(String fieldName, Object fieldValue) {
-		// TODO Auto-generated method stub
-		return null;
+		String sql = "select * from userdetails where :fieldName = :fieldValue";
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("fieldName", fieldName);
+		namedParameters.addValue("fieldValue", fieldValue);
+
+		return jdbcTemplate.query(sql, namedParameters, new BeanPropertyRowMapper<EnuCityDTO>(EnuCityDTO.class));
 	}
 
 	@Override
