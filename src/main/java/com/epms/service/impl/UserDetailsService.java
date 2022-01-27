@@ -17,7 +17,6 @@ import groovy.util.logging.Slf4j;
 @Transactional(rollbackFor = Exception.class)
 @Slf4j
 public class UserDetailsService implements IUserDetailsService {
-
 	@Autowired
 	private IUserDetailsDAO userDetailsDAO;
 	
@@ -27,9 +26,19 @@ public class UserDetailsService implements IUserDetailsService {
 	}
 	
 	@Override
+	public List<UserDetailsDTO> findAll() {
+		return userDetailsDAO.findAll();
+	}
+	
+	@Override
 	public UserDetailsDTO findById(Long id)
 	{
 		return userDetailsDAO.findById(id);
+	}
+	
+	@Override
+	public List<UserDetailsDTO> findByFieldValue(String fieldName, Object fieldValue) {
+		return userDetailsDAO.findByFieldValue(fieldName, fieldValue);
 	}
 
 	@Override
@@ -37,12 +46,7 @@ public class UserDetailsService implements IUserDetailsService {
 		return userDetailsDAO.findByNamedParameters(paramSource);
 	}
 
-	@Override
-	public List<UserDetailsDTO> findAll() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	
 	@Override
 	public void delete(Long id) {
 		// TODO Auto-generated method stub
@@ -54,4 +58,6 @@ public class UserDetailsService implements IUserDetailsService {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	
 }

@@ -58,4 +58,9 @@ public class ServiceTypeService implements IEnuServiceTypeService {
 		return null;
 	}
 
+	@Override
+	public List<EnuServiceTypeDTO> findByFieldValue(String fieldName, Object fieldValue) {
+		return enuServiceTypeDAO.findByFieldValue(fieldName, fieldValue);
+	}
+
 }

@@ -53,4 +53,9 @@ public class EnuCityService implements IEnuCityService {
 		return null;
 	}
 
+	@Override
+	public List<EnuCityDTO> findByFieldValue(String fieldName, Object fieldValue) {
+		return enuCityDAO.findByFieldValue(fieldName, fieldValue);
+	}
+
 }

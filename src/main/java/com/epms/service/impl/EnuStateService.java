@@ -54,4 +54,9 @@ public class EnuStateService implements IEnuStateService {
 		return null;
 	}
 
+	@Override
+	public List<EnuStateDTO> findByFieldValue(String fieldName, Object fieldValue) {
+		return enuStateDAO.findByFieldValue(fieldName, fieldValue);
+	}
+
 }

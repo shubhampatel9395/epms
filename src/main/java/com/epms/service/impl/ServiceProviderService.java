@@ -54,4 +54,9 @@ public class ServiceProviderService implements IServiceProviderService {
 		return null;
 	}
 
+	@Override
+	public List<ServiceProviderDTO> findByFieldValue(String fieldName, Object fieldValue) {
+		return serviceProviderDAO.findByFieldValue(fieldName, fieldValue);
+	}
+
 }

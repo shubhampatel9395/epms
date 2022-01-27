@@ -57,4 +57,9 @@ public class EnuCountryService implements IEnuCountryService {
 		return null;
 	}
 
+	@Override
+	public List<EnuCountryDTO> findByFieldValue(String fieldName, Object fieldValue) {
+		return enuCountryDAO.findByFieldValue(fieldName, fieldValue);
+	}
+
 }
