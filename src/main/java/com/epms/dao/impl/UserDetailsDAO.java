@@ -24,7 +24,7 @@ public class UserDetailsDAO implements IUserDetailsDAO {
 
 	@Autowired
 	NamedParameterJdbcTemplate jdbcTemplate;
-	
+
 	@Override
 	public List<UserDetailsDTO> findAll() {
 		StringBuilder sql = new StringBuilder();
@@ -40,7 +40,8 @@ public class UserDetailsDAO implements IUserDetailsDAO {
 		namedParameters.addValue("fieldName", fieldName);
 		namedParameters.addValue("fieldValue", fieldValue);
 
-		return jdbcTemplate.query(sql, namedParameters, new BeanPropertyRowMapper<UserDetailsDTO>(UserDetailsDTO.class));
+		return jdbcTemplate.query(sql, namedParameters,
+				new BeanPropertyRowMapper<UserDetailsDTO>(UserDetailsDTO.class));
 	}
 
 	@Override
@@ -70,25 +71,26 @@ public class UserDetailsDAO implements IUserDetailsDAO {
 	@Override
 	public UserDetailsDTO insert(UserDetailsDTO entity) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
-		
+
 		MapSqlParameterSource sc = new MapSqlParameterSource();
-		sc.addValue("firstName",entity.getFirstName());
-		sc.addValue("lastName",entity.getLastName());
+		sc.addValue("firstName", entity.getFirstName());
+		sc.addValue("lastName", entity.getLastName());
 		sc.addValue("addressId", entity.getAddressId());
-		sc.addValue("email",entity.getEmail());
-		sc.addValue("password",entity.getPassword());
-		sc.addValue("mobileNumber",entity.getMobileNumber());
-		sc.addValue("isAuth",true);
-		
-		int i  = jdbcTemplate.update("insert into userDetails(firstName,lastName,addressId,email,password,mobileNumber,isAuth) values(:firstName,:lastName,:addressId,:email,:password,:mobileNumber,:isAuth)", 
-					sc, keyHolder,new String[] { "userDetailsId" });
-		
+		sc.addValue("email", entity.getEmail());
+		sc.addValue("password", entity.getPassword());
+		sc.addValue("mobileNumber", entity.getMobileNumber());
+		sc.addValue("isAuth", true);
+
+		int i = jdbcTemplate.update(
+				"insert into userDetails(firstName,lastName,addressId,email,password,mobileNumber,isAuth) values(:firstName,:lastName,:addressId,:email,:password,:mobileNumber,:isAuth)",
+				sc, keyHolder, new String[] { "userDetailsId" });
+
 		return findById(keyHolder.getKey().longValue());
 	}
 
 	@Override
 	public void delete(Long id) {
-		
+
 	}
 
 	@Override

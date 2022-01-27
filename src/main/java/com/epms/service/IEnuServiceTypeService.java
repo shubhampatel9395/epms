@@ -8,10 +8,10 @@ import com.epms.dto.EnuServiceTypeDTO;
 
 public interface IEnuServiceTypeService {
 	public List<EnuServiceTypeDTO> findAll();
-	
 	public List<EnuServiceTypeDTO> findAllActive();
-
 	public EnuServiceTypeDTO findById(Long id);
-
 	public List<EnuServiceTypeDTO> findByNamedParameters(MapSqlParameterSource paramSource);
+	public EnuServiceTypeDTO insert(EnuServiceTypeDTO entity);
+	public void delete(Long id);
+	public EnuServiceTypeDTO update(EnuServiceTypeDTO entity);
 }

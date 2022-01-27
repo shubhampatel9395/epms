@@ -40,4 +40,22 @@ public class ServiceTypeService implements IEnuServiceTypeService {
 		return enuServiceTypeDAO.findAllActive();
 	}
 
+	@Override
+	public EnuServiceTypeDTO insert(EnuServiceTypeDTO entity) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void delete(Long id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public EnuServiceTypeDTO update(EnuServiceTypeDTO entity) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

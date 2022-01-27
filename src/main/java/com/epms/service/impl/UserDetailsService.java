@@ -36,4 +36,22 @@ public class UserDetailsService implements IUserDetailsService {
 	public List<UserDetailsDTO> findByNamedParameters(MapSqlParameterSource paramSource) {
 		return userDetailsDAO.findByNamedParameters(paramSource);
 	}
+
+	@Override
+	public List<UserDetailsDTO> findAll() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void delete(Long id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public UserDetailsDTO update(UserDetailsDTO entity) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

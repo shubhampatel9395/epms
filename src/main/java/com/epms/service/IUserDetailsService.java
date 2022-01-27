@@ -7,10 +7,10 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import com.epms.dto.UserDetailsDTO;
 
 public interface IUserDetailsService {
-
-	public UserDetailsDTO insert(UserDetailsDTO userDetailsDTO);
-
-	public UserDetailsDTO findById(Long id);
-	
+	public List<UserDetailsDTO> findAll();
+	public UserDetailsDTO findById(Long id);	
 	public List<UserDetailsDTO> findByNamedParameters(MapSqlParameterSource paramSource);
+	public UserDetailsDTO insert(UserDetailsDTO userDetailsDTO);
+	public void delete(Long id);
+	public UserDetailsDTO update(UserDetailsDTO entity);
 }

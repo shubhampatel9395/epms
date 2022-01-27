@@ -8,8 +8,9 @@ import com.epms.dto.EnuCountryDTO;
 
 public interface IEnuCountryService {
 	public List<EnuCountryDTO> findAll();
-
 	public EnuCountryDTO findById(Long countryId);
-
 	public List<EnuCountryDTO> findByNamedParameters(MapSqlParameterSource paramSource);
+	public EnuCountryDTO insert(EnuCountryDTO entity);
+	public void delete(Long id);
+	public EnuCountryDTO update(EnuCountryDTO entity);
 }

@@ -39,4 +39,22 @@ public class EnuCountryService implements IEnuCountryService {
 		return enuCountryDAO.findByNamedParameters(paramSource);
 	}
 
+	@Override
+	public EnuCountryDTO insert(EnuCountryDTO entity) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void delete(Long id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public EnuCountryDTO update(EnuCountryDTO entity) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

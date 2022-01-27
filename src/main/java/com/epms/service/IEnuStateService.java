@@ -8,9 +8,9 @@ import com.epms.dto.EnuStateDTO;
 
 public interface IEnuStateService {
 	public List<EnuStateDTO> findAll();
-
 	public EnuStateDTO findById(Long stateId);
-
 	public List<EnuStateDTO> findByNamedParameters(MapSqlParameterSource paramSource);
-
+	public EnuStateDTO insert(EnuStateDTO entity);
+	public void delete(Long id);
+	public EnuStateDTO update(EnuStateDTO entity);
 }

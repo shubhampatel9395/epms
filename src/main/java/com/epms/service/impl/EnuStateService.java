@@ -36,4 +36,22 @@ public class EnuStateService implements IEnuStateService {
 		return enuStateDAO.findByNamedParameters(paramSource);
 	}
 
+	@Override
+	public EnuStateDTO insert(EnuStateDTO entity) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void delete(Long id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public EnuStateDTO update(EnuStateDTO entity) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

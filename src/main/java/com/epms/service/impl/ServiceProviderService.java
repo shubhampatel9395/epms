@@ -1,6 +1,9 @@
 package com.epms.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +28,30 @@ public class ServiceProviderService implements IServiceProviderService {
 	@Override
 	public ServiceProviderDTO findById(Long id) {
 		return serviceProviderDAO.findById(id);
+	}
+
+	@Override
+	public List<ServiceProviderDTO> findAll() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<ServiceProviderDTO> findByNamedParameters(MapSqlParameterSource paramSource) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void delete(Long id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ServiceProviderDTO update(ServiceProviderDTO entity) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

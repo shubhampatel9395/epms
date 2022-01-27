@@ -36,4 +36,21 @@ public class EnuCityService implements IEnuCityService {
 		return enuCityDAO.findByNamedParameters(paramSource);
 	}
 
+	@Override
+	public void delete(Long id) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public EnuCityDTO update(EnuCityDTO entity) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public EnuCityDTO insert(EnuCityDTO entity) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
