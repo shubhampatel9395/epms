@@ -7,7 +7,6 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.config.annotation.web.configurers.AnonymousConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -96,8 +95,8 @@ public class CustomerController {
 		modelandmap.addObject("userDetailsDTO", insertUserDetailsDTO);
 		return modelandmap;
 	}
-	
-	@GetMapping("/login")
+
+	@GetMapping("login")
 	public ModelAndView viewLoginPage() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
@@ -107,32 +106,27 @@ public class CustomerController {
 
 	}
 
-	
 	@GetMapping("events")
-	public ModelAndView events()
-	{
-		final ModelAndView modelandmap =  new ModelAndView("events");
+	public ModelAndView events() {
+		final ModelAndView modelandmap = new ModelAndView("events");
 		return modelandmap;
 	}
-	
+
 	@GetMapping("enquiry")
-	public ModelAndView enquiry()
-	{
-		final ModelAndView modelandmap =  new ModelAndView("enquiry");
+	public ModelAndView enquiry() {
+		final ModelAndView modelandmap = new ModelAndView("enquiry");
 		return modelandmap;
 	}
-	
+
 	@GetMapping("gallery")
-	public ModelAndView gallery()
-	{
-		final ModelAndView modelandmap =  new ModelAndView("gallery");
+	public ModelAndView gallery() {
+		final ModelAndView modelandmap = new ModelAndView("gallery");
 		return modelandmap;
 	}
-	
+
 	@GetMapping("packages")
-	public ModelAndView packages()
-	{
-		final ModelAndView modelandmap =  new ModelAndView("packages");
+	public ModelAndView packages() {
+		final ModelAndView modelandmap = new ModelAndView("packages");
 		return modelandmap;
 	}
 }
