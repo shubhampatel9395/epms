@@ -50,3 +50,6 @@ INSERT INTO unico.enuservicetype(service) values('Decorator');
 INSERT INTO unico.enuservicetype(service) values('Photographer');
 INSERT INTO unico.enuservicetype(service) values('Videographer');
 select * from unico.enuservicetype;
+
+SET SQL_SAFE_UPDATES=0;
+update unico.enuservicetype set isActive=false where service='Venue';

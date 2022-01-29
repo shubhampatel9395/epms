@@ -2,7 +2,7 @@ CREATE TABLE `address` (
   `addressId` int unsigned NOT NULL AUTO_INCREMENT,
   `address1` varchar(45) NOT NULL,
   `address2` varchar(45) DEFAULT NULL,
-  `city` varchar(45) NOT NULL,
+  `cityId` int unsigned NOT NULL,
   `stateId` int unsigned NOT NULL,
   `countryId` int unsigned NOT NULL,
   `postalCode` varchar(10) DEFAULT NULL,
@@ -13,15 +13,17 @@ CREATE TABLE `address` (
   `updatedBy` int unsigned DEFAULT NULL,
   PRIMARY KEY (`addressId`),
   UNIQUE KEY `addressId_UNIQUE` (`addressId`),
-  UNIQUE KEY `stateId_UNIQUE` (`stateId`),
-  UNIQUE KEY `countryId_UNIQUE` (`countryId`),
   KEY `fk_createdByaddress_idx` (`createdBy`),
   KEY `fk_updatedByaddress_idx` (`updatedBy`),
+  KEY `fk_cityId_address_idx` (`cityId`),
+  KEY `fk_countryId_address_idx` (`countryId`),
+  KEY `fk_stateId_address_idx` (`stateId`),
+  CONSTRAINT `fk_cityId_address` FOREIGN KEY (`cityId`) REFERENCES `enucity` (`cityId`),
   CONSTRAINT `fk_countryId_address` FOREIGN KEY (`countryId`) REFERENCES `enucountry` (`countryId`),
   CONSTRAINT `fk_createdByaddress` FOREIGN KEY (`createdBy`) REFERENCES `userdetails` (`userDetailsId`),
   CONSTRAINT `fk_stateId_address` FOREIGN KEY (`stateId`) REFERENCES `enustate` (`stateId`),
   CONSTRAINT `fk_updatedByaddress` FOREIGN KEY (`updatedBy`) REFERENCES `userdetails` (`userDetailsId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `attendee` (
   `attendeeId` int unsigned NOT NULL AUTO_INCREMENT,
@@ -40,7 +42,7 @@ CREATE TABLE `attendee` (
   KEY `fk_createdByattendee_idx` (`createdBy`),
   KEY `fk_updatedBy_idx` (`updatedBy`),
   CONSTRAINT `fk_createdByattendee` FOREIGN KEY (`createdBy`) REFERENCES `userdetails` (`userDetailsId`),
-  CONSTRAINT `fk_eventAttendee` FOREIGN KEY (`eventId`) REFERENCES `event` (`eventBookingId`),
+  CONSTRAINT `fk_eventAttendee` FOREIGN KEY (`eventId`) REFERENCES `event` (`eventId`),
   CONSTRAINT `fk_updatedBy` FOREIGN KEY (`updatedBy`) REFERENCES `userdetails` (`userDetailsId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -54,7 +56,7 @@ CREATE TABLE `employee` (
   `leavingDate` date DEFAULT NULL,
   `marriageStatus` varchar(10) NOT NULL,
   `hiredBy` varchar(25) NOT NULL,
-  `salary` int NOT NULL,
+  `salary` double NOT NULL,
   `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `isActive` tinyint NOT NULL DEFAULT '1',
@@ -79,16 +81,19 @@ CREATE TABLE `enquiry` (
   `email` varchar(45) NOT NULL,
   `eventTypeId` int unsigned NOT NULL,
   `eventSubTypeId` int unsigned NOT NULL,
-  `startDateTime` datetime NOT NULL,
-  `endDateTime` datetime NOT NULL,
-  `description` varchar(100) NOT NULL,
-  `isPrivate` tinyint NOT NULL DEFAULT '0',
+  `startDate` date NOT NULL,
+  `startTime` time NOT NULL,
+  `endDate` date NOT NULL,
+  `endTime` time NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `isPublic` tinyint NOT NULL DEFAULT '1',
   `isFree` tinyint NOT NULL DEFAULT '1',
   `estimatedGuest` int NOT NULL,
-  `budget` int NOT NULL,
+  `budget` double NOT NULL,
   `enquiryStatusId` int unsigned NOT NULL,
-  `response` varchar(100) NOT NULL,
-  `responseDateTime` datetime NOT NULL,
+  `response` varchar(255) DEFAULT NULL,
+  `responseDate` date DEFAULT NULL,
+  `responseTime` time DEFAULT NULL,
   `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `isActive` tinyint NOT NULL DEFAULT '1',
@@ -102,9 +107,9 @@ CREATE TABLE `enquiry` (
   KEY `fk_createdByenquiry_idx` (`createdBy`),
   KEY `fk_updatedByenquiry_idx` (`updatedBy`),
   CONSTRAINT `fk_createdByenquiry` FOREIGN KEY (`createdBy`) REFERENCES `userdetails` (`userDetailsId`),
+  CONSTRAINT `fk_enquiryeventsubtype` FOREIGN KEY (`eventSubTypeId`) REFERENCES `enueventsubtype` (`eventSubTypeId`),
   CONSTRAINT `fk_enquiryeventtype` FOREIGN KEY (`eventTypeId`) REFERENCES `enueventtype` (`eventTypeId`),
   CONSTRAINT `fk_enquirystatus` FOREIGN KEY (`enquiryStatusId`) REFERENCES `enuenquirystatus` (`statusId`),
-  CONSTRAINT `fk_enquirysubeventtype` FOREIGN KEY (`eventSubTypeId`) REFERENCES `enueventsubtype` (`eventSubTypeId`),
   CONSTRAINT `fk_updatedByenquiry` FOREIGN KEY (`updatedBy`) REFERENCES `userdetails` (`userDetailsId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -126,7 +131,7 @@ CREATE TABLE `enucountry` (
   `country` varchar(45) NOT NULL,
   PRIMARY KEY (`countryId`),
   UNIQUE KEY `countryId_UNIQUE` (`countryId`)
-) ENGINE=InnoDB AUTO_INCREMENT=256 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=251 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `enuemployeerole` (
   `employeeRoleId` int unsigned NOT NULL AUTO_INCREMENT,
@@ -212,36 +217,53 @@ CREATE TABLE `enustate` (
   CONSTRAINT `fk_countryId` FOREIGN KEY (`countryId`) REFERENCES `enucountry` (`countryId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5066 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+CREATE TABLE `enuvenuefacility` (
+  `venueFacilityId` int unsigned NOT NULL AUTO_INCREMENT,
+  `facility` varchar(45) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `isActive` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`venueFacilityId`),
+  UNIQUE KEY `venueFacilityId_UNIQUE` (`venueFacilityId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE `event` (
-  `eventBookingId` int unsigned NOT NULL AUTO_INCREMENT,
+  `eventId` int unsigned NOT NULL AUTO_INCREMENT,
   `eventTitle` varchar(45) NOT NULL,
-  `objective` varchar(100) DEFAULT NULL,
+  `objective` varchar(255) DEFAULT NULL,
+  `eventTypeId` int unsigned NOT NULL,
+  `eventSubTypeId` int unsigned NOT NULL,
   `userDetailsId` int unsigned NOT NULL,
   `packageId` int unsigned NOT NULL,
   `eventOrganiserId` int unsigned DEFAULT NULL,
   `isPublic` tinyint NOT NULL DEFAULT '1',
   `isFree` tinyint NOT NULL DEFAULT '1',
-  `startDateTime` datetime NOT NULL,
-  `endDateTime` datetime NOT NULL,
+  `startDate` date NOT NULL,
+  `startTime` time NOT NULL,
+  `endDate` date NOT NULL,
+  `endTime` time NOT NULL,
   `estimatedGuest` int NOT NULL,
-  `registrationFee` int NOT NULL DEFAULT '0',
+  `registrationFee` double NOT NULL DEFAULT '0',
   `registrationsAvailable` int NOT NULL DEFAULT '0',
   `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `isActive` tinyint NOT NULL DEFAULT '1',
   `createdBy` int unsigned DEFAULT NULL,
   `updatedBy` int unsigned DEFAULT NULL,
-  PRIMARY KEY (`eventBookingId`),
-  UNIQUE KEY `eventBookingId_UNIQUE` (`eventBookingId`),
+  PRIMARY KEY (`eventId`),
+  UNIQUE KEY `eventBookingId_UNIQUE` (`eventId`),
   KEY `fk_eventPackage_idx` (`packageId`),
   KEY `fk_eventOrganiser_idx` (`eventOrganiserId`),
   KEY `fk_customer_idx` (`userDetailsId`),
   KEY `fk_createdByevent_idx` (`createdBy`),
   KEY `fk_updatedByevent_idx` (`updatedBy`),
+  KEY `fk_eventTypeEvent_idx` (`eventTypeId`),
+  KEY `fk_eventSubTypeEvent_idx` (`eventSubTypeId`),
   CONSTRAINT `fk_createdByevent` FOREIGN KEY (`createdBy`) REFERENCES `userdetails` (`userDetailsId`),
   CONSTRAINT `fk_customer` FOREIGN KEY (`userDetailsId`) REFERENCES `userdetails` (`userDetailsId`),
   CONSTRAINT `fk_eventOrganiser` FOREIGN KEY (`eventOrganiserId`) REFERENCES `employee` (`employeeId`),
-  CONSTRAINT `fk_eventPackage` FOREIGN KEY (`packageId`) REFERENCES `packagedetails` (`packageId`),
+  CONSTRAINT `fk_eventPackage` FOREIGN KEY (`packageId`) REFERENCES `packagedetails` (`packageDetailsId`),
+  CONSTRAINT `fk_eventSubTypeEvent` FOREIGN KEY (`eventSubTypeId`) REFERENCES `enueventsubtype` (`eventSubTypeId`),
+  CONSTRAINT `fk_eventTypeEvent` FOREIGN KEY (`eventTypeId`) REFERENCES `enueventtype` (`eventTypeId`),
   CONSTRAINT `fk_updatedByevent` FOREIGN KEY (`updatedBy`) REFERENCES `userdetails` (`userDetailsId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -260,7 +282,7 @@ CREATE TABLE `eventbanner` (
   KEY `fk_createdByeventbanner_idx` (`createdBy`),
   KEY `fk_updatedByeventbanner_idx` (`updatedBy`),
   CONSTRAINT `fk_createdByeventbanner` FOREIGN KEY (`createdBy`) REFERENCES `userdetails` (`userDetailsId`),
-  CONSTRAINT `fk_eventbanner` FOREIGN KEY (`eventId`) REFERENCES `event` (`eventBookingId`),
+  CONSTRAINT `fk_eventbanner` FOREIGN KEY (`eventId`) REFERENCES `event` (`eventId`),
   CONSTRAINT `fk_updatedByeventbanner` FOREIGN KEY (`updatedBy`) REFERENCES `userdetails` (`userDetailsId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -268,7 +290,7 @@ CREATE TABLE `eventemployeemapping` (
   `eventEmployeemappingId` int unsigned NOT NULL AUTO_INCREMENT,
   `eventId` int unsigned NOT NULL,
   `employeeId` int unsigned NOT NULL,
-  `workDescription` varchar(45) DEFAULT NULL,
+  `workDescription` varchar(255) DEFAULT NULL,
   `statusId` int unsigned NOT NULL,
   `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -285,24 +307,24 @@ CREATE TABLE `eventemployeemapping` (
   CONSTRAINT `fk_createdByeventemployeemapping` FOREIGN KEY (`createdBy`) REFERENCES `userdetails` (`userDetailsId`),
   CONSTRAINT `fk_eventemployee_mapping` FOREIGN KEY (`employeeId`) REFERENCES `employee` (`employeeId`),
   CONSTRAINT `fk_eventemployeestatus_mapping` FOREIGN KEY (`statusId`) REFERENCES `enuemployeeworkingstatus` (`statusId`),
-  CONSTRAINT `fk_eventId_mapping` FOREIGN KEY (`eventId`) REFERENCES `event` (`eventBookingId`),
+  CONSTRAINT `fk_eventId_mapping` FOREIGN KEY (`eventId`) REFERENCES `event` (`eventId`),
   CONSTRAINT `fk_updatedByeventemployeemapping` FOREIGN KEY (`updatedBy`) REFERENCES `userdetails` (`userDetailsId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `feedback` (
   `feedbackId` int unsigned NOT NULL AUTO_INCREMENT,
-  `eventId` int unsigned NOT NULL,
-  `eventRating` int NOT NULL,
-  `eventDescription` varchar(100) DEFAULT NULL,
-  `venueId` int unsigned NOT NULL,
-  `venueRating` int NOT NULL,
-  `venueDescription` varchar(100) DEFAULT NULL,
-  `employeeId` int unsigned NOT NULL,
-  `employeeRating` int NOT NULL,
-  `employeeDescription` varchar(100) DEFAULT NULL,
-  `serviceProviderId` int unsigned NOT NULL,
-  `serviceProviderRating` int NOT NULL,
-  `serviceProviderDescription` varchar(100) DEFAULT NULL,
+  `eventId` int unsigned DEFAULT NULL,
+  `eventRating` int DEFAULT NULL,
+  `eventDescription` varchar(255) DEFAULT NULL,
+  `venueId` int unsigned DEFAULT NULL,
+  `venueRating` int DEFAULT NULL,
+  `venueDescription` varchar(255) DEFAULT NULL,
+  `employeeId` int unsigned DEFAULT NULL,
+  `employeeRating` int DEFAULT NULL,
+  `employeeDescription` varchar(255) DEFAULT NULL,
+  `serviceProviderId` int unsigned DEFAULT NULL,
+  `serviceProviderRating` int DEFAULT NULL,
+  `serviceProviderDescription` varchar(255) DEFAULT NULL,
   `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `isActive` tinyint NOT NULL DEFAULT '1',
@@ -318,18 +340,18 @@ CREATE TABLE `feedback` (
   KEY `fk_updatedByfeedback_idx` (`updatedBy`),
   CONSTRAINT `fk_createdByfeedback` FOREIGN KEY (`createdBy`) REFERENCES `userdetails` (`userDetailsId`),
   CONSTRAINT `fk_employeeFeedback` FOREIGN KEY (`employeeId`) REFERENCES `employee` (`employeeId`),
-  CONSTRAINT `fk_eventFeedback` FOREIGN KEY (`eventId`) REFERENCES `event` (`eventBookingId`),
+  CONSTRAINT `fk_eventFeedback` FOREIGN KEY (`eventId`) REFERENCES `event` (`eventId`),
   CONSTRAINT `fk_serviceProviderFeedback` FOREIGN KEY (`serviceProviderId`) REFERENCES `serviceprovider` (`serviceProviderId`),
   CONSTRAINT `fk_updatedByfeedback` FOREIGN KEY (`updatedBy`) REFERENCES `userdetails` (`userDetailsId`),
   CONSTRAINT `fk_venueFeedback` FOREIGN KEY (`venueId`) REFERENCES `venue` (`venueId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `packagedetails` (
-  `packageId` int unsigned NOT NULL AUTO_INCREMENT,
-  `title` varchar(45) NOT NULL,
-  `description` varchar(100) NOT NULL,
+  `packageDetailsId` int unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(45) DEFAULT NULL,
+  `description` varchar(100) DEFAULT NULL,
   `guestAmount` int NOT NULL,
-  `totalCost` int DEFAULT NULL,
+  `totalCost` double DEFAULT NULL,
   `isStatic` tinyint NOT NULL DEFAULT '1',
   `eventTypeId` int unsigned NOT NULL,
   `eventSubTypeId` int unsigned NOT NULL,
@@ -339,8 +361,8 @@ CREATE TABLE `packagedetails` (
   `isActive` tinyint NOT NULL DEFAULT '1',
   `createdBy` int unsigned DEFAULT NULL,
   `updatedBy` int unsigned DEFAULT NULL,
-  PRIMARY KEY (`packageId`),
-  UNIQUE KEY `packageId_UNIQUE` (`packageId`),
+  PRIMARY KEY (`packageDetailsId`),
+  UNIQUE KEY `packageId_UNIQUE` (`packageDetailsId`),
   KEY `fk_eventSubTypeId_package_idx` (`eventSubTypeId`),
   KEY `fk_venueId_package_idx` (`venueId`),
   KEY `fk_createdBy_package_idx` (`createdBy`),
@@ -371,7 +393,7 @@ CREATE TABLE `packageserviceprovidermapping` (
   KEY `fk_createdBypackageserviceprovidermapping_idx` (`createdBy`),
   KEY `fk_updatedBypackageserviceprovidermapping_idx` (`updatedBy`),
   CONSTRAINT `fk_createdBypackageserviceprovidermapping` FOREIGN KEY (`createdBy`) REFERENCES `userdetails` (`userDetailsId`),
-  CONSTRAINT `fk_packageId_mapping` FOREIGN KEY (`packageId`) REFERENCES `packagedetails` (`packageId`),
+  CONSTRAINT `fk_packageId_mapping` FOREIGN KEY (`packageId`) REFERENCES `packagedetails` (`packageDetailsId`),
   CONSTRAINT `fk_serviceProvider_mapping` FOREIGN KEY (`serviceProviderId`) REFERENCES `serviceprovider` (`serviceProviderId`),
   CONSTRAINT `fk_serviceProviderStatus_mapping` FOREIGN KEY (`statusId`) REFERENCES `enuserviceproviderworkingstatus` (`statusId`),
   CONSTRAINT `fk_updatedBypackageserviceprovidermapping` FOREIGN KEY (`updatedBy`) REFERENCES `userdetails` (`userDetailsId`)
@@ -395,8 +417,8 @@ CREATE TABLE `packagevenuefacilitymapping` (
   KEY `fk_createdBypackagevenuefacilitymapping_idx` (`createdBy`),
   KEY `fk_updatedBypackagevenuefacilitymapping_idx` (`updatedBy`),
   CONSTRAINT `fk_createdBypackagevenuefacilitymapping` FOREIGN KEY (`createdBy`) REFERENCES `userdetails` (`userDetailsId`),
-  CONSTRAINT `fk_facilityId_pvfmapping` FOREIGN KEY (`facilityId`) REFERENCES `venuefacility` (`venueFacilityId`),
-  CONSTRAINT `fk_packageId_pvfmapping` FOREIGN KEY (`packageId`) REFERENCES `packagedetails` (`packageId`),
+  CONSTRAINT `fk_facilityId_pvfmapping` FOREIGN KEY (`facilityId`) REFERENCES `enuvenuefacility` (`venueFacilityId`),
+  CONSTRAINT `fk_packageId_pvfmapping` FOREIGN KEY (`packageId`) REFERENCES `packagedetails` (`packageDetailsId`),
   CONSTRAINT `fk_updatedBypackagevenuefacilitymapping` FOREIGN KEY (`updatedBy`) REFERENCES `userdetails` (`userDetailsId`),
   CONSTRAINT `fk_venueId_pvfmapping` FOREIGN KEY (`venueId`) REFERENCES `packagedetails` (`venueId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -434,9 +456,9 @@ CREATE TABLE `payment` (
 
 CREATE TABLE `serviceprovider` (
   `serviceProviderId` int unsigned NOT NULL AUTO_INCREMENT,
-  `userDetailsId` int unsigned DEFAULT NULL,
-  `venueId` int unsigned DEFAULT NULL,
+  `userDetailsId` int unsigned NOT NULL,
   `serviceTypeId` int unsigned NOT NULL,
+  `cost` int unsigned NOT NULL,
   `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `isActive` tinyint NOT NULL DEFAULT '1',
@@ -448,13 +470,11 @@ CREATE TABLE `serviceprovider` (
   KEY `fk_serviceType_serviceProvider_idx` (`serviceTypeId`),
   KEY `fk_createdByserviceprovider_idx` (`createdBy`),
   KEY `fk_updatedByserviceprovider_idx` (`updatedBy`),
-  KEY `fk_venueId_serviceprovider_idx` (`venueId`),
   CONSTRAINT `fk_createdByserviceprovider` FOREIGN KEY (`createdBy`) REFERENCES `userdetails` (`userDetailsId`),
   CONSTRAINT `fk_serviceType_serviceProvider` FOREIGN KEY (`serviceTypeId`) REFERENCES `enuservicetype` (`serviceTypeId`),
   CONSTRAINT `fk_updatedByserviceprovider` FOREIGN KEY (`updatedBy`) REFERENCES `userdetails` (`userDetailsId`),
-  CONSTRAINT `fk_userDetails_serviceprovider` FOREIGN KEY (`userDetailsId`) REFERENCES `userdetails` (`userDetailsId`),
-  CONSTRAINT `fk_venueId_serviceprovider` FOREIGN KEY (`venueId`) REFERENCES `venue` (`venueId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `fk_userDetails_serviceprovider` FOREIGN KEY (`userDetailsId`) REFERENCES `userdetails` (`userDetailsId`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `userdetails` (
   `userDetailsId` int unsigned NOT NULL AUTO_INCREMENT,
@@ -485,7 +505,7 @@ CREATE TABLE `userdetails` (
   CONSTRAINT `createdBy` FOREIGN KEY (`createdBy`) REFERENCES `userdetails` (`userDetailsId`),
   CONSTRAINT `updatedBy` FOREIGN KEY (`updatedBy`) REFERENCES `userdetails` (`userDetailsId`),
   CONSTRAINT `userAddress` FOREIGN KEY (`addressId`) REFERENCES `address` (`addressId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `venue` (
   `venueId` int unsigned NOT NULL AUTO_INCREMENT,
@@ -497,7 +517,7 @@ CREATE TABLE `venue` (
   `contactNumber` varchar(15) NOT NULL,
   `email` varchar(45) NOT NULL,
   `guestCapacity` int NOT NULL,
-  `cost` int NOT NULL,
+  `cost` double NOT NULL,
   `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `isActive` tinyint NOT NULL DEFAULT '1',
@@ -529,10 +549,10 @@ CREATE TABLE `venueeventtypemapping` (
   CONSTRAINT `fk_venue_eventType2` FOREIGN KEY (`eventTypeId`) REFERENCES `enueventtype` (`eventTypeId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE `venuefacility` (
+CREATE TABLE `enuvenuefacility` (
   `venueFacilityId` int unsigned NOT NULL AUTO_INCREMENT,
   `facility` varchar(45) NOT NULL,
-  `description` varchar(45) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
   `isActive` tinyint NOT NULL DEFAULT '1',
   PRIMARY KEY (`venueFacilityId`),
   UNIQUE KEY `venueFacilityId_UNIQUE` (`venueFacilityId`)
@@ -542,14 +562,14 @@ CREATE TABLE `venuefacilitymapping` (
   `venueFacilitymappingId` int unsigned NOT NULL AUTO_INCREMENT,
   `venueId` int unsigned NOT NULL,
   `facilityId` int unsigned NOT NULL,
-  `cost` int NOT NULL,
+  `cost` double NOT NULL,
   `isActive` tinyint NOT NULL DEFAULT '1',
   PRIMARY KEY (`venueFacilitymappingId`),
   UNIQUE KEY `venueFacilitymappingId_UNIQUE` (`venueFacilitymappingId`),
   KEY `fk_venue_facility1_idx` (`facilityId`),
   KEY `fk_venue_facility_idx` (`venueId`),
   CONSTRAINT `fk_venue_facility` FOREIGN KEY (`venueId`) REFERENCES `venue` (`venueId`),
-  CONSTRAINT `fk_venue_facility1` FOREIGN KEY (`facilityId`) REFERENCES `venuefacility` (`venueFacilityId`)
+  CONSTRAINT `fk_venue_facility1` FOREIGN KEY (`facilityId`) REFERENCES `enuvenuefacility` (`venueFacilityId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `venueimagemapping` (
@@ -566,11 +586,10 @@ CREATE TABLE `venueimagemapping` (
 
 
 
-
 SELECT `address`.`addressId`,
     `address`.`address1`,
     `address`.`address2`,
-    `address`.`city`,
+    `address`.`cityId`,
     `address`.`stateId`,
     `address`.`countryId`,
     `address`.`postalCode`,
@@ -616,16 +635,19 @@ SELECT `enquiry`.`enquiryId`,
     `enquiry`.`email`,
     `enquiry`.`eventTypeId`,
     `enquiry`.`eventSubTypeId`,
-    `enquiry`.`startDateTime`,
-    `enquiry`.`endDateTime`,
+    `enquiry`.`startDate`,
+    `enquiry`.`startTime`,
+    `enquiry`.`endDate`,
+    `enquiry`.`endTime`,
     `enquiry`.`description`,
-    `enquiry`.`isPrivate`,
+    `enquiry`.`isPublic`,
     `enquiry`.`isFree`,
     `enquiry`.`estimatedGuest`,
     `enquiry`.`budget`,
     `enquiry`.`enquiryStatusId`,
     `enquiry`.`response`,
-    `enquiry`.`responseDateTime`,
+    `enquiry`.`responseDate`,
+    `enquiry`.`responseTime`,
     `enquiry`.`createdAt`,
     `enquiry`.`updatedAt`,
     `enquiry`.`isActive`,
@@ -693,16 +715,26 @@ SELECT `enustate`.`stateId`,
     `enustate`.`countryId`
 FROM `unico`.`enustate`;
 
-SELECT `event`.`eventBookingId`,
+SELECT `enuvenuefacility`.`venueFacilityId`,
+    `enuvenuefacility`.`facility`,
+    `enuvenuefacility`.`description`,
+    `enuvenuefacility`.`isActive`
+FROM `unico`.`enuvenuefacility`;
+
+SELECT `event`.`eventId`,
     `event`.`eventTitle`,
     `event`.`objective`,
+    `event`.`eventTypeId`,
+    `event`.`eventSubTypeId`,
     `event`.`userDetailsId`,
     `event`.`packageId`,
     `event`.`eventOrganiserId`,
     `event`.`isPublic`,
     `event`.`isFree`,
-    `event`.`startDateTime`,
-    `event`.`endDateTime`,
+    `event`.`startDate`,
+    `event`.`startTime`,
+    `event`.`endDate`,
+    `event`.`endTime`,
     `event`.`estimatedGuest`,
     `event`.`registrationFee`,
     `event`.`registrationsAvailable`,
@@ -755,7 +787,7 @@ SELECT `feedback`.`feedbackId`,
     `feedback`.`updatedBy`
 FROM `unico`.`feedback`;
 
-SELECT `packagedetails`.`packageId`,
+SELECT `packagedetails`.`packageDetailsId`,
     `packagedetails`.`title`,
     `packagedetails`.`description`,
     `packagedetails`.`guestAmount`,
@@ -811,6 +843,7 @@ FROM `unico`.`payment`;
 SELECT `serviceprovider`.`serviceProviderId`,
     `serviceprovider`.`userDetailsId`,
     `serviceprovider`.`serviceTypeId`,
+    `serviceprovider`.`cost`,
     `serviceprovider`.`createdAt`,
     `serviceprovider`.`updatedAt`,
     `serviceprovider`.`isActive`,
@@ -862,11 +895,11 @@ SELECT `venueeventtypemapping`.`venueEventTypemappingId`,
     `venueeventtypemapping`.`isActive`
 FROM `unico`.`venueeventtypemapping`;
 
-SELECT `venuefacility`.`venueFacilityId`,
-    `venuefacility`.`facility`,
-    `venuefacility`.`description`,
-    `venuefacility`.`isActive`
-FROM `unico`.`venuefacility`;
+SELECT `enuvenuefacility`.`venueFacilityId`,
+    `enuvenuefacility`.`facility`,
+    `enuvenuefacility`.`description`,
+    `enuvenuefacility`.`isActive`
+FROM `unico`.`enuvenuefacility`;
 
 SELECT `venuefacilitymapping`.`venueFacilitymappingId`,
     `venuefacilitymapping`.`venueId`,
@@ -879,4 +912,3 @@ SELECT `venueimagemapping`.`venueImagemappingId`,
     `venueimagemapping`.`venueId`,
     `venueimagemapping`.`image`
 FROM `unico`.`venueimagemapping`;
-
