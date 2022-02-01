@@ -4,11 +4,18 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.epms.dao.IEnuEmployeeWorkingStatusDAO;
 import com.epms.dto.EnuEmployeeWorkingStatusDTO;
 import com.epms.service.IEnuEmployeeWorkingStatusService;
 
+import groovy.util.logging.Slf4j;
+
+@Service
+@Transactional(rollbackFor = Exception.class)
+@Slf4j
 public class EnuEmployeeWorkingStatusService implements IEnuEmployeeWorkingStatusService {
 	@Autowired
 	private IEnuEmployeeWorkingStatusDAO enuEmployeeWorkingStatusDAO;

@@ -9,10 +9,15 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IFeedbackDAO;
 import com.epms.dto.FeedbackDTO;
 
+import groovy.util.logging.Slf4j;
+
+@Repository
+@Slf4j
 public class FeedbackDAO implements IFeedbackDAO {
 	@Autowired
 	NamedParameterJdbcTemplate jdbcTemplate;

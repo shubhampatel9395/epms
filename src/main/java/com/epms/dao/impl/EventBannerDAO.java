@@ -9,10 +9,15 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IEventBannerDAO;
 import com.epms.dto.EventBannerDTO;
 
+import groovy.util.logging.Slf4j;
+
+@Repository
+@Slf4j
 public class EventBannerDAO implements IEventBannerDAO {
 	@Autowired
 	NamedParameterJdbcTemplate jdbcTemplate;

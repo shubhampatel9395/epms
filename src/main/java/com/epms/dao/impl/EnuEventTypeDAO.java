@@ -9,10 +9,15 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IEnuEventTypeDAO;
 import com.epms.dto.EnuEventTypeDTO;
 
+import groovy.util.logging.Slf4j;
+
+@Repository
+@Slf4j
 public class EnuEventTypeDAO implements IEnuEventTypeDAO {
 	@Autowired
 	NamedParameterJdbcTemplate jdbcTemplate;

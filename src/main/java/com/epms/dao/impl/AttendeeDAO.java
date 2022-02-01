@@ -9,10 +9,15 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IAttendeeDAO;
 import com.epms.dto.AttendeeDTO;
 
+import groovy.util.logging.Slf4j;
+
+@Repository
+@Slf4j
 public class AttendeeDAO implements IAttendeeDAO {
 	@Autowired
 	NamedParameterJdbcTemplate jdbcTemplate;

@@ -9,10 +9,15 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IVenueFacilityMappingDAO;
 import com.epms.dto.VenueFacilityMappingDTO;
 
+import groovy.util.logging.Slf4j;
+
+@Repository
+@Slf4j
 public class VenueFacilityMappingDAO implements IVenueFacilityMappingDAO {
 	@Autowired
 	NamedParameterJdbcTemplate jdbcTemplate;

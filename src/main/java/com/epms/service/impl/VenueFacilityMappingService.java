@@ -4,10 +4,17 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.epms.dao.IVenueFacilityMappingDAO;
 import com.epms.dto.VenueFacilityMappingDTO;
 
+import groovy.util.logging.Slf4j;
+
+@Service
+@Transactional(rollbackFor = Exception.class)
+@Slf4j
 public class VenueFacilityMappingService implements com.epms.service.IVenueFacilityMappingService {
 	@Autowired
 	private IVenueFacilityMappingDAO venueFacilityMappingDAO;
