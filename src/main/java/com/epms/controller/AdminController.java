@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/admin")
 @Slf4j
 public class AdminController {
-	@GetMapping
+	@GetMapping("/dashboard")
 	public ModelAndView homePage() {
 		return new ModelAndView("admin/index");
 	}

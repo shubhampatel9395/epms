@@ -8,12 +8,13 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import com.epms.dto.UserDetailsDTO;
 import com.epms.service.IUserDetailsService;
 
-
+@Service
 public class CustomUserDetailsService implements UserDetailsService {
  
     @Autowired

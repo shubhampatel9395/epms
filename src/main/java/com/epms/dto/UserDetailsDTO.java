@@ -28,4 +28,5 @@ public class UserDetailsDTO {
 	private boolean isActive;
 	private Integer createdBy;
 	private Integer updatedBy;
+	private String roleName;
 }

@@ -99,7 +99,7 @@
 											<span class="d-none d-sm-inline">Basic Info</span>
 										</a>
 									</li>
-									<li class="nav-item" data-target-form="#profileForm">
+									<li class="nav-item" data-target-form="#createEventPackageForm">
 										<a href="#second" data-bs-toggle="tab" data-toggle="tab"
 											class="nav-link rounded-0 pt-2 pb-2">
 											<i class="mdi mdi-package-variant"></i>
@@ -171,7 +171,7 @@
 																<img id="profileImage"
 																	th:src="@{/assets/images/img-placeholder.png}"
 																	class="img-fluid img-thumbnail" />
-																 <!--<input th:field="*{banner}" id="imageUpload" type="file"
+																<!--<input th:field="*{banner}" id="imageUpload" type="file"
 																	name="profile_photo" placeholder="Photo" required=""
 																	accept="image/png, image/jpg, image/jpeg" capture>-->
 															</div>
@@ -181,7 +181,8 @@
 													<div class="row g-2">
 														<div class="col-md">
 															<div class="form-floating mb-3">
-																<select class="form-select" th:field="*{eventTypeId}">
+																<select id="inputEventType" class="form-select"
+																	th:field="*{eventTypeId}">
 																	<option value="" readonly>--Select Event Type --
 																	</option>
 																	<option th:each="eventType : ${eventTypes}"
@@ -194,7 +195,7 @@
 														</div>
 														<div class="col-md">
 															<div class="form-floating mb-3">
-																<select class="form-select"
+																<select id="inputEventSubType" class="form-select"
 																	th:field="*{eventSubTypeId}">
 																	<option value="" readonly>--Select Event Sub-Type --
 																	</option>
@@ -272,7 +273,8 @@
 																			style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
 																	<input th:field="*{startTime}" id="timepicker2"
 																		type="text" class="form-control"
-																		data-provide='timepicker' data-minute-step="5" data-show-meridian="false">
+																		data-provide='timepicker' data-minute-step="5"
+																		data-show-meridian="false">
 																</div>
 															</div>
 															<div class="mb-3">
@@ -284,7 +286,8 @@
 																			style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
 																	<input th:field="*{endTime}" id="timepicker4"
 																		type="text" class="form-control"
-																		data-provide='timepicker' data-minute-step="5">
+																		data-provide='timepicker' data-minute-step="5"
+																		data-show-meridian="false">
 																</div>
 															</div>
 
@@ -322,7 +325,7 @@
 													</div>
 												</div> <!-- end col -->
 											</div> <!-- end row -->
-											
+
 											<ul class="list-inline wizard mb-0">
 												<li class="previous list-inline-item"><a href="#"
 														class="btn btn-info">Previous</a>
@@ -337,7 +340,7 @@
 									</div>
 
 									<div class="tab-pane fade" id="second">
-										<form id="profileForm" method="post" action="#" class="form-horizontal">
+										<form id="createEventPackageForm" method="post" action="#" class="form-horizontal">
 											<div class="row">
 												<div class="col-12">
 													<div class="row mb-3">
@@ -370,8 +373,9 @@
 											</div>
 											<!-- end row -->
 											<ul class="list-inline wizard mb-0">
-												<li class="previous list-inline-item"><a href="#"
-														class="btn btn-info">Previous</a>
+												<li class="previous list-inline-item"><button type="submit" name="action" value=""
+														class="btn btn-info" onclick="retriveBasicInfo()">Previous
+													</button>
 												</li>
 												<li class="next list-inline-item float-end"><a href="#"
 														class="btn btn-info">Next</a>
@@ -490,6 +494,42 @@
 		$("#imageUpload").change(function () {
 			fasterPreview(this);
 		});
+
+		$("#inputEventType").change(function () {
+			var selectedValue = $(this)
+				.find(":selected")
+				.val();
+			// console.log(selectedValue);
+			var eventType = $("#inputEventType option:selected").val();
+			// console.log(eventType);		// Same
+			if (selectedValue === "") {
+				$("#inputEventSubType").val("");
+				$("#inputEventSubType").prop('disabled', true);
+			}
+			else {
+				$.ajax({
+					type: "GET",
+					dataType: 'json',
+					url: "/customer/getEventSubTypes/" + selectedValue + '',
+					success: function (result) {
+						$("#inputEventSubType").prop('disabled', false);
+						$("#inputEventSubType").empty();
+						$("#inputEventSubType").append($("<option></option>").val("").html("--Select Event Sub-Type --"));
+						$.each(result, function () {
+							$("#inputEventSubType").append($("<option></option>").val(this['eventSubTypeId']).html(this['eventSubType']));
+						});
+					}
+				});
+			}
+		});
+		
+		var selectedEventTypeId = $("#inputEventType").find(":selected").val();
+		var selectedEventSubTypeId = $("#inputEventSubType").find(":selected").val();
+
+		function retriveBasicInfo() {
+			$("#inputEventType").val(selectedEventTypeId);
+			$("#inputEventSubType").val(selectedEventSubTypeId);
+		}
 	</script>
 </body>
 

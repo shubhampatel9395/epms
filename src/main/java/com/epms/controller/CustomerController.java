@@ -50,7 +50,7 @@ public class CustomerController {
 	@Autowired
 	IAddressService addressService;
 
-	@GetMapping
+	@GetMapping("index")
 	public ModelAndView homePage() {
 		return new ModelAndView("index");
 	}
@@ -98,12 +98,12 @@ public class CustomerController {
 
 	@GetMapping("login")
 	public ModelAndView viewLoginPage() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
-			return new ModelAndView("login");
-		}
-		return new ModelAndView("index");
-
+		return new ModelAndView("login");
+	}
+	
+	@GetMapping("logout")
+	public ModelAndView logoutPage() {
+		return new ModelAndView("redirect:/login");
 	}
 
 	@GetMapping("events")
