@@ -92,14 +92,14 @@
 							</div>
 							<div class="mb-3 col-md-6">
 								<label for="inputState" class="form-label">State</label>
-								<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select">
+								<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select" disabled>
 									<option value="">--Select State--</option>
 								</select>
 							</div>
 						</div>
 						<div class="mb-3">
 							<label for="inputCity" class="form-label">City</label>
-							<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select">
+							<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select" disabled>
 								<option value="" readonly>--Select City--</option>
 							</select>
 						</div>
@@ -161,11 +161,19 @@
 			var selectedValue = $(this)
 				.find(":selected")
 				.val();
+			if (selectedValue === "") {
+				$("#inputState").val("");
+				$("#inputState").prop('disabled', true);
+
+				$("#inputCity").val("");
+				$("#inputCity").prop('disabled', true);
+			}
 			$.ajax({
 				type: "GET",
 				dataType: 'json',
-				url: "getStates/" + selectedValue + '',
+				url: "/getStates/" + selectedValue + '',
 				success: function (result) {
+					$("#inputState").prop('disabled', false);
 					$("#inputState").empty();
 					$("#inputState").append($("<option></option>").val("").html("--Select State--"));
 					$.each(result, function () {
@@ -179,11 +187,16 @@
 			var selectedValue = $(this)
 				.find(":selected")
 				.val();
+			if (selectedValue === "") {
+				$("#inputCity").val("");
+				$("#inputCity").prop('disabled', true);
+			}
 			$.ajax({
 				type: "GET",
 				dataType: 'json',
-				url: "getCities/" + selectedValue + '',
+				url: "/getCities/" + selectedValue + '',
 				success: function (result) {
+					$("#inputCity").prop('disabled', false);
 					$("#inputCity").empty();
 					$("#inputCity").append($("<option></option>").val("").html("--Select City--"));
 					$.each(result, function () {

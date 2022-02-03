@@ -90,7 +90,9 @@ public class UserDetailsDAO implements IUserDetailsDAO {
 
 	@Override
 	public void delete(Long id) {
-
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("id", id);
+		jdbcTemplate.update("update userDetails set isActive=true where userDetailsId=:id", sc);
 	}
 
 	@Override

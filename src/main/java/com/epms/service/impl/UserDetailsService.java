@@ -49,8 +49,7 @@ public class UserDetailsService implements IUserDetailsService {
 	
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-		
+		userDetailsDAO.delete(id);
 	}
 
 	@Override

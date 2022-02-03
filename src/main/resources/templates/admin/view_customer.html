@@ -1,0 +1,68 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/_layout}">
+
+<head>
+	<title>Add Customer</title>
+	<style>
+		.page-title-box .page-title-right {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<div class="page-title-right">
+							<a th:href="@{/admin/list-customer}" class="btn btn-secondary mb-2">Back</a>
+						</div>
+						<h4 class="page-title">View Customer</h4>
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<dl class="row mb-0">
+								<dt class="col-sm-3">First Name</dt>
+								<dd class="col-sm-9" th:text="${customer.isActive}"></dd>
+
+								<dt class="col-sm-3">Euismod</dt>
+								<dd class="col-sm-9">
+									<p>Vestibulum id ligula porta felis euismod semper eget lacinia odio sem nec elit.
+									</p>
+									<p>Donec id elit non mi porta gravida at eget metus.</p>
+								</dd>
+
+								<dt class="col-sm-3">Malesuada porta</dt>
+								<dd class="col-sm-9">Etiam porta sem malesuada magna mollis euismod.</dd>
+
+								<dt class="col-sm-3 text-truncate">Truncated term is truncated</dt>
+								<dd class="col-sm-9">Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum
+									nibh, ut fermentum massa justo sit amet risus.</dd>
+
+								<dt class="col-sm-3">Nesting</dt>
+								<dd class="col-sm-9">
+									<dl class="row mb-0">
+										<dt class="col-sm-4">Nested definition list</dt>
+										<dd class="col-sm-8">Aenean posuere, tortor sed cursus feugiat, nunc augue
+											blandit nunc.</dd>
+									</dl>
+								</dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+	</th:block>
+</body>
+
+</html>
