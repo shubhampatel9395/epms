@@ -15,4 +15,10 @@ public class AdminController {
 	public ModelAndView homePage() {
 		return new ModelAndView("admin/index");
 	}
+	
+	@GetMapping("/list-customer")
+	public ModelAndView listCustomer() {
+		return new ModelAndView("admin/customer");
+	}
+	
 }

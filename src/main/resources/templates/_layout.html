@@ -165,7 +165,7 @@
 
 									<li class="nav-item"
 										th:classappend="${#request.getRequestURI().startsWith('/events') ? 'active' : '' }">
-										<a class="nav-link" href="/events">
+										<a class="nav-link" th:href="@{/logout}">
 											<i class="mdi mdi-calendar-multiple-check"></i><span> Events </span>
 										</a>
 									</li>
