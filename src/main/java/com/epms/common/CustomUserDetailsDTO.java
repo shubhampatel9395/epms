@@ -13,17 +13,16 @@ import com.epms.dto.UserDetailsDTO;
 public class CustomUserDetailsDTO implements UserDetails {
 
 	private UserDetailsDTO userDetailsDTO;
-	
-	
+
 	public CustomUserDetailsDTO(UserDetailsDTO userDetailsDTO) {
 		this.userDetailsDTO = userDetailsDTO;
 	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-       authorities.add(new SimpleGrantedAuthority(userDetailsDTO.getRoleName()));
-        return authorities;
+		List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+		authorities.add(new SimpleGrantedAuthority(userDetailsDTO.getRoleName()));
+		return authorities;
 	}
 
 	@Override
@@ -39,6 +38,11 @@ public class CustomUserDetailsDTO implements UserDetails {
 	public String getRoleName() {
 		return userDetailsDTO.getRoleName();
 	}
+
+	public Integer getUserDetailsId() {
+		return userDetailsDTO.getUserDetailsId();
+	}
+	
 	@Override
 	public boolean isAccountNonExpired() {
 		return true;
@@ -60,6 +64,6 @@ public class CustomUserDetailsDTO implements UserDetails {
 	}
 
 	public String getFullName() {
-		return userDetailsDTO.getFirstName() +" " + userDetailsDTO.getLastName();
+		return userDetailsDTO.getFirstName() + " " + userDetailsDTO.getLastName();
 	}
 }

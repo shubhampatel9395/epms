@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.epms.common.CustomUserDetailsDTO;
 import com.epms.dto.AddressDTO;
 import com.epms.dto.EnuCityDTO;
 import com.epms.dto.EnuStateDTO;
@@ -98,16 +99,33 @@ public class CustomerController {
 
 	@GetMapping("login")
 	public ModelAndView viewLoginPage() {
-		return new ModelAndView("login");
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+			return new ModelAndView("login");
+		} else {
+			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) authentication.getPrincipal();
+			if (userDetails.getRoleName().equalsIgnoreCase("ROLE_CUSTOMER")) {
+				return new ModelAndView("index"); // customer index
+			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_ADMIN")) {
+				return new ModelAndView("admin/dashboard");
+			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_SERVICEPROVIDER")) {
+				return new ModelAndView("serviceprovider/index");
+			}
+		}
+		return new ModelAndView("index");
+
 	}
-	
+
 	@GetMapping("logout")
 	public ModelAndView logoutPage() {
-		return new ModelAndView("redirect:/login");
+		return new ModelAndView("login");
 	}
 
 	@GetMapping("events")
 	public ModelAndView events() {
+//		CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) SecurityContextHolder.getContext().getAuthentication()
+//				.getPrincipal();
+//		System.out.println(userDetails.getUserDetailsId());
 		final ModelAndView modelandmap = new ModelAndView("events");
 		return modelandmap;
 	}
