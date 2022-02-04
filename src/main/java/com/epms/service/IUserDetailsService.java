@@ -8,6 +8,7 @@ import com.epms.dto.UserDetailsDTO;
 
 public interface IUserDetailsService {
 	public List<UserDetailsDTO> findAll();
+	public List<UserDetailsDTO> findAllActive();
 	public UserDetailsDTO findById(Long id);	
 	public List<UserDetailsDTO> findByFieldValue(String fieldName, Object fieldValue);
 	public List<UserDetailsDTO> findByNamedParameters(MapSqlParameterSource paramSource);

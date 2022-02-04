@@ -20,7 +20,7 @@ import groovy.util.logging.Slf4j;
 
 @Repository
 @Slf4j
-public class ServiceProviderDAO implements IServiceProviderDAO {
+public class ServiceProviderDAO implements IServiceProviderDAO{
 	@Autowired
 	NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -28,6 +28,14 @@ public class ServiceProviderDAO implements IServiceProviderDAO {
 	public List<ServiceProviderDTO> findAll() {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * from serviceprovider");
+		return jdbcTemplate.query(sql.toString(), new MapSqlParameterSource(),
+				new BeanPropertyRowMapper<ServiceProviderDTO>(ServiceProviderDTO.class));
+	}
+	
+	@Override
+	public List<ServiceProviderDTO> findAllActive() {
+		StringBuilder sql = new StringBuilder();
+		sql.append("select * from serviceprovider where isActive=true");
 		return jdbcTemplate.query(sql.toString(), new MapSqlParameterSource(),
 				new BeanPropertyRowMapper<ServiceProviderDTO>(ServiceProviderDTO.class));
 	}

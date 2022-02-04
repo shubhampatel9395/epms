@@ -31,6 +31,11 @@ public class UserDetailsService implements IUserDetailsService {
 	}
 	
 	@Override
+	public List<UserDetailsDTO> findAllActive() {
+		return userDetailsDAO.findAllActive();
+	}
+	
+	@Override
 	public UserDetailsDTO findById(Long id)
 	{
 		return userDetailsDAO.findById(id);
@@ -46,7 +51,6 @@ public class UserDetailsService implements IUserDetailsService {
 		return userDetailsDAO.findByNamedParameters(paramSource);
 	}
 
-	
 	@Override
 	public void delete(Long id) {
 		userDetailsDAO.delete(id);
@@ -54,9 +58,6 @@ public class UserDetailsService implements IUserDetailsService {
 
 	@Override
 	public UserDetailsDTO update(UserDetailsDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		return userDetailsDAO.update(entity);
 	}
-
-	
 }

@@ -34,6 +34,14 @@ public class UserDetailsDAO implements IUserDetailsDAO {
 	}
 
 	@Override
+	public List<UserDetailsDTO> findAllActive() {
+		StringBuilder sql = new StringBuilder();
+		sql.append("select * from userdetails where isActive=true");
+		return jdbcTemplate.query(sql.toString(), new MapSqlParameterSource(),
+				new BeanPropertyRowMapper<UserDetailsDTO>(UserDetailsDTO.class));
+	}
+
+	@Override
 	public List<UserDetailsDTO> findByFieldValue(String fieldName, Object fieldValue) {
 		String sql = "select * from userdetails where :fieldName = :fieldValue";
 		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
@@ -92,12 +100,18 @@ public class UserDetailsDAO implements IUserDetailsDAO {
 	public void delete(Long id) {
 		MapSqlParameterSource sc = new MapSqlParameterSource();
 		sc.addValue("id", id);
-		jdbcTemplate.update("update userDetails set isActive=true where userDetailsId=:id", sc);
+		jdbcTemplate.update("update userDetails set isActive=false where userDetailsId=:id", sc);
 	}
 
 	@Override
 	public UserDetailsDTO update(UserDetailsDTO entity) {
-		return null;
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("userDetailsId", entity.getUserDetailsId());
+		sc.addValue("firstName", entity.getFirstName());
+		sc.addValue("lastName", entity.getLastName());
+		sc.addValue("email", entity.getEmail());
+		sc.addValue("mobileNumber", entity.getMobileNumber());
+		jdbcTemplate.update("update userDetails set firstName=:firstName,lastName=:lastName,email=:email,mobileNumber=:mobileNumber where userDetailsId=:userDetailsId",sc);
+		return entity;
 	}
-
 }

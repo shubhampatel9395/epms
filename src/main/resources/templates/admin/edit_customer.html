@@ -2,7 +2,7 @@
 	layout:decorate="~{admin/_layout}">
 
 <head>
-	<title>Add Customer</title>
+	<title>Update Customer Details</title>
 	<style>
 		.page-title-box .page-title-right {
 			display: block;
@@ -20,13 +20,16 @@
 						<div class="page-title-right">
 							<a th:href="@{/admin/list-customer}" class="btn btn-secondary mb-2">Back</a>
 						</div>
-						<h4 class="page-title">Add Customer</h4>
+						<h4 class="page-title">Edit Customer</h4>
 					</div>
 				</div>
 				<div class="col-12">
 					<div class="card">
 						<div class="card-body">
-							<form th:action="@{/admin/add_customer}" method="post">
+							<form th:action="@{/admin/edit_customer}" method="post">
+								<input type="hidden" th:field="*{userDetailsDTO.userDetailsId}" />
+								<input type="hidden" th:field="*{userDetailsDTO.addressId}" />
+								
 								<div class="mb-3">
 									<label for="firstname" class="form-label">First Name</label>
 									<input class="form-control" th:field="*{userDetailsDTO.firstName}" type="text"
@@ -41,11 +44,6 @@
 									<label for="emailaddress" class="form-label">Email address</label>
 									<input class="form-control" th:field="*{userDetailsDTO.email}" type="email"
 										id="email" required placeholder="Enter your email">
-								</div>
-								<div class="mb-3">
-									<label for="password" class="form-label">Password</label>
-									<input class="form-control" th:field="*{userDetailsDTO.password}" type="password"
-										required id="password" placeholder="Enter your password">
 								</div>
 								<div class="mb-3">
 									<label for="mobileNumber" class="form-label">Mobile Number</label>
@@ -77,15 +75,19 @@
 									</div>
 									<div class="mb-3 col-md-6">
 										<label for="inputState" class="form-label">State</label>
-										<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select" disabled>
+										<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select">
 											<option value="">--Select State--</option>
+											<option th:each="state : ${states}" th:value="${state.stateId}"
+												th:text="${state.state}"></option>
 										</select>
 									</div>
 								</div>
 								<div class="mb-3">
 									<label for="inputCity" class="form-label">City</label>
-									<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select" disabled>
+									<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select">
 										<option value="" readonly>--Select City--</option>
+										<option th:each="city : ${cities}" th:value="${city.cityId}"
+												th:text="${city.city}"></option>
 									</select>
 								</div>
 
@@ -95,8 +97,8 @@
 										id="inputZip" data-toggle="input-mask" data-mask-format="000000">
 								</div>
 								<div class="mb-0 d-grid text-center">
-									<button class="btn btn-primary" type="submit"><i class="mdi mdi-plus-circle me-2"></i>
-									Add Customer
+									<button class="btn btn-primary" type="submit">
+										Save Customer
 									</button>
 								</div>
 								<!-- social-->
@@ -112,6 +114,7 @@
 
 	<th:block layout:fragment="script">
 		<script type="text/javascript">
+
 			$("#inputCountry").change(function () {
 				var selectedValue = $(this)
 					.find(":selected")

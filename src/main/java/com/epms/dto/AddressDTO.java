@@ -19,8 +19,7 @@ public class AddressDTO {
 	private String postalCode;
 	private Date createdAt;
 	private Date updatedAt;
-	private boolean isActive;
+	private Boolean isActive;
 	private Integer createdBy;
 	private Integer updatedBy;
-
 }

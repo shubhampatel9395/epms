@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.epms.dao.IAddressDAO;
 import com.epms.dto.AddressDTO;
-import com.epms.dto.UserDetailsDTO;
 import com.epms.service.IAddressService;
 
 import groovy.util.logging.Slf4j;
@@ -49,8 +48,7 @@ public class AddressService implements IAddressService {
 
 	@Override
 	public AddressDTO update(AddressDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		return addressDAO.update(entity);
 	}
 
 	@Override

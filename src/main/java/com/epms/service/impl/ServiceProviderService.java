@@ -33,8 +33,16 @@ public class ServiceProviderService implements IServiceProviderService {
 	@Override
 	public List<ServiceProviderDTO> findAll() {
 		// TODO Auto-generated method stub
-		return null;
+		return serviceProviderDAO.findAll();
 	}
+	
+
+	@Override
+	public List<ServiceProviderDTO> findAllActive() {
+		// TODO Auto-generated method stub
+		return serviceProviderDAO.findAllActive();
+	}
+
 
 	@Override
 	public List<ServiceProviderDTO> findByNamedParameters(MapSqlParameterSource paramSource) {
@@ -58,5 +66,4 @@ public class ServiceProviderService implements IServiceProviderService {
 	public List<ServiceProviderDTO> findByFieldValue(String fieldName, Object fieldValue) {
 		return serviceProviderDAO.findByFieldValue(fieldName, fieldValue);
 	}
-
 }

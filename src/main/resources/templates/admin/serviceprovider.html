@@ -2,7 +2,7 @@
 	layout:decorate="~{admin/_layout}">
 
 <head>
-	<title>Customers List</title>
+	<title>Service Providers List</title>
 	<!-- third party css -->
 	<link th:href="@{/assets/css/vendor/dataTables.bootstrap5.css}" rel="stylesheet" type="text/css" />
 	<link th:href="@{/assets/css/vendor/responsive.bootstrap5.css}" rel="stylesheet" type="text/css" />
@@ -21,9 +21,9 @@
 					<div class="page-title-box">
 						<div class="page-title-right">
 							<a th:href="@{/admin/add_customer}" class="btn btn-danger mb-2"><i
-									class="mdi mdi-plus-circle me-2"></i> Add Customer</a>
+									class="mdi mdi-plus-circle me-2"></i> Add Service Provider</a>
 						</div>
-						<h4 class="page-title">Customers</h4>
+						<h4 class="page-title">Service Providers</h4>
 					</div>
 				</div>
 			</div>
@@ -37,32 +37,62 @@
 								<table id="basic-datatable" class="table dt-responsive nowrap w-100">
 									<thead>
 										<tr>
-											<th>First Name</th>
-											<th>Last Name</th>
-											<th>Address</th>
+											<th>Service Provider Name</th>
+											<!--<th>Address</th>-->
 											<th>Email Address</th>
 											<th>Mobile Number</th>
+											<th>Service Type</th>
+											<th>Service Cost</th>
 											<th style="width: 85px;">Action</th>
 										</tr>
 									</thead>
 
 
 									<tbody>
-										<tr th:each="customer : ${customers}">
-											<td th:text="${customer.firstName}"></td>
-											<td th:text="${customer.lastName}"></td>
-											<td
-												th:utext="${#strings.replace(addresses[customerStat.index],'&#10;','&lt;br&gt;')}">
+										<tr th:each="serviceProvider : ${serviceProviders}">
+											<td th:text="${userDetails[serviceProviderStat.index].serviceProviderName}">
 											</td>
-											<td th:text="${customer.email}"></td>
-											<td th:text="${customer.mobileNumber}"></td>
+											<!--
+												<td th:utext="${#strings.replace(addresses[serviceProviderStat.index],'&#10;','&lt;br&gt;')}"></td>
+											-->
+											<td th:text="${userDetails[serviceProviderStat.index].email}"></td>
+											<td th:text="${userDetails[serviceProviderStat.index].mobileNumber}"></td>
+											<td th:text="${serviceTypes[serviceProviderStat.index]}"></td>
+											<td th:text="${serviceProvider.cost}"></td>
 											<td class="table-action">
-												<a th:href="@{'/admin/view_customer/' + ${customer.userDetailsId}}"
-													class="action-icon"> <i class="mdi mdi-eye"></i></a>
-												<a th:href="@{'/admin/edit_customer/' + ${customer.userDetailsId}}"
-													class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a>
-												<a data-bs-toggle="modal" data-bs-target="#staticBackdrop"
-													th:href="@{'/admin/delete_customer/' + ${customer.userDetailsId}}"
+												<a data-bs-toggle="modal" data-bs-target="#staticBackdrop1"
+													th:if="${!(userDetails[serviceProviderStat.index].isAuth)}" href="#"
+													class="action-icon"> <i class="mdi mdi-check-bold"></i></a>
+												<!-- Modal -->
+												<div class="modal fade" id="staticBackdrop1" data-bs-backdrop="static"
+													data-bs-keyboard="false" tabindex="-1"
+													aria-labelledby="staticBackdropLabel" aria-hidden="true">
+													<div class="modal-dialog">
+														<div class="modal-content">
+															<div class="modal-header">
+																<h5 class="modal-title" id="staticBackdropLabel">
+																	Authenticate Service Provider
+																</h5>
+																<button type="button" class="btn-close"
+																	data-bs-dismiss="modal" aria-hidden="true"></button>
+															</div> <!-- end modal header -->
+															<div class="modal-body">
+																Are you sure you want to authenticate this service
+																provider?
+															</div>
+															<div class="modal-footer">
+																<button type="button" class="btn btn-secondary"
+																	data-bs-dismiss="modal">Close</button>
+																<a type="button" href="#"
+																	class="btn btn-danger">Authenticate</a>
+															</div> <!-- end modal footer -->
+														</div> <!-- end modal content-->
+													</div> <!-- end modal dialog-->
+												</div> <!-- end modal-->
+												<a href="#" class="action-icon"> <i class="mdi mdi-eye"></i></a>
+												<a href="#" class="action-icon"> <i
+														class="mdi mdi-square-edit-outline"></i></a>
+												<a data-bs-toggle="modal" data-bs-target="#staticBackdrop" href="#"
 													class="action-icon"> <i class="mdi mdi-delete"></i></a>
 												<!-- Modal -->
 												<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static"
@@ -72,18 +102,18 @@
 														<div class="modal-content">
 															<div class="modal-header">
 																<h5 class="modal-title" id="staticBackdropLabel">
-																Delete Customer
+																	Delete Service Provider
 																</h5>
 																<button type="button" class="btn-close"
 																	data-bs-dismiss="modal" aria-hidden="true"></button>
 															</div> <!-- end modal header -->
 															<div class="modal-body">
-																Are you sure you want to deactive this customer?
+																Are you sure you want to deactive this service provider?
 															</div>
 															<div class="modal-footer">
 																<button type="button" class="btn btn-secondary"
 																	data-bs-dismiss="modal">Close</button>
-																<a type="button" th:href="@{'/admin/delete_customer/' + ${customer.userDetailsId}}"
+																<a type="button" href="#"
 																	class="btn btn-danger">Delete</a>
 															</div> <!-- end modal footer -->
 														</div> <!-- end modal content-->

@@ -27,7 +27,7 @@ public class AddressDAO implements IAddressDAO {
 	@Override
 	public List<AddressDTO> findAll() {
 		StringBuilder sql = new StringBuilder();
-		sql.append("select addressId,address1,address2,city,stateId,countryId,postalCode from address");
+		sql.append("select * from address");
 		return jdbcTemplate.query(sql.toString(), new MapSqlParameterSource(),
 				new BeanPropertyRowMapper<AddressDTO>(AddressDTO.class));
 	}
@@ -44,7 +44,7 @@ public class AddressDAO implements IAddressDAO {
 	
 	@Override
 	public List<AddressDTO> findByNamedParameters(MapSqlParameterSource paramSource) {
-		String sql = "select addressId,address1,address2,city,stateId,countryId,postalCode from address where 1=1 ";
+		String sql = "select * from address where 1=1 ";
 		for (Entry<String, Object> param : paramSource.getValues().entrySet()) {
 			sql += " and " + param.getKey() + " = :" + param.getKey();
 		}
@@ -54,7 +54,7 @@ public class AddressDAO implements IAddressDAO {
 
 	@Override
 	public AddressDTO findById(Long addressId) {
-		String sql = "select  addressId,address1,address2,cityId,stateId,countryId,postalCode from address where addressId = :addressId";
+		String sql = "select * from address where addressId = :addressId";
 
 		MapSqlParameterSource namedParameters = new MapSqlParameterSource().addValue("addressId", addressId);
 
@@ -89,13 +89,19 @@ public class AddressDAO implements IAddressDAO {
 	@Override
 	public void delete(Long id) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public AddressDTO update(AddressDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+		parameterSource.addValue("addressId", entity.getAddressId());
+		parameterSource.addValue("address1", entity.getAddress1());
+		parameterSource.addValue("address2", entity.getAddress2());
+		parameterSource.addValue("cityId", entity.getCityId());
+		parameterSource.addValue("stateId", entity.getStateId());
+		parameterSource.addValue("countryId", entity.getCountryId());
+		parameterSource.addValue("postalCode", entity.getPostalCode());
+		jdbcTemplate.update("update address set address1=:address1,address2=:address2,cityId=:cityId,stateId=:stateId,countryId=:countryId,postalCode=:postalCode where addressId=:addressId", parameterSource);
+		return entity;
 	}
-
 }

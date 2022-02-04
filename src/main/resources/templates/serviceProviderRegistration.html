@@ -101,14 +101,14 @@
 							</div>
 							<div class="mb-3 col-md-6">
 								<label for="inputState" class="form-label">State</label>
-								<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select">
+								<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select" disabled>
 									<option value="">--Select State--</option>
 								</select>
 							</div>
 						</div>
 						<div class="mb-3">
 							<label for="inputCity" class="form-label">City</label>
-							<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select">
+							<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select" disabled>
 								<option value="" readonly>--Select City--</option>
 							</select>
 						</div>
@@ -165,42 +165,55 @@
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
 	<script th:src="@{/assets/js/app.min.js}"></script>
 	<script type="text/javascript">
-		$("#inputCountry").change(function () {
-			var selectedValue = $(this)
-				.find(":selected")
-				.val();
-			$.ajax({
-				type: "GET",
-				dataType: 'json',
-				url: "getStates/" + selectedValue + '',
-				success: function (result) {
-					$("#inputState").empty();
-					$("#inputState").append($("<option></option>").val("").html("--Select State--"));
-					$.each(result, function () {
-						$("#inputState").append($("<option></option>").val(this['stateId']).html(this['state']));
-					});
-				}
-			});
-		});
+			$("#inputCountry").change(function () {
+				var selectedValue = $(this)
+					.find(":selected")
+					.val();
+				if (selectedValue === "") {
+					$("#inputState").val("");
+					$("#inputState").prop('disabled', true);
 
-		$("#inputState").change(function () {
-			var selectedValue = $(this)
-				.find(":selected")
-				.val();
-			$.ajax({
-				type: "GET",
-				dataType: 'json',
-				url: "getCities/" + selectedValue + '',
-				success: function (result) {
-					$("#inputCity").empty();
-					$("#inputCity").append($("<option></option>").val("").html("--Select City--"));
-					$.each(result, function () {
-						$("#inputCity").append($("<option></option>").val(this['cityId']).html(this['city']));
-					});
+					$("#inputCity").val("");
+					$("#inputCity").prop('disabled', true);
 				}
+				$.ajax({
+					type: "GET",
+					dataType: 'json',
+					url: "/getStates/" + selectedValue + '',
+					success: function (result) {
+						$("#inputState").prop('disabled', false);
+						$("#inputState").empty();
+						$("#inputState").append($("<option></option>").val("").html("--Select State--"));
+						$.each(result, function () {
+							$("#inputState").append($("<option></option>").val(this['stateId']).html(this['state']));
+						});
+					}
+				});
 			});
-		});
-	</script>
+
+			$("#inputState").change(function () {
+				var selectedValue = $(this)
+					.find(":selected")
+					.val();
+				if (selectedValue === "") {
+					$("#inputCity").val("");
+					$("#inputCity").prop('disabled', true);
+				}
+				$.ajax({
+					type: "GET",
+					dataType: 'json',
+					url: "/getCities/" + selectedValue + '',
+					success: function (result) {
+						$("#inputCity").prop('disabled', false);
+						$("#inputCity").empty();
+						$("#inputCity").append($("<option></option>").val("").html("--Select City--"));
+						$.each(result, function () {
+							$("#inputCity").append($("<option></option>").val(this['cityId']).html(this['city']));
+						});
+					}
+				});
+			});
+		</script>
 </body>
 
 
