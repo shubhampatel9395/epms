@@ -20,7 +20,7 @@ import groovy.util.logging.Slf4j;
 
 @Repository
 @Slf4j
-public class ServiceProviderDAO implements IServiceProviderDAO{
+public class ServiceProviderDAO implements IServiceProviderDAO {
 	@Autowired
 	NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -31,7 +31,7 @@ public class ServiceProviderDAO implements IServiceProviderDAO{
 		return jdbcTemplate.query(sql.toString(), new MapSqlParameterSource(),
 				new BeanPropertyRowMapper<ServiceProviderDTO>(ServiceProviderDTO.class));
 	}
-	
+
 	@Override
 	public List<ServiceProviderDTO> findAllActive() {
 		StringBuilder sql = new StringBuilder();
@@ -47,9 +47,10 @@ public class ServiceProviderDAO implements IServiceProviderDAO{
 		namedParameters.addValue("fieldName", fieldName);
 		namedParameters.addValue("fieldValue", fieldValue);
 
-		return jdbcTemplate.query(sql, namedParameters, new BeanPropertyRowMapper<ServiceProviderDTO>(ServiceProviderDTO.class));
+		return jdbcTemplate.query(sql, namedParameters,
+				new BeanPropertyRowMapper<ServiceProviderDTO>(ServiceProviderDTO.class));
 	}
-	
+
 	@Override
 	public List<ServiceProviderDTO> findByNamedParameters(MapSqlParameterSource paramSource) {
 		String sql = "select * from serviceprovider where 1=1 ";
@@ -57,7 +58,8 @@ public class ServiceProviderDAO implements IServiceProviderDAO{
 			sql += " and " + param.getKey() + " = :" + param.getKey();
 		}
 
-		return jdbcTemplate.query(sql, paramSource, new BeanPropertyRowMapper<ServiceProviderDTO>(ServiceProviderDTO.class));
+		return jdbcTemplate.query(sql, paramSource,
+				new BeanPropertyRowMapper<ServiceProviderDTO>(ServiceProviderDTO.class));
 	}
 
 	@Override
@@ -85,16 +87,18 @@ public class ServiceProviderDAO implements IServiceProviderDAO{
 		sc.addValue("password", entity.getPassword());
 		sc.addValue("mobileNumber", entity.getMobileNumber());
 		sc.addValue("isAuth", false);
+		sc.addValue("isCustomer", false);
 		sc.addValue("isServiceProvider", true);
+		sc.addValue("roleName", "ROLE_SERVICEPROVIDER");
 
 		int i = jdbcTemplate.update(
-				"insert into userDetails(serviceProviderName,addressId,email,password,mobileNumber,isAuth,isServiceProvider) values(:serviceProviderName,:addressId,:email,:password,:mobileNumber,:isAuth,:isServiceProvider)",
+				"insert into userDetails(serviceProviderName,addressId,email,password,mobileNumber,isAuth,isCustomer,isServiceProvider,roleName) values(:serviceProviderName,:addressId,:email,:password,:mobileNumber,:isAuth,:isCustomer,:isServiceProvider,:roleName)",
 				sc, keyHolder, new String[] { "userDetailsId" });
-		
+
 		sc.addValue("userDetailsId", keyHolder.getKey().longValue());
 		sc.addValue("serviceTypeId", entity.getServiceTypeId());
 		sc.addValue("cost", entity.getCost());
-		
+
 		i = jdbcTemplate.update(
 				"insert into serviceprovider(userDetailsId,serviceTypeId,cost) values(:userDetailsId,:serviceTypeId,:cost)",
 				sc, keyHolder, new String[] { "serviceProviderId" });
@@ -104,14 +108,44 @@ public class ServiceProviderDAO implements IServiceProviderDAO{
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+		parameterSource.addValue("serviceProviderId", id);
+		// jdbcTemplate.update("update userDetails set isActive=false where userDetailsId=(select userDetailsId from serviceprovider where serviceProviderId=:serviceProviderId)", parameterSource);
+		jdbcTemplate.update("update serviceprovider set isActive=false where serviceProviderId=:serviceProviderId",
+				parameterSource);
 	}
 
 	@Override
 	public ServiceProviderDTO update(ServiceProviderDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+
+		// Update UserDetails
+		parameterSource.addValue("userDetailsId", entity.getUserDetailsId());
+		parameterSource.addValue("serviceProviderName", entity.getServiceProviderName());
+		parameterSource.addValue("email", entity.getEmail());
+		parameterSource.addValue("mobileNumber", entity.getMobileNumber());
+		jdbcTemplate.update(
+				"update userDetails set serviceProviderName=:serviceProviderName,email=:email,mobileNumber=:mobileNumber where userDetailsId=:userDetailsId",
+				parameterSource);
+
+		// Update Service Provider
+		parameterSource.addValue("serviceProviderId", entity.getServiceProviderId());
+		parameterSource.addValue("serviceTypeId", entity.getServiceTypeId());
+		parameterSource.addValue("cost", entity.getCost());
+		jdbcTemplate.update(
+				"update serviceprovider set serviceTypeId=:serviceTypeId,cost=:cost where serviceProviderId=:serviceProviderId",
+				parameterSource);
+
+		return entity;
+	}
+
+	@Override
+	public void authenticate(Long id) {
+		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+		parameterSource.addValue("serviceProviderId", id);
+		jdbcTemplate.update(
+				"update userdetails set isAuth=true where userDetailsId=(select userDetailsId from serviceprovider where serviceProviderId=:serviceProviderId)",
+				parameterSource);
 	}
 
 }

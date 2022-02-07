@@ -41,10 +41,10 @@ public class AdminController {
 
 	@Autowired
 	IUserDetailsService userDetailsService;
-	
+
 	@Autowired
 	IServiceProviderService serviceProviderService;
-	
+
 	@Autowired
 	IEnuServiceTypeService enuserviceTypeService;
 
@@ -54,6 +54,26 @@ public class AdminController {
 	@Autowired
 	IAddressService addressService;
 
+	@Autowired
+	IEnuServiceTypeService enuServiceTypeService;
+
+	public String getAddress(AddressDTO addressDTO) {
+		String address;
+		if (addressDTO.getIsActive() == true) {
+			address = addressDTO.getAddress1();
+			if (addressDTO.getAddress2() != null) {
+				address += ", " + addressDTO.getAddress2();
+			}
+			address += ",\n " + enuCityService.findById(addressDTO.getCityId().longValue()).getCity() + ", "
+					+ enuStateService.findById(addressDTO.getStateId().longValue()).getState() + ", "
+					+ enuCountryService.findById(addressDTO.getCountryId().longValue()).getCountry() + " - "
+					+ addressDTO.getPostalCode();
+		} else {
+			address = null;
+		}
+		return address;
+	}
+
 	@GetMapping("/dashboard")
 	public ModelAndView homePage() {
 		return new ModelAndView("admin/index");
@@ -62,7 +82,13 @@ public class AdminController {
 	@GetMapping("/list-customer")
 	public ModelAndView listCustomer() {
 		ModelAndView modelandmap = new ModelAndView("admin/customer");
-		List<UserDetailsDTO> customers = userDetailsService.findAllActive();
+		
+		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+		parameterSource.addValue("isCustomer", true);
+		parameterSource.addValue("isActive", true);
+		
+		// List<UserDetailsDTO> customers = userDetailsService.findAllActive();
+		List<UserDetailsDTO> customers = userDetailsService.findByNamedParameters(parameterSource);
 		List<String> addresses = new ArrayList<>();
 		for (int i = 0; i < customers.size(); i++) {
 			addresses.add(getAddress(addressService.findById(customers.get(i).getAddressId().longValue())));
@@ -71,31 +97,39 @@ public class AdminController {
 		modelandmap.addObject("addresses", addresses);
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/list-serviceprovider")
 	public ModelAndView listServiceProvider() {
 		ModelAndView modelandmap = new ModelAndView("admin/serviceprovider");
 		List<ServiceProviderDTO> serviceProviders = serviceProviderService.findAllActive();
-		List<UserDetailsDTO> userDetails =  new ArrayList<>();
+		List<UserDetailsDTO> userDetails = new ArrayList<>();
 		List<String> serviceTypes = new ArrayList<>();
 		List<String> addresses = new ArrayList<>();
-		
+
 		for (int i = 0; i < serviceProviders.size(); i++) {
 			userDetails.add(userDetailsService.findById(serviceProviders.get(i).getUserDetailsId().longValue()));
 		}
-		
+
 		for (int i = 0; i < serviceProviders.size(); i++) {
-			serviceTypes.add(enuserviceTypeService.findById(serviceProviders.get(i).getServiceTypeId().longValue()).getService());
+			serviceTypes.add(enuserviceTypeService.findById(serviceProviders.get(i).getServiceTypeId().longValue())
+					.getService());
 		}
-		
+
 		for (int i = 0; i < userDetails.size(); i++) {
 			addresses.add(getAddress(addressService.findById(userDetails.get(i).getAddressId().longValue())));
 		}
-		
+
 		modelandmap.addObject("serviceProviders", serviceProviders);
-		modelandmap.addObject("userDetails",userDetails);
-		modelandmap.addObject("serviceTypes",serviceTypes);
+		modelandmap.addObject("userDetails", userDetails);
+		modelandmap.addObject("serviceTypes", serviceTypes);
 		modelandmap.addObject("addresses", addresses);
+		return modelandmap;
+	}
+
+	@GetMapping("/authenticate-serviceprovider/{serviceProviderId}")
+	public ModelAndView authenticateServiceprovider(@PathVariable("serviceProviderId") long serviceProviderId) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
+		serviceProviderService.authenticate(serviceProviderId);
 		return modelandmap;
 	}
 
@@ -126,21 +160,31 @@ public class AdminController {
 		return modelandmap;
 	}
 
-	public String getAddress(AddressDTO addressDTO) {
-		String address;
-		if (addressDTO.getIsActive() == true) {
-			address = addressDTO.getAddress1();
-			if (addressDTO.getAddress2() != null) {
-				address += ", " + addressDTO.getAddress2();
-			}
-			address += ",\n " + enuCityService.findById(addressDTO.getCityId().longValue()).getCity() + ", "
-					+ enuStateService.findById(addressDTO.getStateId().longValue()).getState() + ", "
-					+ enuCountryService.findById(addressDTO.getCountryId().longValue()).getCountry() + " - "
-					+ addressDTO.getPostalCode();
-		} else {
-			address = null;
-		}
-		return address;
+	@GetMapping("/add_serviceprovider")
+	public ModelAndView addServiceProvider() {
+		ModelAndView modelandmap = new ModelAndView("admin/add_serviceprovider");
+		// TODO make form object
+		modelandmap.addObject("countries", enuCountryService.findAll());
+		modelandmap.addObject("serviceTypes", enuServiceTypeService.findAllActive());
+		modelandmap.addObject("serviceProviderDTO", new ServiceProviderDTO());
+		modelandmap.addObject("addressDTO", new AddressDTO());
+		return modelandmap;
+	}
+
+	@PostMapping("/add_serviceprovider")
+	public ModelAndView addNewServiceProvider(
+			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO,
+			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
+		final ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
+
+		serviceProviderDTO.setAddressId(addressService.insert(addressDTO).getAddressId());
+
+		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		String encodedPassword = passwordEncoder.encode(serviceProviderDTO.getPassword());
+		serviceProviderDTO.setPassword(encodedPassword);
+
+		serviceProviderService.insert(serviceProviderDTO);
+		return modelandmap;
 	}
 
 	@GetMapping("/view_customer/{customerId}")
@@ -153,10 +197,44 @@ public class AdminController {
 		return modelandmap;
 	}
 
+	@GetMapping("/view_serviceprovider/{serviceProviderId}")
+	public ModelAndView viewServiceProvider(@PathVariable("serviceProviderId") long serviceProviderId) {
+		ModelAndView modelandmap = new ModelAndView("admin/view_serviceprovider");
+
+		ServiceProviderDTO serviceProviderDTO = serviceProviderService.findById(serviceProviderId);
+		UserDetailsDTO userDetailsDTO = userDetailsService.findById(serviceProviderDTO.getUserDetailsId().longValue());
+		String serviceType = enuserviceTypeService.findById(serviceProviderDTO.getServiceTypeId().longValue())
+				.getService();
+		String address = getAddress(addressService.findById(userDetailsDTO.getAddressId().longValue()));
+
+		modelandmap.addObject("serviceProviderDTO", serviceProviderDTO);
+		modelandmap.addObject("userDetailsDTO", userDetailsDTO);
+		modelandmap.addObject("serviceType", serviceType);
+		modelandmap.addObject("address", address);
+
+		return modelandmap;
+	}
+
 	@GetMapping("/delete_customer/{customerId}")
 	public ModelAndView deleteCustomer(@PathVariable("customerId") long userDetailsId) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-customer");
+		UserDetailsDTO userDetailsDTO = userDetailsService.findById(userDetailsId);
+		
+		addressService.delete(userDetailsDTO.getAddressId().longValue());
 		userDetailsService.delete(userDetailsId);
+		
+		return modelandmap;
+	}
+
+	@GetMapping("/delete_serviceprovider/{serviceProviderId}")
+	public ModelAndView deleteServiceProvider(@PathVariable("serviceProviderId") long serviceProviderId) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
+		UserDetailsDTO userDetailsDTO = userDetailsService.findById(serviceProviderService.findById(serviceProviderId).getUserDetailsId().longValue());
+		
+		addressService.delete(userDetailsDTO.getAddressId().longValue());
+		userDetailsService.delete(userDetailsDTO.getUserDetailsId().longValue());
+		serviceProviderService.delete(serviceProviderId);
+		
 		return modelandmap;
 	}
 
@@ -206,39 +284,139 @@ public class AdminController {
 		if (!(userDetailsDTO.getMobileNumber().equals(oldUserDetailsDTO.getMobileNumber()))) {
 			oldUserDetailsDTO.setMobileNumber(userDetailsDTO.getMobileNumber());
 		}
-		
-		if(!(addressDTO.getAddress1().equals(oldAddressDTO.getAddress1())))
-		{
+
+		if (!(addressDTO.getAddress1().equals(oldAddressDTO.getAddress1()))) {
 			oldAddressDTO.setAddress1(addressDTO.getAddress1());
 		}
-		
-		if(!(addressDTO.getAddress2().equals(oldAddressDTO.getAddress2())))
-		{
+
+		if (!(addressDTO.getAddress2().equals(oldAddressDTO.getAddress2()))) {
 			oldAddressDTO.setAddress2(addressDTO.getAddress2());
 		}
-		
-		if(!(addressDTO.getCityId().equals(oldAddressDTO.getCityId())))
-		{
+
+		if (!(addressDTO.getCityId().equals(oldAddressDTO.getCityId()))) {
 			oldAddressDTO.setCityId(addressDTO.getCityId());
 		}
-		
-		if(!(addressDTO.getStateId().equals(oldAddressDTO.getStateId())))
-		{
+
+		if (!(addressDTO.getStateId().equals(oldAddressDTO.getStateId()))) {
 			oldAddressDTO.setStateId(addressDTO.getStateId());
 		}
-		
-		if(!(addressDTO.getCountryId().equals(oldAddressDTO.getCountryId())))
-		{
+
+		if (!(addressDTO.getCountryId().equals(oldAddressDTO.getCountryId()))) {
 			oldAddressDTO.setCountryId(addressDTO.getCountryId());
 		}
-		
-		if(!(addressDTO.getPostalCode().equals(oldAddressDTO.getPostalCode())))
-		{
+
+		if (!(addressDTO.getPostalCode().equals(oldAddressDTO.getPostalCode()))) {
 			oldAddressDTO.setPostalCode(addressDTO.getPostalCode());
 		}
 
 		addressService.update(oldAddressDTO);
 		userDetailsService.update(oldUserDetailsDTO);
+		return modelandmap;
+	}
+
+	@GetMapping("/edit_serviceprovider/{serviceProviderId}")
+	public ModelAndView editServiceProvider(@PathVariable("serviceProviderId") long serviceProviderId) {
+		ModelAndView modelandmap = new ModelAndView("admin/edit_serviceprovider");
+
+		// TODO make form object
+		ServiceProviderDTO serviceProviderDTO = serviceProviderService.findById(serviceProviderId);
+		// Need it to show details
+		UserDetailsDTO userDetailsDTO = userDetailsService.findById(serviceProviderDTO.getUserDetailsId().longValue());
+		AddressDTO addressDTO = addressService.findById(userDetailsDTO.getAddressId().longValue());
+
+		modelandmap.addObject("serviceProviderDTO", serviceProviderDTO);
+		modelandmap.addObject("userDetailsDTO", userDetailsDTO);
+		modelandmap.addObject("serviceTypes", enuServiceTypeService.findAllActive());
+		modelandmap.addObject("addressDTO", addressDTO);
+
+		modelandmap.addObject("countries", enuCountryService.findAll());
+
+		MapSqlParameterSource paramSource = new MapSqlParameterSource();
+		paramSource.addValue("countryId", addressDTO.getCountryId());
+		modelandmap.addObject("states", enuStateService.findByNamedParameters(paramSource));
+
+		paramSource = new MapSqlParameterSource();
+		paramSource.addValue("stateId", addressDTO.getStateId());
+		modelandmap.addObject("cities", enuCityService.findByNamedParameters(paramSource));
+		return modelandmap;
+	}
+
+	@PostMapping("/edit_serviceprovider")
+	public ModelAndView updateServiceProvider(
+			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO,
+			@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
+			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
+		final ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
+		
+		ServiceProviderDTO oldserviceProviderDTO = serviceProviderService.findById(serviceProviderDTO.getServiceProviderId().longValue());
+		// UserDetailsDTO oldUserDetailsDTO = userDetailsService.findById(userDetailsDTO.getUserDetailsId().longValue());
+		AddressDTO oldAddressDTO = addressService.findById(addressDTO.getAddressId().longValue());
+
+		/*
+		if (!(userDetailsDTO.getServiceProviderName().equals(oldUserDetailsDTO.getServiceProviderName()))) {
+			oldUserDetailsDTO.setServiceProviderName(userDetailsDTO.getServiceProviderName());
+		}
+
+		if (!(userDetailsDTO.getEmail().equals(oldUserDetailsDTO.getEmail()))) {
+			oldUserDetailsDTO.setEmail(userDetailsDTO.getEmail());
+		}
+		
+		if (!(userDetailsDTO.getMobileNumber().equals(oldUserDetailsDTO.getMobileNumber()))) {
+			oldUserDetailsDTO.setMobileNumber(userDetailsDTO.getMobileNumber());
+		}
+		*/
+		
+		serviceProviderDTO.setServiceProviderName(userDetailsDTO.getServiceProviderName());
+		serviceProviderDTO.setMobileNumber(userDetailsDTO.getMobileNumber());
+		serviceProviderDTO.setEmail(userDetailsDTO.getEmail());
+		
+		if (!(serviceProviderDTO.getServiceProviderName().equals(oldserviceProviderDTO.getServiceProviderName()))) {
+			oldserviceProviderDTO.setServiceProviderName(serviceProviderDTO.getServiceProviderName());
+		}
+
+		if (!(serviceProviderDTO.getEmail().equals(oldserviceProviderDTO.getEmail()))) {
+			oldserviceProviderDTO.setEmail(serviceProviderDTO.getEmail());
+		}
+		
+		if (!(serviceProviderDTO.getMobileNumber().equals(oldserviceProviderDTO.getMobileNumber()))) {
+			oldserviceProviderDTO.setMobileNumber(serviceProviderDTO.getMobileNumber());
+		}
+		
+		if (!(serviceProviderDTO.getServiceTypeId().equals(oldserviceProviderDTO.getServiceTypeId()))) {
+			oldserviceProviderDTO.setServiceTypeId(serviceProviderDTO.getServiceTypeId());
+		}
+		
+		if (!(serviceProviderDTO.getCost().equals(oldserviceProviderDTO.getCost()))) {
+			oldserviceProviderDTO.setCost(serviceProviderDTO.getCost());
+		}
+
+		if (!(addressDTO.getAddress1().equals(oldAddressDTO.getAddress1()))) {
+			oldAddressDTO.setAddress1(addressDTO.getAddress1());
+		}
+
+		if (!(addressDTO.getAddress2().equals(oldAddressDTO.getAddress2()))) {
+			oldAddressDTO.setAddress2(addressDTO.getAddress2());
+		}
+
+		if (!(addressDTO.getCityId().equals(oldAddressDTO.getCityId()))) {
+			oldAddressDTO.setCityId(addressDTO.getCityId());
+		}
+
+		if (!(addressDTO.getStateId().equals(oldAddressDTO.getStateId()))) {
+			oldAddressDTO.setStateId(addressDTO.getStateId());
+		}
+
+		if (!(addressDTO.getCountryId().equals(oldAddressDTO.getCountryId()))) {
+			oldAddressDTO.setCountryId(addressDTO.getCountryId());
+		}
+
+		if (!(addressDTO.getPostalCode().equals(oldAddressDTO.getPostalCode()))) {
+			oldAddressDTO.setPostalCode(addressDTO.getPostalCode());
+		}
+
+		addressService.update(oldAddressDTO);
+		// userDetailsService.update(oldUserDetailsDTO);
+		serviceProviderService.update(oldserviceProviderDTO);
 		return modelandmap;
 	}
 }

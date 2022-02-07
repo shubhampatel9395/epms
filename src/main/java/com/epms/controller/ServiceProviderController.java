@@ -91,9 +91,9 @@ public class ServiceProviderController {
 			@Valid @ModelAttribute("addressDTO")AddressDTO addressDTO) {
 		AddressDTO insertAddressDTO = addressService.insert(addressDTO);
 		serviceProviderDTO.setAddressId(insertAddressDTO.getAddressId());
-		ServiceProviderDTO insertServiceProviderDTODTO = serviceProviderService.insert(serviceProviderDTO);
+		ServiceProviderDTO insertServiceProviderDTO = serviceProviderService.insert(serviceProviderDTO);
 		final ModelAndView modelandmap = new ModelAndView("serviceProvider/_layout_serviceProvider");
-		modelandmap.addObject("serviceProviderDTO", insertServiceProviderDTODTO);
+		modelandmap.addObject("serviceProviderDTO", insertServiceProviderDTO);
 		return modelandmap;
 	}
 }

@@ -32,14 +32,12 @@ public class ServiceProviderService implements IServiceProviderService {
 
 	@Override
 	public List<ServiceProviderDTO> findAll() {
-		// TODO Auto-generated method stub
 		return serviceProviderDAO.findAll();
 	}
 	
 
 	@Override
 	public List<ServiceProviderDTO> findAllActive() {
-		// TODO Auto-generated method stub
 		return serviceProviderDAO.findAllActive();
 	}
 
@@ -52,18 +50,21 @@ public class ServiceProviderService implements IServiceProviderService {
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-		
+		serviceProviderDAO.delete(id);
 	}
 
 	@Override
 	public ServiceProviderDTO update(ServiceProviderDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		return serviceProviderDAO.update(entity);
 	}
 
 	@Override
 	public List<ServiceProviderDTO> findByFieldValue(String fieldName, Object fieldValue) {
 		return serviceProviderDAO.findByFieldValue(fieldName, fieldValue);
+	}
+
+	@Override
+	public void authenticate(Long id) {
+		serviceProviderDAO.authenticate(id);
 	}
 }

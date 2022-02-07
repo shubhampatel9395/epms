@@ -16,4 +16,5 @@ public interface IServiceProviderService {
 	public ServiceProviderDTO insert(ServiceProviderDTO serviceProviderDTO);
 	public void delete(Long id);
 	public ServiceProviderDTO update(ServiceProviderDTO entity);
+	public void authenticate(Long id);
 }

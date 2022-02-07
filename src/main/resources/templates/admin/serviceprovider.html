@@ -20,7 +20,7 @@
 				<div class="col-12">
 					<div class="page-title-box">
 						<div class="page-title-right">
-							<a th:href="@{/admin/add_customer}" class="btn btn-danger mb-2"><i
+							<a th:href="@{/admin/add_serviceprovider}" class="btn btn-danger mb-2"><i
 									class="mdi mdi-plus-circle me-2"></i> Add Service Provider</a>
 						</div>
 						<h4 class="page-title">Service Providers</h4>
@@ -61,7 +61,8 @@
 											<td th:text="${serviceProvider.cost}"></td>
 											<td class="table-action">
 												<a data-bs-toggle="modal" data-bs-target="#staticBackdrop1"
-													th:if="${!(userDetails[serviceProviderStat.index].isAuth)}" href="#"
+													th:if="${!(userDetails[serviceProviderStat.index].isAuth)}"
+													th:href="@{'/admin/authenticate-serviceprovider/' + ${serviceProvider.serviceProviderId}}"
 													class="action-icon"> <i class="mdi mdi-check-bold"></i></a>
 												<!-- Modal -->
 												<div class="modal fade" id="staticBackdrop1" data-bs-backdrop="static"
@@ -83,16 +84,19 @@
 															<div class="modal-footer">
 																<button type="button" class="btn btn-secondary"
 																	data-bs-dismiss="modal">Close</button>
-																<a type="button" href="#"
-																	class="btn btn-danger">Authenticate</a>
+																<a type="button"
+																	th:href="@{'/admin/authenticate-serviceprovider/' + ${serviceProvider.serviceProviderId}}"
+																	class="btn btn-success">Authenticate</a>
 															</div> <!-- end modal footer -->
 														</div> <!-- end modal content-->
 													</div> <!-- end modal dialog-->
 												</div> <!-- end modal-->
-												<a href="#" class="action-icon"> <i class="mdi mdi-eye"></i></a>
-												<a href="#" class="action-icon"> <i
-														class="mdi mdi-square-edit-outline"></i></a>
-												<a data-bs-toggle="modal" data-bs-target="#staticBackdrop" href="#"
+												<a th:href="@{'/admin/view_serviceprovider/' + ${serviceProvider.serviceProviderId}}"
+													class="action-icon"> <i class="mdi mdi-eye"></i></a>
+												<a th:href="@{'/admin/edit_serviceprovider/' + ${serviceProvider.serviceProviderId}}"
+													class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a>
+												<a data-bs-toggle="modal" data-bs-target="#staticBackdrop"
+													th:href="@{'/admin/delete_serviceprovider/' + ${serviceProvider.serviceProviderId}}"
 													class="action-icon"> <i class="mdi mdi-delete"></i></a>
 												<!-- Modal -->
 												<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static"
@@ -113,7 +117,8 @@
 															<div class="modal-footer">
 																<button type="button" class="btn btn-secondary"
 																	data-bs-dismiss="modal">Close</button>
-																<a type="button" href="#"
+																<a type="button"
+																	th:href="@{'/admin/delete_serviceprovider/' + ${serviceProvider.serviceProviderId}}"
 																	class="btn btn-danger">Delete</a>
 															</div> <!-- end modal footer -->
 														</div> <!-- end modal content-->

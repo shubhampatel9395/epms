@@ -88,7 +88,9 @@ public class AddressDAO implements IAddressDAO {
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("id", id);
+		jdbcTemplate.update("update address set isActive=false where addressId=:id", sc);
 	}
 
 	@Override

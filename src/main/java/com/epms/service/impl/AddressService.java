@@ -43,7 +43,7 @@ public class AddressService implements IAddressService {
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
+		addressDAO.delete(id);
 	}
 
 	@Override

@@ -7,4 +7,5 @@ import com.epms.dto.ServiceProviderDTO;
 
 public interface IServiceProviderDAO extends ICRUDRepository<ServiceProviderDTO, Long> {
 	public List<ServiceProviderDTO> findAllActive();
+	public void authenticate(Long id);
 }

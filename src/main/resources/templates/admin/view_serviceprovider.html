@@ -1,0 +1,60 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/_layout}">
+
+<head>
+	<title>View Service Provider</title>
+	<style>
+		.page-title-box .page-title-right {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<div class="page-title-right">
+							<a th:href="@{/admin/list-serviceprovider}" class="btn btn-secondary mb-2">Back</a>
+						</div>
+						<h4 class="page-title"> Service Provider Details</h4>
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<dl class="row mb-0">
+								<dt class="col-sm-3">Name</dt>
+								<dd class="col-sm-9" th:text="${userDetailsDTO.serviceProviderName}"></dd>
+
+								<dt class="col-sm-3">Address</dt>
+								<dd class="col-sm-9" th:utext="${#strings.replace(address,'&#10;','&lt;br&gt;')}"></dd>
+
+								<dt class="col-sm-3">Email Address</dt>
+								<dd class="col-sm-9" th:utext="${userDetailsDTO.email}"></dd>
+
+								<dt class="col-sm-3">Mobile Number</dt>
+								<dd class="col-sm-9" th:utext="${userDetailsDTO.mobileNumber}"></dd>
+								
+								<dt class="col-sm-3">Service Type</dt>
+								<dd class="col-sm-9" th:text="${serviceType}"></dd>
+								
+								<dt class="col-sm-3">Service Cost</dt>
+								<dd class="col-sm-9" th:text="${serviceProviderDTO.cost}"></dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+	</th:block>
+</body>
+
+</html>
