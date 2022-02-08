@@ -17,7 +17,6 @@ public class EmployeeDTO {
 	private Date DOB;
 	private Date hiringDate;
 	private Date leavingDate;
-	private String marriageStatus;
 	private Double salary;
 	private Date createdAt;
 	private Date updatedAt;

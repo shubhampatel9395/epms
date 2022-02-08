@@ -245,6 +245,21 @@ public class AdminController {
 
 		return modelandmap;
 	}
+	
+	@GetMapping("/view_employee/{employeeId}")
+	public ModelAndView viewEmployee(@PathVariable("employeeId") long employeeId) {
+		ModelAndView modelandmap = new ModelAndView("admin/view_employee");
+
+		EmployeeDTO employeeDTO = employeeService.findById(employeeId);
+		UserDetailsDTO userDetailsDTO = userDetailsService.findById(employeeDTO.getUserDetailsId().longValue());
+		String address = getAddress(addressService.findById(userDetailsDTO.getAddressId().longValue()));
+
+		modelandmap.addObject("employeeDTO", employeeDTO);
+		modelandmap.addObject("userDetailsDTO", userDetailsDTO);
+		modelandmap.addObject("address", address);
+
+		return modelandmap;
+	}
 
 	@GetMapping("/delete_customer/{customerId}")
 	public ModelAndView deleteCustomer(@PathVariable("customerId") long userDetailsId) {
@@ -269,6 +284,19 @@ public class AdminController {
 		return modelandmap;
 	}
 
+	@GetMapping("/delete_employee/{employeeId}")
+	public ModelAndView deleteEmployee(@PathVariable("employeeId") long employeeId) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-employee");
+		UserDetailsDTO userDetailsDTO = userDetailsService.findById(employeeService.findById(employeeId).getUserDetailsId().longValue());
+		
+		addressService.delete(userDetailsDTO.getAddressId().longValue());
+		userDetailsService.delete(userDetailsDTO.getUserDetailsId().longValue());
+		employeeService.delete(employeeId);
+		
+		return modelandmap;
+	}
+
+	
 	@GetMapping("/edit_customer/{customerId}")
 	public ModelAndView editCustomer(@PathVariable("customerId") long userDetailsId) {
 		ModelAndView modelandmap = new ModelAndView("admin/edit_customer");
