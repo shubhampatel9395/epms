@@ -2,6 +2,7 @@ package com.epms.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -17,9 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.epms.dto.AddressDTO;
+import com.epms.dto.EmployeeDTO;
 import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.UserDetailsDTO;
 import com.epms.service.IAddressService;
+import com.epms.service.IEmployeeService;
 import com.epms.service.IEnuCityService;
 import com.epms.service.IEnuCountryService;
 import com.epms.service.IEnuServiceTypeService;
@@ -57,6 +60,9 @@ public class AdminController {
 	@Autowired
 	IEnuServiceTypeService enuServiceTypeService;
 
+	@Autowired
+	IEmployeeService employeeService;
+	
 	public String getAddress(AddressDTO addressDTO) {
 		String address;
 		if (addressDTO.getIsActive() == true) {
@@ -126,6 +132,22 @@ public class AdminController {
 		return modelandmap;
 	}
 
+	@GetMapping("/list-employee")
+	public ModelAndView listEmployee() {
+		ModelAndView modelandmap = new ModelAndView("admin/employee");
+		MapSqlParameterSource paramSource = new MapSqlParameterSource();
+		paramSource.addValue("isActive", true);
+		List<EmployeeDTO> employees = employeeService.findByNamedParameters(paramSource);
+		List<UserDetailsDTO> userDetails = employees.stream().map(employee -> {
+			return userDetailsService.findById(employee.getUserDetailsId().longValue());
+		}).collect(Collectors.toList());
+		
+		modelandmap.addObject("employees", employees);
+		modelandmap.addObject("userDetails", userDetails);
+		return modelandmap;
+	}
+
+	
 	@GetMapping("/authenticate-serviceprovider/{serviceProviderId}")
 	public ModelAndView authenticateServiceprovider(@PathVariable("serviceProviderId") long serviceProviderId) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
@@ -167,6 +189,15 @@ public class AdminController {
 		modelandmap.addObject("countries", enuCountryService.findAll());
 		modelandmap.addObject("serviceTypes", enuServiceTypeService.findAllActive());
 		modelandmap.addObject("serviceProviderDTO", new ServiceProviderDTO());
+		modelandmap.addObject("addressDTO", new AddressDTO());
+		return modelandmap;
+	}
+	
+	@GetMapping("/add_employee")
+	public ModelAndView addEmployee() {
+		ModelAndView modelandmap = new ModelAndView("admin/add_employee");
+		modelandmap.addObject("countries", enuCountryService.findAll());
+		modelandmap.addObject("employeeDTO", new EmployeeDTO());
 		modelandmap.addObject("addressDTO", new AddressDTO());
 		return modelandmap;
 	}
