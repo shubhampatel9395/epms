@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmployeeDTO {
+public class EmployeeDTO extends UserDetailsDTO {
 	private Integer employeeId;
 	private Integer userDetailsId;
 	private Integer employeeRoleId;

@@ -478,4 +478,103 @@ public class AdminController {
 		serviceProviderService.update(oldserviceProviderDTO);
 		return modelandmap;
 	}
+	
+	
+
+	@GetMapping("/edit_employee/{employeeId}")
+	public ModelAndView editEmployee(@PathVariable("employeeId") long employeeId) {
+		ModelAndView modelandmap = new ModelAndView("admin/edit_employee");
+
+		// TODO make form object
+		EmployeeDTO employeeDTO = employeeService.findById(employeeId);
+		// Need it to show details
+		UserDetailsDTO userDetailsDTO = userDetailsService.findById(employeeDTO.getUserDetailsId().longValue());
+		AddressDTO addressDTO = addressService.findById(userDetailsDTO.getAddressId().longValue());
+
+		modelandmap.addObject("employeeDTO", employeeDTO);
+		modelandmap.addObject("userDetailsDTO", userDetailsDTO);
+		modelandmap.addObject("addressDTO", addressDTO);
+
+		modelandmap.addObject("countries", enuCountryService.findAll());
+
+		MapSqlParameterSource paramSource = new MapSqlParameterSource();
+		paramSource.addValue("countryId", addressDTO.getCountryId());
+		modelandmap.addObject("states", enuStateService.findByNamedParameters(paramSource));
+
+		paramSource = new MapSqlParameterSource();
+		paramSource.addValue("stateId", addressDTO.getStateId());
+		modelandmap.addObject("cities", enuCityService.findByNamedParameters(paramSource));
+		return modelandmap;
+	}
+
+	@PostMapping("/edit_employee")
+	public ModelAndView updateEmployee(
+			@Valid @ModelAttribute("employeeDTO") EmployeeDTO employeeDTO,
+			@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
+			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
+		final ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-employee");
+		
+		EmployeeDTO oldEmployeeDTO = employeeService.findById(employeeDTO.getEmployeeId().longValue());
+		AddressDTO oldAddressDTO = addressService.findById(addressDTO.getAddressId().longValue());
+
+		employeeDTO.setFirstName(userDetailsDTO.getFirstName());
+		employeeDTO.setLastName(userDetailsDTO.getLastName());
+		employeeDTO.setEmail(userDetailsDTO.getEmail());
+		employeeDTO.setMobileNumber(userDetailsDTO.getMobileNumber());
+		if (!(employeeDTO.getFirstName().equals(userDetailsDTO.getFirstName()))) {
+			oldEmployeeDTO.setFirstName(userDetailsDTO.getFirstName());
+		}
+
+		if (!(employeeDTO.getLastName().equals(userDetailsDTO.getLastName()))) {
+			oldEmployeeDTO.setLastName(userDetailsDTO.getLastName());
+		}
+
+		if (!(employeeDTO.getEmail().equals(userDetailsDTO.getEmail()))) {
+			oldEmployeeDTO.setEmail(userDetailsDTO.getEmail());
+		}
+
+		if (!(employeeDTO.getMobileNumber().equals(userDetailsDTO.getMobileNumber()))) {
+			oldEmployeeDTO.setMobileNumber(userDetailsDTO.getMobileNumber());
+		}
+
+		if (!(employeeDTO.getSalary().equals(oldEmployeeDTO.getSalary()))) {
+			oldEmployeeDTO.setSalary(employeeDTO.getSalary());
+		}
+
+		if (!(employeeDTO.getGender().equals(oldEmployeeDTO.getGender()))) {
+			oldEmployeeDTO.setGender(employeeDTO.getGender());
+		}
+		
+		if (!(employeeDTO.getHiringDate().equals(oldEmployeeDTO.getHiringDate()))) {
+			oldEmployeeDTO.setHiringDate(employeeDTO.getHiringDate());
+		}
+		
+		if (!(addressDTO.getAddress1().equals(oldAddressDTO.getAddress1()))) {
+			oldAddressDTO.setAddress1(addressDTO.getAddress1());
+		}
+
+		if (!(addressDTO.getAddress2().equals(oldAddressDTO.getAddress2()))) {
+			oldAddressDTO.setAddress2(addressDTO.getAddress2());
+		}
+
+		if (!(addressDTO.getCityId().equals(oldAddressDTO.getCityId()))) {
+			oldAddressDTO.setCityId(addressDTO.getCityId());
+		}
+
+		if (!(addressDTO.getStateId().equals(oldAddressDTO.getStateId()))) {
+			oldAddressDTO.setStateId(addressDTO.getStateId());
+		}
+
+		if (!(addressDTO.getCountryId().equals(oldAddressDTO.getCountryId()))) {
+			oldAddressDTO.setCountryId(addressDTO.getCountryId());
+		}
+
+		if (!(addressDTO.getPostalCode().equals(oldAddressDTO.getPostalCode()))) {
+			oldAddressDTO.setPostalCode(addressDTO.getPostalCode());
+		}
+
+		addressService.update(oldAddressDTO);
+		employeeService.update(oldEmployeeDTO);
+		return modelandmap;
+	}
 }
