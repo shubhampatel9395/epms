@@ -60,4 +60,14 @@ public class UserDetailsService implements IUserDetailsService {
 	public UserDetailsDTO update(UserDetailsDTO entity) {
 		return userDetailsDAO.update(entity);
 	}
+
+	@Override
+	public List<UserDetailsDTO> isUniqueEmail(String email) {
+		return userDetailsDAO.isUniqueEmail(email);
+	}
+
+	@Override
+	public List<UserDetailsDTO> isUniqueMobileNumber(String mobileNumber) {
+		return userDetailsDAO.isUniqueMobileNumber(mobileNumber);
+	}
 }

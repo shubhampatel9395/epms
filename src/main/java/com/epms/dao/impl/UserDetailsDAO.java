@@ -137,4 +137,22 @@ public class UserDetailsDAO implements IUserDetailsDAO {
 				sc);
 		return entity;
 	}
+
+	@Override
+	public List<UserDetailsDTO> isUniqueEmail(String email) {
+		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+		parameterSource.addValue("email", email);
+		
+		List<UserDetailsDTO> userDetailsDTOs = findByNamedParameters(parameterSource);
+		return userDetailsDTOs;
+	}
+
+	@Override
+	public List<UserDetailsDTO> isUniqueMobileNumber(String mobileNumber) {
+		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+		parameterSource.addValue("mobileNumber", mobileNumber);
+		
+		List<UserDetailsDTO> userDetailsDTOs = findByNamedParameters(parameterSource);
+		return userDetailsDTOs;
+	}
 }

@@ -15,4 +15,6 @@ public interface IUserDetailsService {
 	public UserDetailsDTO insert(UserDetailsDTO userDetailsDTO);
 	public void delete(Long id);
 	public UserDetailsDTO update(UserDetailsDTO entity);
+	public List<UserDetailsDTO> isUniqueEmail(String email);
+	public List<UserDetailsDTO> isUniqueMobileNumber(String mobileNumber);
 }

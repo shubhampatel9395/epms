@@ -1,6 +1,8 @@
 package com.epms.controller;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.validation.Valid;
 
@@ -10,6 +12,8 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -82,17 +86,74 @@ public class CustomerController {
 		return modelandmap;
 	}
 
+	public BindingResult checkCustomerResults(@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
+			BindingResult userResult) {
+		// Valid Email
+		final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$",
+				Pattern.CASE_INSENSITIVE);
+		Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(userDetailsDTO.getEmail());
+		boolean isValidEmail = matcher.find();
+		if (isValidEmail == false) {
+			userResult.addError(new FieldError("userDetailsDTO", "email", "Please enter valid email address."));
+		}
+
+		// Unique Email
+		List<UserDetailsDTO> emailDTO = userDetailsService.isUniqueEmail(userDetailsDTO.getEmail());
+		if (emailDTO.isEmpty() != true) {
+			if (emailDTO.get(0).getIsActive() == true) {
+				userResult.addError(new FieldError("userDetailsDTO", "email", "Email address is already registered."));
+			} else {
+				userResult.addError(new FieldError("userDetailsDTO", "email",
+						"Email address is already registered and account is deactivated.\nPlease contact us to active it."));
+			}
+		}
+
+		// Password Rules
+		String pattern = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}";
+		boolean isValidPassword = userDetailsDTO.getPassword().matches(pattern);
+		if (isValidPassword == false) {
+			userResult.addError(
+					new FieldError("userDetailsDTO", "password", "Please enter password according to rules."));
+		}
+
+		// Unique Mobile Number
+		List<UserDetailsDTO> mobileNumberDTO = userDetailsService.isUniqueMobileNumber(userDetailsDTO.getMobileNumber());
+		if (mobileNumberDTO.isEmpty() != true) {
+			if (mobileNumberDTO.get(0).getIsActive() == true) {
+				userResult.addError(new FieldError("userDetailsDTO", "mobileNumber", "Mobile Number is already registered."));
+			} else {
+				userResult.addError(new FieldError("userDetailsDTO", "mobileNumber",
+						"Mobile Number is already registered and account is deactivated.\nPlease contact us to active it."));
+			}
+		}
+
+		return userResult;
+	}
+
 	@PostMapping("customer-registration")
 	public ModelAndView submitCustomerRegistration(
-			@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
-			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
+			@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO, BindingResult userResult,
+			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO, BindingResult addressResult,
+			ModelAndView modelandmap) {
+		userResult = checkCustomerResults(userDetailsDTO,userResult);
+		if(userResult.hasErrors() == true)
+		{
+			modelandmap = new ModelAndView("customerRegisteration");
+			modelandmap.addObject("userDetailsDTO", userDetailsDTO);
+			modelandmap.addObject("countries", enuCountryService.findAll());
+			modelandmap.addObject("addressDTO", addressDTO);
+			return modelandmap;
+		}
+		
 		AddressDTO insertAddressDTO = addressService.insert(addressDTO);
 		userDetailsDTO.setAddressId(insertAddressDTO.getAddressId());
+		
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String encodedPassword = passwordEncoder.encode(userDetailsDTO.getPassword());
 		userDetailsDTO.setPassword(encodedPassword);
 		UserDetailsDTO insertUserDetailsDTO = userDetailsService.insert(userDetailsDTO);
-		final ModelAndView modelandmap = new ModelAndView("index");
+		
+		modelandmap = new ModelAndView("index");
 		modelandmap.addObject("userDetailsDTO", insertUserDetailsDTO);
 		return modelandmap;
 	}
