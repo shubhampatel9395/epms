@@ -88,7 +88,7 @@
 							<div class="mb-3 col-md-6">
 								<label for="inputCountry" class="form-label">Country</label>
 								<select id="inputCountry" th:field="*{addressDTO.countryId}" class="form-select" required>
-									<option value="" readonly>--Select Country--</option>
+									<option value="" hidden readonly>--Select Country--</option>
 									<option th:each="country : ${countries}" th:value="${country.countryId}"
 										th:text="${country.country}"></option>
 								</select>

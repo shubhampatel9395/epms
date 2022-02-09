@@ -20,7 +20,7 @@
 				<div class="col-12">
 					<div class="page-title-box">
 						<div class="page-title-right">
-							<a th:href="@{/admin/add_serviceprovider}" class="btn btn-danger mb-2"><i
+							<a th:href="@{/admin/add_employee}" class="btn btn-danger mb-2"><i
 									class="mdi mdi-plus-circle me-2"></i> Add Employee</a>
 						</div>
 						<h4 class="page-title">Employees</h4>
@@ -49,46 +49,82 @@
 
 									<tbody>
 										<tr th:each="employee : ${employees}">
-											<td th:text="${userDetails[employeeStat.index].firstName} + ${userDetails[employeeStat.index].lastName}">
+											<td
+												th:text="${userDetails[employeeStat.index].firstName} + ${userDetails[employeeStat.index].lastName}">
 											</td>
 											<td th:text="${userDetails[employeeStat.index].email}"></td>
 											<td th:text="${userDetails[employeeStat.index].mobileNumber}"></td>
-											<td th:text="${employee.hiringDate}"></td>
+											<td th:text="${#dates.format(employee.hiringDate, 'MM/dd/yyyy')}"></td>
 											<td th:text="${employee.salary}"></td>
 											<td class="table-action">
 												<a th:href="@{'/admin/view_employee/' + ${employee.employeeId}}"
 													class="action-icon"> <i class="mdi mdi-eye"></i></a>
 												<a th:href="@{'/admin/edit_employee/' + ${employee.employeeId}}"
 													class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a>
-												<a data-bs-toggle="modal" data-bs-target="#staticBackdrop"
-													th:href="@{'/admin/delete_employee/' + ${employee.employeeId}}"
-													class="action-icon"> <i class="mdi mdi-delete"></i></a>
-												<!-- Modal -->
-												<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static"
-													data-bs-keyboard="false" tabindex="-1"
-													aria-labelledby="staticBackdropLabel" aria-hidden="true">
-													<div class="modal-dialog">
-														<div class="modal-content">
-															<div class="modal-header">
-																<h5 class="modal-title" id="staticBackdropLabel">
-																	Delete Employee
-																</h5>
-																<button type="button" class="btn-close"
-																	data-bs-dismiss="modal" aria-hidden="true"></button>
-															</div> <!-- end modal header -->
-															<div class="modal-body">
-																Are you sure you want to deactive this employee?
-															</div>
-															<div class="modal-footer">
-																<button type="button" class="btn btn-secondary"
-																	data-bs-dismiss="modal">Close</button>
-																<a type="button"
-																	th:href="@{'/admin/delete_serviceprovider/' + ${serviceProvider.serviceProviderId}}"
-																	class="btn btn-danger">Delete</a>
-															</div> <!-- end modal footer -->
-														</div> <!-- end modal content-->
-													</div> <!-- end modal dialog-->
-												</div> <!-- end modal-->
+												<div th:if="${employee.isActive}" style="display:inline-block;">
+													<a data-bs-toggle="modal" data-bs-target="#staticBackdrop"
+														th:href="@{'/admin/delete_employee/' + ${employee.employeeId}}"
+														class="action-icon"> <i class="mdi mdi-delete"></i></a>
+													<!-- Modal -->
+													<div class="modal fade" id="staticBackdrop"
+														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+														aria-labelledby="staticBackdropLabel" aria-hidden="true">
+														<div class="modal-dialog">
+															<div class="modal-content">
+																<div class="modal-header">
+																	<h5 class="modal-title" id="staticBackdropLabel">
+																		Delete Employee
+																	</h5>
+																	<button type="button" class="btn-close"
+																		data-bs-dismiss="modal"
+																		aria-hidden="true"></button>
+																</div> <!-- end modal header -->
+																<div class="modal-body">
+																	Are you sure you want to deactive this employee?
+																</div>
+																<div class="modal-footer">
+																	<button type="button" class="btn btn-secondary"
+																		data-bs-dismiss="modal">Close</button>
+																	<a type="button"
+																		th:href="@{'/admin/delete_employee/' + ${employee.employeeId}}"
+																		class="btn btn-danger">Delete</a>
+																</div> <!-- end modal footer -->
+															</div> <!-- end modal content-->
+														</div> <!-- end modal dialog-->
+													</div> <!-- end modal-->
+												</div>
+												<div th:unless="${employee.isActive}" style="display:inline-block;">
+													<a data-bs-toggle="modal" data-bs-target="#staticBackdrop1"
+														th:href="@{'/admin/activate_employee/' + ${employee.employeeId}}"
+														class="action-icon"> <i class="mdi mdi-account-check"></i></a>
+													<!-- Modal -->
+													<div class="modal fade" id="staticBackdrop1"
+														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+														aria-labelledby="staticBackdropLabel" aria-hidden="true">
+														<div class="modal-dialog">
+															<div class="modal-content">
+																<div class="modal-header">
+																	<h5 class="modal-title" id="staticBackdropLabel">
+																		Activate Employee
+																	</h5>
+																	<button type="button" class="btn-close"
+																		data-bs-dismiss="modal"
+																		aria-hidden="true"></button>
+																</div> <!-- end modal header -->
+																<div class="modal-body">
+																	Are you sure you want to active this employee?
+																</div>
+																<div class="modal-footer">
+																	<button type="button" class="btn btn-secondary"
+																		data-bs-dismiss="modal">Close</button>
+																	<a type="button"
+																		th:href="@{'/admin/activate_employee/' + ${employee.employeeId}}"
+																		class="btn btn-danger">Activate</a>
+																</div> <!-- end modal footer -->
+															</div> <!-- end modal content-->
+														</div> <!-- end modal dialog-->
+													</div> <!-- end modal-->
+												</div>
 											</td>
 										</tr>
 									</tbody>

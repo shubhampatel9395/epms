@@ -19,28 +19,27 @@ import groovy.util.logging.Slf4j;
 public class UserDetailsService implements IUserDetailsService {
 	@Autowired
 	private IUserDetailsDAO userDetailsDAO;
-	
+
 	@Override
 	public UserDetailsDTO insert(UserDetailsDTO userDetailsDTO) {
 		return userDetailsDAO.insert(userDetailsDTO);
 	}
-	
+
 	@Override
 	public List<UserDetailsDTO> findAll() {
 		return userDetailsDAO.findAll();
 	}
-	
+
 	@Override
 	public List<UserDetailsDTO> findAllActive() {
 		return userDetailsDAO.findAllActive();
 	}
-	
+
 	@Override
-	public UserDetailsDTO findById(Long id)
-	{
+	public UserDetailsDTO findById(Long id) {
 		return userDetailsDAO.findById(id);
 	}
-	
+
 	@Override
 	public List<UserDetailsDTO> findByFieldValue(String fieldName, Object fieldValue) {
 		return userDetailsDAO.findByFieldValue(fieldName, fieldValue);
@@ -69,5 +68,10 @@ public class UserDetailsService implements IUserDetailsService {
 	@Override
 	public List<UserDetailsDTO> isUniqueMobileNumber(String mobileNumber) {
 		return userDetailsDAO.isUniqueMobileNumber(mobileNumber);
+	}
+
+	@Override
+	public void activate(Long id) {
+		userDetailsDAO.activate(id);
 	}
 }

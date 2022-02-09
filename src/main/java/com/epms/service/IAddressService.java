@@ -15,4 +15,5 @@ public interface IAddressService {
 	public AddressDTO insert(AddressDTO entity);
 	public void delete(Long id);
 	public AddressDTO update(AddressDTO entity);
+	public void activate(Long id);
 }

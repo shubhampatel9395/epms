@@ -18,7 +18,7 @@
 				<div class="col-12">
 					<div class="page-title-box">
 						<div class="page-title-right">
-							<a th:href="@{/admin/list-serviceprovider}" class="btn btn-secondary mb-2">Back</a>
+							<a th:href="@{/admin/list-employee}" class="btn btn-secondary mb-2">Back</a>
 						</div>
 						<h4 class="page-title">Employee Details</h4>
 					</div>
@@ -27,8 +27,14 @@
 					<div class="card">
 						<div class="card-body">
 							<dl class="row mb-0">
-								<dt class="col-sm-3">Name</dt>
-								<dd class="col-sm-9" th:text="${userDetailsDTO.serviceProviderName}"></dd>
+								<dt class="col-sm-3">First Name</dt>
+								<dd class="col-sm-9" th:text="${userDetailsDTO.firstName}"></dd>
+								
+								<dt class="col-sm-3">Last Name</dt>
+								<dd class="col-sm-9" th:text="${userDetailsDTO.lastName}"></dd>
+								
+								<dt class="col-sm-3">Address</dt>
+								<dd class="col-sm-9" th:utext="${#strings.replace(address,'&#10;','&lt;br&gt;')}"></dd>
 
 								<dt class="col-sm-3">Email Address</dt>
 								<dd class="col-sm-9" th:utext="${userDetailsDTO.email}"></dd>
@@ -36,18 +42,20 @@
 								<dt class="col-sm-3">Mobile Number</dt>
 								<dd class="col-sm-9" th:utext="${userDetailsDTO.mobileNumber}"></dd>
 								
+								<dt class="col-sm-3">Employee Role</dt>
+								<dd class="col-sm-9" th:text="${employeeRole}"></dd>
+								
+								<dt class="col-sm-3">Date of Birth</dt>
+								<dd class="col-sm-9" th:text="${#dates.format(employeeDTO.DOB, 'MM/dd/yyyy')}"></dd>
+								
 								<dt class="col-sm-3">Gender</dt>
 								<dd class="col-sm-9" th:utext="${employeeDTO.gender}"></dd>
 								
 								<dt class="col-sm-3">Hiring Date</dt>
-								<dd class="col-sm-9" th:text="${employeeDTO.hiringDate}"></dd>
+								<dd class="col-sm-9" th:text="${#dates.format(employeeDTO.hiringDate, 'MM/dd/yyyy')}"></dd>
 								
 								<dt class="col-sm-3">Salary</dt>
 								<dd class="col-sm-9" th:text="${employeeDTO.salary}"></dd>
-								
-								<dt class="col-sm-3">Address</dt>
-								<dd class="col-sm-9" th:utext="${#strings.replace(address,'&#10;','&lt;br&gt;')}"></dd>
-
 							</dl>
 						</div>
 					</div>

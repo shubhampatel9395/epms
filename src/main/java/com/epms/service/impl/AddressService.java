@@ -56,4 +56,9 @@ public class AddressService implements IAddressService {
 		return addressDAO.findByFieldValue(fieldName, fieldValue);
 	}
 
+	@Override
+	public void activate(Long id) {
+		addressDAO.activate(id);
+	}
+
 }

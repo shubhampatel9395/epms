@@ -25,6 +25,7 @@ import com.epms.service.IAddressService;
 import com.epms.service.IEmployeeService;
 import com.epms.service.IEnuCityService;
 import com.epms.service.IEnuCountryService;
+import com.epms.service.IEnuEmployeeRoleService;
 import com.epms.service.IEnuServiceTypeService;
 import com.epms.service.IEnuStateService;
 import com.epms.service.IServiceProviderService;
@@ -63,6 +64,9 @@ public class AdminController {
 	@Autowired
 	IEmployeeService employeeService;
 	
+	@Autowired
+	IEnuEmployeeRoleService enuEmployeeRoleService;
+	
 	public String getAddress(AddressDTO addressDTO) {
 		String address;
 		if (addressDTO.getIsActive() == true) {
@@ -91,7 +95,6 @@ public class AdminController {
 		
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		parameterSource.addValue("isCustomer", true);
-		parameterSource.addValue("isActive", true);
 		
 		// List<UserDetailsDTO> customers = userDetailsService.findAllActive();
 		List<UserDetailsDTO> customers = userDetailsService.findByNamedParameters(parameterSource);
@@ -107,7 +110,7 @@ public class AdminController {
 	@GetMapping("/list-serviceprovider")
 	public ModelAndView listServiceProvider() {
 		ModelAndView modelandmap = new ModelAndView("admin/serviceprovider");
-		List<ServiceProviderDTO> serviceProviders = serviceProviderService.findAllActive();
+		List<ServiceProviderDTO> serviceProviders = serviceProviderService.findAll();
 		List<UserDetailsDTO> userDetails = new ArrayList<>();
 		List<String> serviceTypes = new ArrayList<>();
 		List<String> addresses = new ArrayList<>();
@@ -135,9 +138,7 @@ public class AdminController {
 	@GetMapping("/list-employee")
 	public ModelAndView listEmployee() {
 		ModelAndView modelandmap = new ModelAndView("admin/employee");
-		MapSqlParameterSource paramSource = new MapSqlParameterSource();
-		paramSource.addValue("isActive", true);
-		List<EmployeeDTO> employees = employeeService.findByNamedParameters(paramSource);
+		List<EmployeeDTO> employees = employeeService.findAll();
 		List<UserDetailsDTO> userDetails = employees.stream().map(employee -> {
 			return userDetailsService.findById(employee.getUserDetailsId().longValue());
 		}).collect(Collectors.toList());
@@ -151,7 +152,44 @@ public class AdminController {
 	@GetMapping("/authenticate-serviceprovider/{serviceProviderId}")
 	public ModelAndView authenticateServiceprovider(@PathVariable("serviceProviderId") long serviceProviderId) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
+		userDetailsService.activate(serviceProviderService.findById(serviceProviderId).getUserDetailsId().longValue());
 		serviceProviderService.authenticate(serviceProviderId);
+		return modelandmap;
+	}
+	
+	@GetMapping("/activate_customer/{customerId}")
+	public ModelAndView activateCustomer(@PathVariable("customerId") long userDetailsId) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-customer");
+		
+		UserDetailsDTO userDetailsDTO = userDetailsService.findById(userDetailsId);
+		addressService.activate(userDetailsDTO.getAddressId().longValue());
+		userDetailsService.activate(userDetailsDTO.getUserDetailsId().longValue());
+		
+		return modelandmap;
+	}
+	
+	@GetMapping("/activate_serviceprovider/{serviceProviderId}")
+	public ModelAndView activateServiceProvider(@PathVariable("serviceProviderId") long serviceProviderId) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
+		
+		ServiceProviderDTO serviceProviderDTO = serviceProviderService.findById(serviceProviderId);
+		UserDetailsDTO userDetailsDTO = userDetailsService.findById(serviceProviderDTO.getUserDetailsId().longValue());
+		addressService.activate(userDetailsDTO.getAddressId().longValue());
+		userDetailsService.activate(serviceProviderDTO.getUserDetailsId().longValue());
+		serviceProviderService.authenticate(serviceProviderId);
+		
+		return modelandmap;
+	}
+	
+	@GetMapping("/activate_employee/{employeeId}")
+	public ModelAndView activateEmployee(@PathVariable("employeeId") long employeeId) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-employee");
+		EmployeeDTO employeeDTO = employeeService.findById(employeeId);
+		UserDetailsDTO userDetailsDTO = userDetailsService.findById(employeeDTO.getUserDetailsId().longValue());
+		
+		addressService.activate(userDetailsDTO.getAddressId().longValue());
+		userDetailsService.activate(employeeDTO.getUserDetailsId().longValue());
+		employeeService.activate(employeeId);
 		return modelandmap;
 	}
 
@@ -192,15 +230,6 @@ public class AdminController {
 		modelandmap.addObject("addressDTO", new AddressDTO());
 		return modelandmap;
 	}
-	
-	@GetMapping("/add_employee")
-	public ModelAndView addEmployee() {
-		ModelAndView modelandmap = new ModelAndView("admin/add_employee");
-		modelandmap.addObject("countries", enuCountryService.findAll());
-		modelandmap.addObject("employeeDTO", new EmployeeDTO());
-		modelandmap.addObject("addressDTO", new AddressDTO());
-		return modelandmap;
-	}
 
 	@PostMapping("/add_serviceprovider")
 	public ModelAndView addNewServiceProvider(
@@ -215,6 +244,42 @@ public class AdminController {
 		serviceProviderDTO.setPassword(encodedPassword);
 
 		serviceProviderService.insert(serviceProviderDTO);
+		return modelandmap;
+	}
+	
+	@GetMapping("/add_employee")
+	public ModelAndView addEmployee() {
+		ModelAndView modelandmap = new ModelAndView("admin/add_employee");
+		modelandmap.addObject("countries", enuCountryService.findAll());
+		modelandmap.addObject("employeeRoles", enuEmployeeRoleService.findAll());
+		modelandmap.addObject("employeeDTO", new EmployeeDTO());
+		modelandmap.addObject("addressDTO", new AddressDTO());
+		return modelandmap;
+	}
+	
+	@GetMapping("/add_venue")
+	public ModelAndView addVenue() {
+		ModelAndView modelandmap = new ModelAndView("admin/add_venue");
+		modelandmap.addObject("countries", enuCountryService.findAll());
+//		modelandmap.addObject("employeeRoles", enuEmployeeRoleService.findAll());
+//		modelandmap.addObject("employeeDTO", new EmployeeDTO());
+		modelandmap.addObject("addressDTO", new AddressDTO());
+		return modelandmap;
+	}
+	
+	@PostMapping("/add_employee")
+	public ModelAndView addNewEmployee(
+			@Valid @ModelAttribute("employeeDTO") EmployeeDTO employeeDTO,
+			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
+		final ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-employee");
+
+		employeeDTO.setAddressId(addressService.insert(addressDTO).getAddressId());
+
+		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		String encodedPassword = passwordEncoder.encode(employeeDTO.getPassword());
+		employeeDTO.setPassword(encodedPassword);
+
+		employeeService.insert(employeeDTO);
 		return modelandmap;
 	}
 
@@ -253,10 +318,12 @@ public class AdminController {
 		EmployeeDTO employeeDTO = employeeService.findById(employeeId);
 		UserDetailsDTO userDetailsDTO = userDetailsService.findById(employeeDTO.getUserDetailsId().longValue());
 		String address = getAddress(addressService.findById(userDetailsDTO.getAddressId().longValue()));
+		String employeeRole = enuEmployeeRoleService.findById(employeeDTO.getEmployeeRoleId().longValue()).getRole(); 
 
 		modelandmap.addObject("employeeDTO", employeeDTO);
 		modelandmap.addObject("userDetailsDTO", userDetailsDTO);
 		modelandmap.addObject("address", address);
+		modelandmap.addObject("employeeRole", employeeRole);
 
 		return modelandmap;
 	}

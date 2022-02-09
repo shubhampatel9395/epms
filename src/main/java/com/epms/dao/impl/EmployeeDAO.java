@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IEmployeeDAO;
@@ -66,14 +68,43 @@ public class EmployeeDAO implements IEmployeeDAO {
 
 	@Override
 	public EmployeeDTO insert(EmployeeDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("firstName", entity.getFirstName());
+		namedParameters.addValue("lastName", entity.getLastName());
+		namedParameters.addValue("addressId", entity.getAddressId());
+		namedParameters.addValue("email", entity.getEmail());
+		namedParameters.addValue("password", entity.getPassword());
+		namedParameters.addValue("mobileNumber", entity.getMobileNumber());
+		namedParameters.addValue("roleName", "ROLE_EMPLOYEE");
+		namedParameters.addValue("isCustomer", false);
+		namedParameters.addValue("isEmployee", true);
+		namedParameters.addValue("isAuth", true);
+
+		int i = jdbcTemplate.update(
+				"insert into userDetails(firstName,lastName,addressId,email,password,mobileNumber,roleName,isCustomer,isEmployee,isAuth) values(:firstName,:lastName,:addressId,:email,:password,:mobileNumber,:roleName,:isCustomer,:isEmployee,:isAuth)",
+				namedParameters, keyHolder, new String[] { "userDetailsId" });
+
+		namedParameters.addValue("userDetailsId", keyHolder.getKey().longValue());
+		namedParameters.addValue("employeeRoleId", entity.getEmployeeRoleId());
+		namedParameters.addValue("gender", entity.getGender());
+		namedParameters.addValue("DOB", entity.getDOB());
+		namedParameters.addValue("hiringDate", entity.getHiringDate());
+		namedParameters.addValue("salary", entity.getSalary());
+
+		i = jdbcTemplate.update(
+				"insert into employee(userDetailsId,employeeRoleId,gender,DOB,hiringDate,salary) values(:userDetailsId,:employeeRoleId,:gender,:DOB,:hiringDate,:salary)",
+				namedParameters, keyHolder, new String[] { "employeeId" });
+
+		return findById(keyHolder.getKey().longValue());
 	}
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+		parameterSource.addValue("employeeId", id);
+		jdbcTemplate.update("update employee set isActive=false where employeeId=:employeeId", parameterSource);
 	}
 
 	@Override
@@ -82,4 +113,10 @@ public class EmployeeDAO implements IEmployeeDAO {
 		return null;
 	}
 
+	@Override
+	public void activate(Long id) {
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("employeeId", id);
+		jdbcTemplate.update("update employee set isActive=true where employeeId=:employeeId", namedParameters);
+	}
 }

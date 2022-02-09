@@ -89,18 +89,20 @@ public class ServiceProviderDAO implements IServiceProviderDAO {
 		sc.addValue("isAuth", false);
 		sc.addValue("isCustomer", false);
 		sc.addValue("isServiceProvider", true);
+		sc.addValue("isActive", false);
 		sc.addValue("roleName", "ROLE_SERVICEPROVIDER");
 
 		int i = jdbcTemplate.update(
-				"insert into userDetails(serviceProviderName,addressId,email,password,mobileNumber,isAuth,isCustomer,isServiceProvider,roleName) values(:serviceProviderName,:addressId,:email,:password,:mobileNumber,:isAuth,:isCustomer,:isServiceProvider,:roleName)",
+				"insert into userDetails(serviceProviderName,addressId,email,password,mobileNumber,isAuth,isCustomer,isServiceProvider,roleName,isActive) values(:serviceProviderName,:addressId,:email,:password,:mobileNumber,:isAuth,:isCustomer,:isServiceProvider,:roleName,:isActive)",
 				sc, keyHolder, new String[] { "userDetailsId" });
 
 		sc.addValue("userDetailsId", keyHolder.getKey().longValue());
 		sc.addValue("serviceTypeId", entity.getServiceTypeId());
 		sc.addValue("cost", entity.getCost());
+		sc.addValue("isActive", false);
 
 		i = jdbcTemplate.update(
-				"insert into serviceprovider(userDetailsId,serviceTypeId,cost) values(:userDetailsId,:serviceTypeId,:cost)",
+				"insert into serviceprovider(userDetailsId,serviceTypeId,cost,isActive) values(:userDetailsId,:serviceTypeId,:cost,:isActive)",
 				sc, keyHolder, new String[] { "serviceProviderId" });
 
 		return findById(keyHolder.getKey().longValue());
@@ -110,7 +112,9 @@ public class ServiceProviderDAO implements IServiceProviderDAO {
 	public void delete(Long id) {
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		parameterSource.addValue("serviceProviderId", id);
-		// jdbcTemplate.update("update userDetails set isActive=false where userDetailsId=(select userDetailsId from serviceprovider where serviceProviderId=:serviceProviderId)", parameterSource);
+//		jdbcTemplate.update(
+//				"update userDetails set isAuth=false where userDetailsId=(select userDetailsId from serviceprovider where serviceProviderId=:serviceProviderId)",
+//				parameterSource);
 		jdbcTemplate.update("update serviceprovider set isActive=false where serviceProviderId=:serviceProviderId",
 				parameterSource);
 	}
@@ -143,9 +147,7 @@ public class ServiceProviderDAO implements IServiceProviderDAO {
 	public void authenticate(Long id) {
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		parameterSource.addValue("serviceProviderId", id);
-		jdbcTemplate.update(
-				"update userdetails set isAuth=true where userDetailsId=(select userDetailsId from serviceprovider where serviceProviderId=:serviceProviderId)",
+		jdbcTemplate.update("update serviceprovider set isActive=true where serviceProviderId=:serviceProviderId",
 				parameterSource);
 	}
-
 }

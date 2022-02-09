@@ -97,13 +97,6 @@ public class UserDetailsDAO implements IUserDetailsDAO {
 	}
 
 	@Override
-	public void delete(Long id) {
-		MapSqlParameterSource sc = new MapSqlParameterSource();
-		sc.addValue("id", id);
-		jdbcTemplate.update("update userDetails set isActive=false where userDetailsId=:id", sc);
-	}
-
-	@Override
 	public UserDetailsDTO update(UserDetailsDTO entity) {
 		/*
 		MapSqlParameterSource sc = new MapSqlParameterSource();
@@ -154,5 +147,19 @@ public class UserDetailsDAO implements IUserDetailsDAO {
 		
 		List<UserDetailsDTO> userDetailsDTOs = findByNamedParameters(parameterSource);
 		return userDetailsDTOs;
+	}
+
+	@Override
+	public void delete(Long id) {
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("id", id);
+		jdbcTemplate.update("update userDetails set isActive=false,isAuth=false where userDetailsId=:id", sc);
+	}
+
+	@Override
+	public void activate(Long id) {
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("userDetailsId", id);
+		jdbcTemplate.update("update userDetails set isActive=true,isAuth=true where userDetailsId=:userDetailsId", namedParameters);
 	}
 }

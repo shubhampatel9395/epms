@@ -14,4 +14,5 @@ public interface IEmployeeService {
 	public EmployeeDTO insert(EmployeeDTO EmployeeDTO);
 	public void delete(Long id);
 	public EmployeeDTO update(EmployeeDTO entity);
+	public void activate(Long id);
 }

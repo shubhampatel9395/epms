@@ -106,4 +106,11 @@ public class AddressDAO implements IAddressDAO {
 		jdbcTemplate.update("update address set address1=:address1,address2=:address2,cityId=:cityId,stateId=:stateId,countryId=:countryId,postalCode=:postalCode where addressId=:addressId", parameterSource);
 		return entity;
 	}
+
+	@Override
+	public void activate(Long id) {
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("addressId", id);
+		jdbcTemplate.update("update address set isActive=true where addressId=:addressId", namedParameters);
+	}
 }

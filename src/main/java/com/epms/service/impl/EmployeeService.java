@@ -41,21 +41,23 @@ public class EmployeeService implements IEmployeeService {
 	}
 
 	@Override
-	public EmployeeDTO insert(EmployeeDTO EmployeeDTO) {
-		// TODO Auto-generated method stub
-		return null;
+	public EmployeeDTO insert(EmployeeDTO employeeDTO) {
+		return employeeDAO.insert(employeeDTO);
 	}
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+		employeeDAO.delete(id);
 	}
 
 	@Override
 	public EmployeeDTO update(EmployeeDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		return employeeDAO.update(entity);
+	}
+
+	@Override
+	public void activate(Long id) {
+		employeeDAO.activate(id);
 	}
 
 }
