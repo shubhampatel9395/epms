@@ -61,26 +61,35 @@
 											placeholder="Enter cost">
 									</div>
 									<div class="mb-3 col-md-6">
+										<label for="venueType" class="form-label">Venue Type</label>
+										<select id="venueType" 
+											class="form-select">
+											<option value="" readonly>--Select Venue Type--</option>
+											<option th:each="venueType : ${venueTypes}" th:value="${venueType.venueTypeId}"
+												th:text="${venueType.venueType}"></option>
+										</select>
+									</div>
+								</div>
+								<div class="row g-2">
+								<div class="mb-3 col-md-6">
 										<label for="eventType" class="form-label">Event Type</label>
 
 										<select class="select2 form-control select2-multiple" data-toggle="select2"
 											multiple="multiple" data-placeholder="Select multiple event eype ...">
 											<optgroup>
-												<option value="AK">Alaska</option>
-												<option value="HI">Hawaii</option>
+												<option th:each="eventType : ${eventTypes}" th:value="${eventType.eventTypeId}"
+													th:text="${eventType.eventType}"></option>
 											</optgroup>
 										</select>
 									</div>
-								</div>
-								<div class="row g-2">
 									<div class="mb-3 col-md-6">
 										<label for="facilities" class="form-label">Facilities</label>
 
 										<select class="select2 form-control select2-multiple" data-toggle="select2"
 											multiple="multiple" data-placeholder="Select multiple facility  ...">
 											<optgroup>
-												<option value="AK">Alaska</option>
-												<option value="HI">Hawaii</option>
+												<option th:each="facility : ${facilities}" th:value="${facility.venueFacilityId}"
+													th:text="${facility.facility}"></option>
 											</optgroup>
 										</select>
 									</div>
@@ -135,7 +144,19 @@
 									<div class="mb-3 col-md-6">
 										<label for="inputZip" class="form-label">ZIP Code</label>
 										<input type="text" class="form-control" th:field="*{addressDTO.postalCode}"
-											id="inputZip" data-toggle="input-mask" data-mask-format="000000">
+											id="inputZip" data-toggle="input-mask" data-mask-format="000000" placeholder="Enter zip code">
+									</div>
+								</div>
+								<div class="row g-2">
+									<div class="mb-3 col-md-6">
+										<label for="latitude" class="form-label">Latitude</label>
+										<input type="text" class="form-control" 
+											id="latitude" data-toggle="input-mask" placeholder="Enter latitude">
+									</div>
+									<div class="mb-3 col-md-6">
+										<label for="Longitude" class="form-label">Longitude</label>
+										<input type="text" class="form-control" 
+											id="Longitude" data-toggle="input-mask" placeholder="Enter longitude">
 									</div>
 								</div>
 

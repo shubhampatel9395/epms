@@ -62,11 +62,13 @@
 												<a th:href="@{'/admin/edit_employee/' + ${employee.employeeId}}"
 													class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a>
 												<div th:if="${employee.isActive}" style="display:inline-block;">
-													<a data-bs-toggle="modal" data-bs-target="#staticBackdrop"
+													<a data-bs-toggle="modal"
+														th:data-bs-target="'#staticBackdropDelete' + ${employee.employeeId}"
 														th:href="@{'/admin/delete_employee/' + ${employee.employeeId}}"
 														class="action-icon"> <i class="mdi mdi-delete"></i></a>
 													<!-- Modal -->
-													<div class="modal fade" id="staticBackdrop"
+													<div class="modal fade"
+														th:id="'staticBackdropDelete' + ${employee.employeeId}"
 														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
 														aria-labelledby="staticBackdropLabel" aria-hidden="true">
 														<div class="modal-dialog">
@@ -94,11 +96,13 @@
 													</div> <!-- end modal-->
 												</div>
 												<div th:unless="${employee.isActive}" style="display:inline-block;">
-													<a data-bs-toggle="modal" data-bs-target="#staticBackdrop1"
+													<a data-bs-toggle="modal"
+														th:data-bs-target="'#staticBackdropActivate' + ${employee.employeeId}"
 														th:href="@{'/admin/activate_employee/' + ${employee.employeeId}}"
 														class="action-icon"> <i class="mdi mdi-account-check"></i></a>
 													<!-- Modal -->
-													<div class="modal fade" id="staticBackdrop1"
+													<div class="modal fade"
+														th:id="'staticBackdropActivate' + ${employee.employeeId}"
 														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
 														aria-labelledby="staticBackdropLabel" aria-hidden="true">
 														<div class="modal-dialog">

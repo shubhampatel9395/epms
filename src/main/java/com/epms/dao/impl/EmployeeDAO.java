@@ -1,5 +1,6 @@
 package com.epms.dao.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -104,19 +105,46 @@ public class EmployeeDAO implements IEmployeeDAO {
 	public void delete(Long id) {
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		parameterSource.addValue("employeeId", id);
-		jdbcTemplate.update("update employee set isActive=false where employeeId=:employeeId", parameterSource);
+		parameterSource.addValue("leavingDate", LocalDate.now());
+		jdbcTemplate.update("update employee set isActive=false,leavingDate=:leavingDate where employeeId=:employeeId",
+				parameterSource);
 	}
 
 	@Override
 	public EmployeeDTO update(EmployeeDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+
+		// Update UserDetails
+		namedParameters.addValue("userDetailsId", entity.getUserDetailsId());
+		namedParameters.addValue("firstName", entity.getFirstName());
+		namedParameters.addValue("lastName", entity.getLastName());
+		namedParameters.addValue("email", entity.getEmail());
+		namedParameters.addValue("mobileNumber", entity.getMobileNumber());
+		jdbcTemplate.update(
+				"update userDetails set firstName=:firstName,lastName=:lastName,email=:email,mobileNumber=:mobileNumber where userDetailsId=:userDetailsId",
+				namedParameters);
+
+		// Update Employee
+		namedParameters.addValue("employeeId", entity.getEmployeeId());
+		namedParameters.addValue("employeeRoleId", entity.getEmployeeRoleId());
+		namedParameters.addValue("gender", entity.getGender());
+		namedParameters.addValue("DOB", entity.getDOB());
+		namedParameters.addValue("hiringDate", entity.getHiringDate());
+		namedParameters.addValue("salary", entity.getSalary());
+
+		jdbcTemplate.update(
+				"update employee set employeeRoleId=:employeeRoleId,gender=:gender,DOB=:DOB,hiringDate=:hiringDate,salary=:salary where employeeId=:employeeId",
+				namedParameters);
+
+		return entity;
 	}
 
 	@Override
 	public void activate(Long id) {
 		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
 		namedParameters.addValue("employeeId", id);
-		jdbcTemplate.update("update employee set isActive=true where employeeId=:employeeId", namedParameters);
+		namedParameters.addValue("leavingDate", null);
+		jdbcTemplate.update("update employee set isActive=true,leavingDate=:leavingDate where employeeId=:employeeId",
+				namedParameters);
 	}
 }

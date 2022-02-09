@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class EnuEventTypeDTO {
 	private Integer eventTypeId;
-	private String event;
+	private String eventType;
 	private String description;
 	private Boolean isActive;
 }

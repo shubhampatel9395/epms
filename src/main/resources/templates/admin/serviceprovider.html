@@ -60,12 +60,12 @@
 											<td th:text="${serviceTypes[serviceProviderStat.index]}"></td>
 											<td th:text="${serviceProvider.cost}"></td>
 											<td class="table-action">
-												<a data-bs-toggle="modal" data-bs-target="#staticBackdrop1"
+												<a data-bs-toggle="modal" th:data-bs-target="'#staticBackdropAuthenticate' + ${serviceProvider.serviceProviderId}"
 													th:if="${!(userDetails[serviceProviderStat.index].isAuth)}"
 													th:href="@{'/admin/authenticate-serviceprovider/' + ${serviceProvider.serviceProviderId}}"
 													class="action-icon"> <i class="mdi mdi-check-bold"></i></a>
 												<!-- Modal -->
-												<div class="modal fade" id="staticBackdrop1" data-bs-backdrop="static"
+												<div class="modal fade" th:id="'staticBackdropAuthenticate' + ${serviceProvider.serviceProviderId}" data-bs-backdrop="static"
 													data-bs-keyboard="false" tabindex="-1"
 													aria-labelledby="staticBackdropLabel" aria-hidden="true">
 													<div class="modal-dialog">
@@ -96,11 +96,11 @@
 												<a th:href="@{'/admin/edit_serviceprovider/' + ${serviceProvider.serviceProviderId}}"
 													class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a>
 												<div th:if="${serviceProvider.isActive}" style="display:inline-block;">
-													<a data-bs-toggle="modal" data-bs-target="#staticBackdrop"
+													<a data-bs-toggle="modal" th:data-bs-target="'#staticBackdropDelete' + ${serviceProvider.serviceProviderId}"
 														th:href="@{'/admin/delete_serviceprovider/' + ${serviceProvider.serviceProviderId}}"
 														class="action-icon"> <i class="mdi mdi-delete"></i></a>
 													<!-- Modal -->
-													<div class="modal fade" id="staticBackdrop"
+													<div class="modal fade" th:id="'staticBackdropDelete' + ${serviceProvider.serviceProviderId}"
 														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
 														aria-labelledby="staticBackdropLabel" aria-hidden="true">
 														<div class="modal-dialog">
@@ -130,11 +130,11 @@
 												</div>
 												
 												<div th:unless="${serviceProvider.isActive}" style="display:inline-block;">
-													<a data-bs-toggle="modal" data-bs-target="#staticBackdrop1"
+													<a data-bs-toggle="modal" th:data-bs-target="'#staticBackdropActivate' + ${serviceProvider.serviceProviderId}"
 														th:href="@{'/admin/activate_serviceprovider/' + ${serviceProvider.serviceProviderId}}"
 														class="action-icon"> <i class="mdi mdi-account-check"></i></a>
 													<!-- Modal -->
-													<div class="modal fade" id="staticBackdrop1"
+													<div class="modal fade" th:id="'staticBackdropActivate' + ${serviceProvider.serviceProviderId}"
 														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
 														aria-labelledby="staticBackdropLabel" aria-hidden="true">
 														<div class="modal-dialog">

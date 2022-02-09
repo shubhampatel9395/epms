@@ -62,11 +62,11 @@
 												<a th:href="@{'/admin/edit_customer/' + ${customer.userDetailsId}}"
 													class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a>
 												<div th:if="${customer.isActive}" style="display:inline-block;">
-													<a data-bs-toggle="modal" data-bs-target="#staticBackdrop"
+													<a data-bs-toggle="modal" th:data-bs-target="'#staticBackdropDelete' + ${customer.userDetailsId}"
 														th:href="@{'/admin/delete_customer/' + ${customer.userDetailsId}}"
 														class="action-icon"> <i class="mdi mdi-delete"></i></a>
 													<!-- Modal -->
-													<div class="modal fade" id="staticBackdrop"
+													<div class="modal fade" th:id="'staticBackdropDelete' + ${customer.userDetailsId}"
 														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
 														aria-labelledby="staticBackdropLabel" aria-hidden="true">
 														<div class="modal-dialog">
@@ -94,17 +94,17 @@
 													</div> <!-- end modal-->
 												</div>
 												<div th:unless="${customer.isActive}" style="display:inline-block;">
-													<a data-bs-toggle="modal" data-bs-target="#staticBackdrop1"
+													<a data-bs-toggle="modal" th:data-bs-target="'#staticBackdropActivate' + ${customer.userDetailsId}"
 														th:href="@{'/admin/activate_customer/' + ${customer.userDetailsId}}"
 														class="action-icon"> <i class="mdi mdi-account-check"></i></a>
 													<!-- Modal -->
-													<div class="modal fade" id="staticBackdrop1"
+													<div class="modal fade" th:id="'staticBackdropActivate' + ${customer.userDetailsId}"
 														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-														aria-labelledby="staticBackdropLabel" aria-hidden="true">
+														aria-labelledby="staticBackdropLabel1" aria-hidden="true">
 														<div class="modal-dialog">
 															<div class="modal-content">
 																<div class="modal-header">
-																	<h5 class="modal-title" id="staticBackdropLabel">
+																	<h5 class="modal-title" id="staticBackdropLabel1">
 																		Activate Customer
 																	</h5>
 																	<button type="button" class="btn-close"

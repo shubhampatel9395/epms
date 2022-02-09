@@ -1,0 +1,232 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/_layout}">
+
+<head>
+	<title>Update Employee Details</title>
+	<style>
+		.page-title-box .page-title-right {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<div class="page-title-right">
+							<a th:href="@{/admin/list-employee}" class="btn btn-secondary mb-2">Back</a>
+						</div>
+						<h4 class="page-title">Edit Employee</h4>
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<form th:action="@{/admin/edit_employee}" method="post">
+								<input type="hidden" th:field="*{employeeDTO.employeeId}" />
+								<input type="hidden" th:field="*{userDetailsDTO.userDetailsId}" />
+								<input type="hidden" th:field="*{userDetailsDTO.addressId}" />
+
+								<div class="row g-2">
+									<div class="mb-3 col-md-6">
+										<label for="firstname" class="form-label">First Name</label>
+										<input class="form-control" th:field="*{employeeDTO.firstName}" type="text"
+											id="firstname" placeholder="Enter your First name" required>
+									</div>
+									<div class="mb-3 col-md-6">
+										<label for="lastname" class="form-label">Last Name</label>
+										<input class="form-control" th:field="*{employeeDTO.lastName}" type="text"
+											id="lastname" placeholder="Enter your Last name" required>
+									</div>
+								</div>
+
+								<div class="mb-3">
+									<label for="emailaddress" class="form-label">Email address</label>
+									<input class="form-control" th:field="*{employeeDTO.email}" type="email" id="email"
+										required placeholder="Enter your email">
+								</div>
+
+								<div class="mb-3">
+									<label for="mobileNumber" class="form-label">Mobile Number</label>
+									<input type="text" class="form-control" th:field="*{employeeDTO.mobileNumber}"
+										id="mobileNumber" required placeholder="Enter your mobile number"
+										data-toggle="input-mask" data-mask-format="0000000000">
+								</div>
+
+								<div class="row g-2">
+									<div class="mb-3 col-md-6">
+										<label for="inputEmployeeRole" class="form-label">Employee Role</label>
+										<select id="inputEmployeeRole" th:field="*{employeeDTO.employeeRoleId}"
+											class="form-select">
+											<option value="" readonly>--Select Employee Role--</option>
+											<option th:each="employeeRole : ${employeeRoles}"
+												th:value="${employeeRole.employeeRoleId}"
+												th:text="${employeeRole.role}">
+											</option>
+										</select>
+									</div>
+
+									<div class="mb-3 col-md-6">
+										<label for="inputSalary" class="form-label">Salary</label>
+										<input type="number" th:field="*{employeeDTO.salary}" id="inputSalary"
+											class="form-control" required placeholder="Enter salary of the employee">
+									</div>
+								</div>
+
+
+
+								<div class="row g-2">
+									<div class="mb-3 col-md-6 position-relative" id="datepicker4">
+										<label class="form-label">Date of Birth</label>
+										<div class="input-group">
+											<span class="input-group-addon" style="background: #727cf5;"><i
+													class="mdi mdi-calendar"
+													style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
+											<input th:field="*{employeeDTO.DOB}" type="text" class="form-control"
+												data-provide="datepicker" data-date-autoclose="true"
+												data-date-container="#datepicker4">
+										</div>
+									</div>
+									<div class="mb-3 col-md-6">
+										<label for="gender" class="form-label">Gender</label>
+
+										<div class="form-check">
+											<input checked th:field="*{employeeDTO.gender}" th:value="Male" type="radio"
+												id="customRadio1" name="customRadio" class="form-check-input">
+											<label class="form-check-label" for="customRadio1">Male</label>
+
+										</div>
+										<div class="form-check">
+											<input th:field="*{employeeDTO.gender}" th:value="Female" type="radio"
+												id="customRadio2" name="customRadio" class="form-check-input">
+											<label class="form-check-label" for="customRadio2">Female</label>
+										</div>
+									</div>
+								</div>
+
+								<div class="row g-2">
+									<div class="mb-3 col-md-6">
+										<label for="inputAddress" class="form-label">Address</label>
+										<input type="text" class="form-control" th:field="*{addressDTO.address1}"
+											id="inputAddress" placeholder="1234 Main St">
+									</div>
+
+									<div class="mb-3 col-md-6">
+										<label for="inputAddress2" class="form-label">Address 2</label>
+										<input type="text" class="form-control" th:field="*{addressDTO.address2}"
+											id="inputAddress2" placeholder="Apartment, studio, or floor">
+									</div>
+								</div>
+
+
+								<div class="row g-2">
+									<div class="mb-3 col-md-6">
+										<label for="inputCountry" class="form-label">Country</label>
+										<select id="inputCountry" th:field="*{addressDTO.countryId}"
+											class="form-select">
+											<option value="" readonly>--Select Country--</option>
+											<option th:each="country : ${countries}" th:value="${country.countryId}"
+												th:text="${country.country}"></option>
+										</select>
+									</div>
+									<div class="mb-3 col-md-6">
+										<label for="inputState" class="form-label">State</label>
+										<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select">
+											<option value="">--Select State--</option>
+											<option th:each="state : ${states}" th:value="${state.stateId}"
+												th:text="${state.state}"></option>
+										</select>
+									</div>
+								</div>
+
+								<div class="row g-2">
+									<div class="mb-3 col-md-6">
+										<label for="inputCity" class="form-label">City</label>
+										<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select">
+											<option value="" readonly>--Select City--</option>
+											<option th:each="city : ${cities}" th:value="${city.cityId}"
+												th:text="${city.city}"></option>
+										</select>
+									</div>
+									<div class="mb-3 col-md-6">
+										<label for="inputZip" class="form-label">ZIP Code</label>
+										<input type="text" class="form-control" th:field="*{addressDTO.postalCode}"
+											id="inputZip" data-toggle="input-mask" data-mask-format="000000">
+									</div>
+								</div>
+								<div class="mb-0 d-grid text-center">
+									<button class="btn btn-primary" type="submit">
+										Save Employee
+									</button>
+								</div>
+								<!-- social-->
+
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+		<script type="text/javascript">
+
+			$("#inputCountry").change(function () {
+				var selectedValue = $(this)
+					.find(":selected")
+					.val();
+				if (selectedValue === "") {
+					$("#inputState").val("");
+					$("#inputState").prop('disabled', true);
+
+					$("#inputCity").val("");
+					$("#inputCity").prop('disabled', true);
+				}
+				$.ajax({
+					type: "GET",
+					dataType: 'json',
+					url: "/getStates/" + selectedValue + '',
+					success: function (result) {
+						$("#inputState").prop('disabled', false);
+						$("#inputState").empty();
+						$("#inputState").append($("<option></option>").val("").html("--Select State--"));
+						$.each(result, function () {
+							$("#inputState").append($("<option></option>").val(this['stateId']).html(this['state']));
+						});
+					}
+				});
+			});
+
+			$("#inputState").change(function () {
+				var selectedValue = $(this)
+					.find(":selected")
+					.val();
+				if (selectedValue === "") {
+					$("#inputCity").val("");
+					$("#inputCity").prop('disabled', true);
+				}
+				$.ajax({
+					type: "GET",
+					dataType: 'json',
+					url: "/getCities/" + selectedValue + '',
+					success: function (result) {
+						$("#inputCity").prop('disabled', false);
+						$("#inputCity").empty();
+						$("#inputCity").append($("<option></option>").val("").html("--Select City--"));
+						$.each(result, function () {
+							$("#inputCity").append($("<option></option>").val(this['cityId']).html(this['city']));
+						});
+					}
+				});
+			});
+		</script>
+	</th:block>
+</body>
+
+</html>

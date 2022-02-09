@@ -1,6 +1,11 @@
 package com.epms.controller;
 
+import java.util.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +24,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.epms.dto.AddressDTO;
 import com.epms.dto.EmployeeDTO;
+import com.epms.dto.EnuEventTypeDTO;
+import com.epms.dto.EnuVenueFacilityDTO;
 import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.UserDetailsDTO;
 import com.epms.service.IAddressService;
@@ -26,8 +33,10 @@ import com.epms.service.IEmployeeService;
 import com.epms.service.IEnuCityService;
 import com.epms.service.IEnuCountryService;
 import com.epms.service.IEnuEmployeeRoleService;
+import com.epms.service.IEnuEventTypeService;
 import com.epms.service.IEnuServiceTypeService;
 import com.epms.service.IEnuStateService;
+import com.epms.service.IEnuVenueFacilityService;
 import com.epms.service.IServiceProviderService;
 import com.epms.service.IUserDetailsService;
 
@@ -63,24 +72,40 @@ public class AdminController {
 
 	@Autowired
 	IEmployeeService employeeService;
-	
+
 	@Autowired
 	IEnuEmployeeRoleService enuEmployeeRoleService;
-	
+
+	@Autowired
+	IEnuEventTypeService enuEventTypeService;
+
+	@Autowired
+	IEnuVenueFacilityService enuVenueFacilityService;
+
 	public String getAddress(AddressDTO addressDTO) {
+//		String address;
+//		if (addressDTO.getIsActive() == true) {
+//			address = addressDTO.getAddress1();
+//			if (addressDTO.getAddress2() != null) {
+//				address += ", " + addressDTO.getAddress2();
+//			}
+//			address += ",\n " + enuCityService.findById(addressDTO.getCityId().longValue()).getCity() + ", "
+//					+ enuStateService.findById(addressDTO.getStateId().longValue()).getState() + ", "
+//					+ enuCountryService.findById(addressDTO.getCountryId().longValue()).getCountry() + " - "
+//					+ addressDTO.getPostalCode();
+//		} else {
+//			address = null;
+//		}
+
 		String address;
-		if (addressDTO.getIsActive() == true) {
-			address = addressDTO.getAddress1();
-			if (addressDTO.getAddress2() != null) {
-				address += ", " + addressDTO.getAddress2();
-			}
-			address += ",\n " + enuCityService.findById(addressDTO.getCityId().longValue()).getCity() + ", "
-					+ enuStateService.findById(addressDTO.getStateId().longValue()).getState() + ", "
-					+ enuCountryService.findById(addressDTO.getCountryId().longValue()).getCountry() + " - "
-					+ addressDTO.getPostalCode();
-		} else {
-			address = null;
+		address = addressDTO.getAddress1();
+		if (addressDTO.getAddress2() != null) {
+			address += ", " + addressDTO.getAddress2();
 		}
+		address += ",\n " + enuCityService.findById(addressDTO.getCityId().longValue()).getCity() + ", "
+				+ enuStateService.findById(addressDTO.getStateId().longValue()).getState() + ", "
+				+ enuCountryService.findById(addressDTO.getCountryId().longValue()).getCountry() + " - "
+				+ addressDTO.getPostalCode();
 		return address;
 	}
 
@@ -92,10 +117,10 @@ public class AdminController {
 	@GetMapping("/list-customer")
 	public ModelAndView listCustomer() {
 		ModelAndView modelandmap = new ModelAndView("admin/customer");
-		
+
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		parameterSource.addValue("isCustomer", true);
-		
+
 		// List<UserDetailsDTO> customers = userDetailsService.findAllActive();
 		List<UserDetailsDTO> customers = userDetailsService.findByNamedParameters(parameterSource);
 		List<String> addresses = new ArrayList<>();
@@ -142,13 +167,12 @@ public class AdminController {
 		List<UserDetailsDTO> userDetails = employees.stream().map(employee -> {
 			return userDetailsService.findById(employee.getUserDetailsId().longValue());
 		}).collect(Collectors.toList());
-		
+
 		modelandmap.addObject("employees", employees);
 		modelandmap.addObject("userDetails", userDetails);
 		return modelandmap;
 	}
 
-	
 	@GetMapping("/authenticate-serviceprovider/{serviceProviderId}")
 	public ModelAndView authenticateServiceprovider(@PathVariable("serviceProviderId") long serviceProviderId) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
@@ -156,37 +180,37 @@ public class AdminController {
 		serviceProviderService.authenticate(serviceProviderId);
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/activate_customer/{customerId}")
 	public ModelAndView activateCustomer(@PathVariable("customerId") long userDetailsId) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-customer");
-		
+
 		UserDetailsDTO userDetailsDTO = userDetailsService.findById(userDetailsId);
 		addressService.activate(userDetailsDTO.getAddressId().longValue());
 		userDetailsService.activate(userDetailsDTO.getUserDetailsId().longValue());
-		
+
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/activate_serviceprovider/{serviceProviderId}")
 	public ModelAndView activateServiceProvider(@PathVariable("serviceProviderId") long serviceProviderId) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
-		
+
 		ServiceProviderDTO serviceProviderDTO = serviceProviderService.findById(serviceProviderId);
 		UserDetailsDTO userDetailsDTO = userDetailsService.findById(serviceProviderDTO.getUserDetailsId().longValue());
 		addressService.activate(userDetailsDTO.getAddressId().longValue());
 		userDetailsService.activate(serviceProviderDTO.getUserDetailsId().longValue());
 		serviceProviderService.authenticate(serviceProviderId);
-		
+
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/activate_employee/{employeeId}")
 	public ModelAndView activateEmployee(@PathVariable("employeeId") long employeeId) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-employee");
 		EmployeeDTO employeeDTO = employeeService.findById(employeeId);
 		UserDetailsDTO userDetailsDTO = userDetailsService.findById(employeeDTO.getUserDetailsId().longValue());
-		
+
 		addressService.activate(userDetailsDTO.getAddressId().longValue());
 		userDetailsService.activate(employeeDTO.getUserDetailsId().longValue());
 		employeeService.activate(employeeId);
@@ -246,7 +270,7 @@ public class AdminController {
 		serviceProviderService.insert(serviceProviderDTO);
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/add_employee")
 	public ModelAndView addEmployee() {
 		ModelAndView modelandmap = new ModelAndView("admin/add_employee");
@@ -256,20 +280,23 @@ public class AdminController {
 		modelandmap.addObject("addressDTO", new AddressDTO());
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/add_venue")
 	public ModelAndView addVenue() {
 		ModelAndView modelandmap = new ModelAndView("admin/add_venue");
 		modelandmap.addObject("countries", enuCountryService.findAll());
-//		modelandmap.addObject("employeeRoles", enuEmployeeRoleService.findAll());
-//		modelandmap.addObject("employeeDTO", new EmployeeDTO());
+		MapSqlParameterSource paramSource = new MapSqlParameterSource();
+		paramSource.addValue("isActive", true);
+		List<EnuEventTypeDTO> eventTypes = enuEventTypeService.findByNamedParameters(paramSource);
+		List<EnuVenueFacilityDTO> facilities = enuVenueFacilityService.findByNamedParameters(paramSource);
+		modelandmap.addObject("facilities", facilities);
+		modelandmap.addObject("eventTypes", eventTypes);
 		modelandmap.addObject("addressDTO", new AddressDTO());
 		return modelandmap;
 	}
-	
+
 	@PostMapping("/add_employee")
-	public ModelAndView addNewEmployee(
-			@Valid @ModelAttribute("employeeDTO") EmployeeDTO employeeDTO,
+	public ModelAndView addNewEmployee(@Valid @ModelAttribute("employeeDTO") EmployeeDTO employeeDTO,
 			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
 		final ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-employee");
 
@@ -310,7 +337,7 @@ public class AdminController {
 
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/view_employee/{employeeId}")
 	public ModelAndView viewEmployee(@PathVariable("employeeId") long employeeId) {
 		ModelAndView modelandmap = new ModelAndView("admin/view_employee");
@@ -318,7 +345,7 @@ public class AdminController {
 		EmployeeDTO employeeDTO = employeeService.findById(employeeId);
 		UserDetailsDTO userDetailsDTO = userDetailsService.findById(employeeDTO.getUserDetailsId().longValue());
 		String address = getAddress(addressService.findById(userDetailsDTO.getAddressId().longValue()));
-		String employeeRole = enuEmployeeRoleService.findById(employeeDTO.getEmployeeRoleId().longValue()).getRole(); 
+		String employeeRole = enuEmployeeRoleService.findById(employeeDTO.getEmployeeRoleId().longValue()).getRole();
 
 		modelandmap.addObject("employeeDTO", employeeDTO);
 		modelandmap.addObject("userDetailsDTO", userDetailsDTO);
@@ -332,38 +359,39 @@ public class AdminController {
 	public ModelAndView deleteCustomer(@PathVariable("customerId") long userDetailsId) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-customer");
 		UserDetailsDTO userDetailsDTO = userDetailsService.findById(userDetailsId);
-		
+
 		addressService.delete(userDetailsDTO.getAddressId().longValue());
 		userDetailsService.delete(userDetailsId);
-		
+
 		return modelandmap;
 	}
 
 	@GetMapping("/delete_serviceprovider/{serviceProviderId}")
 	public ModelAndView deleteServiceProvider(@PathVariable("serviceProviderId") long serviceProviderId) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
-		UserDetailsDTO userDetailsDTO = userDetailsService.findById(serviceProviderService.findById(serviceProviderId).getUserDetailsId().longValue());
-		
+		UserDetailsDTO userDetailsDTO = userDetailsService
+				.findById(serviceProviderService.findById(serviceProviderId).getUserDetailsId().longValue());
+
 		addressService.delete(userDetailsDTO.getAddressId().longValue());
 		userDetailsService.delete(userDetailsDTO.getUserDetailsId().longValue());
 		serviceProviderService.delete(serviceProviderId);
-		
+
 		return modelandmap;
 	}
 
 	@GetMapping("/delete_employee/{employeeId}")
 	public ModelAndView deleteEmployee(@PathVariable("employeeId") long employeeId) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-employee");
-		UserDetailsDTO userDetailsDTO = userDetailsService.findById(employeeService.findById(employeeId).getUserDetailsId().longValue());
-		
+		UserDetailsDTO userDetailsDTO = userDetailsService
+				.findById(employeeService.findById(employeeId).getUserDetailsId().longValue());
+
 		addressService.delete(userDetailsDTO.getAddressId().longValue());
 		userDetailsService.delete(userDetailsDTO.getUserDetailsId().longValue());
 		employeeService.delete(employeeId);
-		
+
 		return modelandmap;
 	}
 
-	
 	@GetMapping("/edit_customer/{customerId}")
 	public ModelAndView editCustomer(@PathVariable("customerId") long userDetailsId) {
 		ModelAndView modelandmap = new ModelAndView("admin/edit_customer");
@@ -473,29 +501,31 @@ public class AdminController {
 			@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
 			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
 		final ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
-		
-		ServiceProviderDTO oldserviceProviderDTO = serviceProviderService.findById(serviceProviderDTO.getServiceProviderId().longValue());
-		// UserDetailsDTO oldUserDetailsDTO = userDetailsService.findById(userDetailsDTO.getUserDetailsId().longValue());
+
+		ServiceProviderDTO oldserviceProviderDTO = serviceProviderService
+				.findById(serviceProviderDTO.getServiceProviderId().longValue());
+		// UserDetailsDTO oldUserDetailsDTO =
+		// userDetailsService.findById(userDetailsDTO.getUserDetailsId().longValue());
 		AddressDTO oldAddressDTO = addressService.findById(addressDTO.getAddressId().longValue());
 
 		/*
-		if (!(userDetailsDTO.getServiceProviderName().equals(oldUserDetailsDTO.getServiceProviderName()))) {
-			oldUserDetailsDTO.setServiceProviderName(userDetailsDTO.getServiceProviderName());
-		}
+		 * if (!(userDetailsDTO.getServiceProviderName().equals(oldUserDetailsDTO.
+		 * getServiceProviderName()))) {
+		 * oldUserDetailsDTO.setServiceProviderName(userDetailsDTO.
+		 * getServiceProviderName()); }
+		 * 
+		 * if (!(userDetailsDTO.getEmail().equals(oldUserDetailsDTO.getEmail()))) {
+		 * oldUserDetailsDTO.setEmail(userDetailsDTO.getEmail()); }
+		 * 
+		 * if
+		 * (!(userDetailsDTO.getMobileNumber().equals(oldUserDetailsDTO.getMobileNumber(
+		 * )))) { oldUserDetailsDTO.setMobileNumber(userDetailsDTO.getMobileNumber()); }
+		 */
 
-		if (!(userDetailsDTO.getEmail().equals(oldUserDetailsDTO.getEmail()))) {
-			oldUserDetailsDTO.setEmail(userDetailsDTO.getEmail());
-		}
-		
-		if (!(userDetailsDTO.getMobileNumber().equals(oldUserDetailsDTO.getMobileNumber()))) {
-			oldUserDetailsDTO.setMobileNumber(userDetailsDTO.getMobileNumber());
-		}
-		*/
-		
 		serviceProviderDTO.setServiceProviderName(userDetailsDTO.getServiceProviderName());
 		serviceProviderDTO.setMobileNumber(userDetailsDTO.getMobileNumber());
 		serviceProviderDTO.setEmail(userDetailsDTO.getEmail());
-		
+
 		if (!(serviceProviderDTO.getServiceProviderName().equals(oldserviceProviderDTO.getServiceProviderName()))) {
 			oldserviceProviderDTO.setServiceProviderName(serviceProviderDTO.getServiceProviderName());
 		}
@@ -503,15 +533,15 @@ public class AdminController {
 		if (!(serviceProviderDTO.getEmail().equals(oldserviceProviderDTO.getEmail()))) {
 			oldserviceProviderDTO.setEmail(serviceProviderDTO.getEmail());
 		}
-		
+
 		if (!(serviceProviderDTO.getMobileNumber().equals(oldserviceProviderDTO.getMobileNumber()))) {
 			oldserviceProviderDTO.setMobileNumber(serviceProviderDTO.getMobileNumber());
 		}
-		
+
 		if (!(serviceProviderDTO.getServiceTypeId().equals(oldserviceProviderDTO.getServiceTypeId()))) {
 			oldserviceProviderDTO.setServiceTypeId(serviceProviderDTO.getServiceTypeId());
 		}
-		
+
 		if (!(serviceProviderDTO.getCost().equals(oldserviceProviderDTO.getCost()))) {
 			oldserviceProviderDTO.setCost(serviceProviderDTO.getCost());
 		}
@@ -545,8 +575,6 @@ public class AdminController {
 		serviceProviderService.update(oldserviceProviderDTO);
 		return modelandmap;
 	}
-	
-	
 
 	@GetMapping("/edit_employee/{employeeId}")
 	public ModelAndView editEmployee(@PathVariable("employeeId") long employeeId) {
@@ -556,6 +584,11 @@ public class AdminController {
 		EmployeeDTO employeeDTO = employeeService.findById(employeeId);
 		// Need it to show details
 		UserDetailsDTO userDetailsDTO = userDetailsService.findById(employeeDTO.getUserDetailsId().longValue());
+		employeeDTO.setFirstName(userDetailsDTO.getFirstName());
+		employeeDTO.setLastName(userDetailsDTO.getLastName());
+		employeeDTO.setEmail(userDetailsDTO.getEmail());
+		employeeDTO.setMobileNumber(userDetailsDTO.getMobileNumber());
+		
 		AddressDTO addressDTO = addressService.findById(userDetailsDTO.getAddressId().longValue());
 
 		modelandmap.addObject("employeeDTO", employeeDTO);
@@ -563,6 +596,7 @@ public class AdminController {
 		modelandmap.addObject("addressDTO", addressDTO);
 
 		modelandmap.addObject("countries", enuCountryService.findAll());
+		modelandmap.addObject("employeeRoles", enuEmployeeRoleService.findAll());
 
 		MapSqlParameterSource paramSource = new MapSqlParameterSource();
 		paramSource.addValue("countryId", addressDTO.getCountryId());
@@ -575,33 +609,38 @@ public class AdminController {
 	}
 
 	@PostMapping("/edit_employee")
-	public ModelAndView updateEmployee(
-			@Valid @ModelAttribute("employeeDTO") EmployeeDTO employeeDTO,
+	public ModelAndView updateEmployee(@Valid @ModelAttribute("employeeDTO") EmployeeDTO employeeDTO,
 			@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
 			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
 		final ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-employee");
-		
+
 		EmployeeDTO oldEmployeeDTO = employeeService.findById(employeeDTO.getEmployeeId().longValue());
+		UserDetailsDTO oldUserDetailsDTO = userDetailsService.findById(employeeDTO.getUserDetailsId().longValue());
 		AddressDTO oldAddressDTO = addressService.findById(addressDTO.getAddressId().longValue());
 
-		employeeDTO.setFirstName(userDetailsDTO.getFirstName());
-		employeeDTO.setLastName(userDetailsDTO.getLastName());
-		employeeDTO.setEmail(userDetailsDTO.getEmail());
-		employeeDTO.setMobileNumber(userDetailsDTO.getMobileNumber());
-		if (!(employeeDTO.getFirstName().equals(userDetailsDTO.getFirstName()))) {
-			oldEmployeeDTO.setFirstName(userDetailsDTO.getFirstName());
+		oldEmployeeDTO.setFirstName(oldUserDetailsDTO.getFirstName());
+		oldEmployeeDTO.setLastName(oldUserDetailsDTO.getLastName());
+		oldEmployeeDTO.setEmail(oldUserDetailsDTO.getEmail());
+		oldEmployeeDTO.setMobileNumber(oldUserDetailsDTO.getMobileNumber());
+
+		if (!(employeeDTO.getFirstName().equals(oldUserDetailsDTO.getFirstName()))) {
+			oldEmployeeDTO.setFirstName(oldUserDetailsDTO.getFirstName());
 		}
 
-		if (!(employeeDTO.getLastName().equals(userDetailsDTO.getLastName()))) {
-			oldEmployeeDTO.setLastName(userDetailsDTO.getLastName());
+		if (!(employeeDTO.getLastName().equals(oldUserDetailsDTO.getLastName()))) {
+			oldEmployeeDTO.setLastName(oldUserDetailsDTO.getLastName());
 		}
 
-		if (!(employeeDTO.getEmail().equals(userDetailsDTO.getEmail()))) {
-			oldEmployeeDTO.setEmail(userDetailsDTO.getEmail());
+		if (!(employeeDTO.getEmail().equals(oldUserDetailsDTO.getEmail()))) {
+			oldEmployeeDTO.setEmail(oldUserDetailsDTO.getEmail());
 		}
 
-		if (!(employeeDTO.getMobileNumber().equals(userDetailsDTO.getMobileNumber()))) {
-			oldEmployeeDTO.setMobileNumber(userDetailsDTO.getMobileNumber());
+		if (!(employeeDTO.getMobileNumber().equals(oldUserDetailsDTO.getMobileNumber()))) {
+			oldEmployeeDTO.setMobileNumber(oldUserDetailsDTO.getMobileNumber());
+		}
+
+		if (!(employeeDTO.getEmployeeRoleId().equals(oldEmployeeDTO.getEmployeeRoleId()))) {
+			oldEmployeeDTO.setEmployeeRoleId(employeeDTO.getEmployeeRoleId());
 		}
 
 		if (!(employeeDTO.getSalary().equals(oldEmployeeDTO.getSalary()))) {
@@ -611,11 +650,7 @@ public class AdminController {
 		if (!(employeeDTO.getGender().equals(oldEmployeeDTO.getGender()))) {
 			oldEmployeeDTO.setGender(employeeDTO.getGender());
 		}
-		
-		if (!(employeeDTO.getHiringDate().equals(oldEmployeeDTO.getHiringDate()))) {
-			oldEmployeeDTO.setHiringDate(employeeDTO.getHiringDate());
-		}
-		
+
 		if (!(addressDTO.getAddress1().equals(oldAddressDTO.getAddress1()))) {
 			oldAddressDTO.setAddress1(addressDTO.getAddress1());
 		}
