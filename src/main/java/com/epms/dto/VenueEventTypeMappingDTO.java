@@ -11,6 +11,5 @@ public class VenueEventTypeMappingDTO {
 	private Integer venueEventTypeMappingId;
 	private Integer venueId;
 	private Integer eventTypeId;
-	private Integer eventSubTypeId;
 	private Boolean isActive;
 }

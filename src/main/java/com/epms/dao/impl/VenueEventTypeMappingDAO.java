@@ -84,4 +84,14 @@ public class VenueEventTypeMappingDAO implements IVenueEventTypeMappingDAO {
 		return null;
 	}
 
+	@Override
+	public void insert(Long venueId, List<String> list) {
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("venueId", venueId);
+		for (String item : list) {
+			namedParameters.addValue("eventTypeId", item);
+			jdbcTemplate.update("insert into venueeventtypemapping(venueId,eventTypeId) values(:venueId,:eventTypeId)",namedParameters);
+		}
+	}
+
 }

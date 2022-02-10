@@ -11,6 +11,5 @@ public class VenueFacilityMappingDTO {
 	private Integer venueFacilityMappingId;
 	private Integer venueId;
 	private Integer venueFacilityId;
-	private Double cost;
 	private Boolean isActive;
 }

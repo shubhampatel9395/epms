@@ -2,7 +2,7 @@
 	layout:decorate="~{admin/_layout}">
 
 <head>
-	<title>Employee List</title>
+	<title>Venues List</title>
 	<!-- third party css -->
 	<link th:href="@{/assets/css/vendor/dataTables.bootstrap5.css}" rel="stylesheet" type="text/css" />
 	<link th:href="@{/assets/css/vendor/responsive.bootstrap5.css}" rel="stylesheet" type="text/css" />
@@ -18,10 +18,10 @@
 				<div class="col-12">
 					<div class="page-title-box">
 						<div class="page-title-right">
-							<a th:href="@{/admin/add_employee}" class="btn btn-danger mb-2"><i
-									class="mdi mdi-plus-circle me-2"></i> Add Employee</a>
+							<a th:href="@{/admin/add_venue}" class="btn btn-danger mb-2"><i
+									class="mdi mdi-plus-circle me-2"></i> Add Venue</a>
 						</div>
-						<h4 class="page-title">Employees</h4>
+						<h4 class="page-title">Venues</h4>
 					</div>
 				</div>
 			</div>
@@ -35,38 +35,38 @@
 								<table id="basic-datatable" class="table dt-responsive nowrap w-100">
 									<thead>
 										<tr>
-											<th>Employee Name</th>
-											<th>Email</th>
+											<th>Venue Name</th>
+											<th>Type</th>
+											<th>Address</th>
 											<th>Mobile Number</th>
-											<th>Hiring Date</th>
-											<th>Salary</th>
+											<th>Email</th>
+											<th>Cost</th>
 											<th style="width: 85px;">Action</th>
 										</tr>
 									</thead>
 
 
 									<tbody>
-										<tr th:each="employee : ${employees}">
-											<td
-												th:text="${userDetails[employeeStat.index].firstName} + ' ' + ${userDetails[employeeStat.index].lastName}">
-											</td>
-											<td th:text="${userDetails[employeeStat.index].email}"></td>
-											<td th:text="${userDetails[employeeStat.index].mobileNumber}"></td>
-											<td th:text="${#dates.format(employee.hiringDate, 'MM/dd/yyyy')}"></td>
-											<td th:text="${employee.salary}"></td>
+										<tr th:each="venue : ${venues}">
+											<td th:text="${venue.venueName}"></td>
+											<td th:text="${venueTypes[venueStat.index]}"></td>
+											<td th:utext="${#strings.replace(addresses[venueStat.index],'&#10;','&lt;br&gt;')}"></td>
+											<td th:text="${venue.contactNumber}"></td>
+											<td th:text="${venue.email}"></td>
+											<td th:text="${venue.cost}"></td>
 											<td class="table-action">
-												<a th:href="@{'/admin/view_employee/' + ${employee.employeeId}}"
+												<a th:href="@{'/admin/view_venue/' + ${venue.venueId}}"
 													class="action-icon"> <i class="mdi mdi-eye"></i></a>
-												<a th:href="@{'/admin/edit_employee/' + ${employee.employeeId}}"
+												<a th:href="@{'/admin/edit_venue/' + ${venue.venueId}}"
 													class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a>
-												<div th:if="${employee.isActive}" style="display:inline-block;">
+												<div th:if="${venue.isActive}" style="display:inline-block;">
 													<a data-bs-toggle="modal"
-														th:data-bs-target="'#staticBackdropDelete' + ${employee.employeeId}"
-														th:href="@{'/admin/delete_employee/' + ${employee.employeeId}}"
+														th:data-bs-target="'#staticBackdropDelete' + ${venue.venueId}"
+														th:href="@{'/admin/delete_venue/' + ${venue.venueId}}"
 														class="action-icon"> <i class="mdi mdi-delete"></i></a>
 													<!-- Modal -->
 													<div class="modal fade"
-														th:id="'staticBackdropDelete' + ${employee.employeeId}"
+														th:id="'staticBackdropDelete' + ${venue.venueId}"
 														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
 														aria-labelledby="staticBackdropLabel" aria-hidden="true">
 														<div class="modal-dialog">
@@ -86,21 +86,21 @@
 																	<button type="button" class="btn btn-secondary"
 																		data-bs-dismiss="modal">Close</button>
 																	<a type="button"
-																		th:href="@{'/admin/delete_employee/' + ${employee.employeeId}}"
+																		th:href="@{'/admin/delete_venue/' + ${venue.venueId}}"
 																		class="btn btn-danger">Delete</a>
 																</div> <!-- end modal footer -->
 															</div> <!-- end modal content-->
 														</div> <!-- end modal dialog-->
 													</div> <!-- end modal-->
 												</div>
-												<div th:unless="${employee.isActive}" style="display:inline-block;">
+												<div th:unless="${venue.isActive}" style="display:inline-block;">
 													<a data-bs-toggle="modal"
-														th:data-bs-target="'#staticBackdropActivate' + ${employee.employeeId}"
-														th:href="@{'/admin/activate_employee/' + ${employee.employeeId}}"
+														th:data-bs-target="'#staticBackdropActivate' + ${venue.venueId}"
+														th:href="@{'/admin/activate_venue/' + ${venue.venueId}"
 														class="action-icon"> <i class="mdi mdi-account-check"></i></a>
 													<!-- Modal -->
 													<div class="modal fade"
-														th:id="'staticBackdropActivate' + ${employee.employeeId}"
+														th:id="'staticBackdropActivate' + ${venue.venueId}}"
 														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
 														aria-labelledby="staticBackdropLabel" aria-hidden="true">
 														<div class="modal-dialog">
@@ -120,7 +120,7 @@
 																	<button type="button" class="btn btn-secondary"
 																		data-bs-dismiss="modal">Close</button>
 																	<a type="button"
-																		th:href="@{'/admin/activate_employee/' + ${employee.employeeId}}"
+																		th:href="@{'/admin/activate_venue/' + ${venue.venueId}}"
 																		class="btn btn-danger">Activate</a>
 																</div> <!-- end modal footer -->
 															</div> <!-- end modal content-->

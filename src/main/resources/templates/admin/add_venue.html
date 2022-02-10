@@ -18,7 +18,7 @@
 				<div class="col-12">
 					<div class="page-title-box">
 						<div class="page-title-right">
-							<a th:href="@{/admin/list-employee}" class="btn btn-secondary mb-2">Back</a>
+							<a th:href="@{/admin/list-venue}" class="btn btn-secondary mb-2">Back</a>
 						</div>
 						<h4 class="page-title">Add Venue</h4>
 					</div>
@@ -26,17 +26,18 @@
 				<div class="col-12">
 					<div class="card">
 						<div class="card-body">
-							<form th:action="@{/admin/add_employee}" method="post">
+							<form th:action="@{/admin/add_venue}" method="post">
 								<div class="row g-2">
 									<div class="mb-3 col-md-6">
 										<label for="venueName" class="form-label">Venue Name</label>
 										<input class="form-control" type="text" id="venueName"
-											placeholder="Enter your Venue name" required>
+											th:field="*{venueDTO.venueName}" placeholder="Enter your Venue name"
+											required>
 									</div>
 									<div class="mb-3 col-md-6">
 										<label for="emailaddress" class="form-label">Email address</label>
 										<input class="form-control" type="email" id="email" required
-											placeholder="Enter your email">
+											th:field="*{venueDTO.email}" placeholder="Enter your email">
 									</div>
 								</div>
 
@@ -44,13 +45,13 @@
 									<div class="mb-3 col-md-6">
 										<label for="contactNumber" class="form-label">Contact Number</label>
 										<input type="text" class="form-control" id="contactNumber" required
-											placeholder="Enter your contact number" data-toggle="input-mask"
-											data-mask-format="0000000000">
+											th:field="*{venueDTO.contactNumber}" placeholder="Enter your contact number"
+											data-toggle="input-mask" data-mask-format="0000000000">
 									</div>
 									<div class="mb-3 col-md-6">
 										<label for="guestCapacity" class="form-label">Guest Capacity</label>
 										<input type="number" id="guestCapacity" class="form-control" required
-											placeholder="Enter guest capacity">
+											th:field="*{venueDTO.guestCapacity}" placeholder="Enter guest capacity">
 									</div>
 								</div>
 
@@ -58,44 +59,49 @@
 									<div class="mb-3 col-md-6">
 										<label for="cost" class="form-label">Cost</label>
 										<input type="number" id="cost" class="form-control" required
-											placeholder="Enter cost">
+											th:field="*{venueDTO.cost}" placeholder="Enter cost">
 									</div>
 									<div class="mb-3 col-md-6">
 										<label for="venueType" class="form-label">Venue Type</label>
-										<select id="venueType" 
-											class="form-select">
+										<select id="venueType" th:field=*{venueDTO.venueTypeId} class="form-select">
 											<option value="" readonly>--Select Venue Type--</option>
-											<option th:each="venueType : ${venueTypes}" th:value="${venueType.venueTypeId}"
-												th:text="${venueType.venueType}"></option>
+											<option th:each="venueType : ${venueTypes}"
+												th:value="${venueType.enuVenueTypeId}" th:text="${venueType.venueType}">
+											</option>
 										</select>
 									</div>
 								</div>
 								<div class="row g-2">
-								<div class="mb-3 col-md-6">
-										<label for="eventType" class="form-label">Event Type</label>
+									<div class="mb-3 col-md-6">
+										<label for="eventType" class="form-label">Available Event Types</label>
 
 										<select class="select2 form-control select2-multiple" data-toggle="select2"
-											multiple="multiple" data-placeholder="Select multiple event eype ...">
+											th:field=*{venueTempDTO.selectedEventTypes} multiple="multiple"
+											data-placeholder="Select multiple event eype ...">
 											<optgroup>
-												<option th:each="eventType : ${eventTypes}" th:value="${eventType.eventTypeId}"
+												<option th:each="eventType : ${eventTypes}"
+													th:value="${eventType.eventTypeId}"
 													th:text="${eventType.eventType}"></option>
 											</optgroup>
 										</select>
 									</div>
 									<div class="mb-3 col-md-6">
-										<label for="facilities" class="form-label">Facilities</label>
+										<label for="facilities" class="form-label">Available Facilities</label>
 
 										<select class="select2 form-control select2-multiple" data-toggle="select2"
-											multiple="multiple" data-placeholder="Select multiple facility  ...">
+											th:field=*{venueTempDTO.selectedFacilities} multiple="multiple"
+											data-placeholder="Select multiple facility  ...">
 											<optgroup>
-												<option th:each="facility : ${facilities}" th:value="${facility.venueFacilityId}"
+												<option th:each="facility : ${facilities}"
+													th:value="${facility.venueFacilityId}"
 													th:text="${facility.facility}"></option>
 											</optgroup>
 										</select>
 									</div>
 									<div class="mb-3">
 										<label for="description" class="form-label">Description</label>
-										<textarea class="form-control" id="example-textarea" rows="3"></textarea>
+										<textarea th:field="${venueDTO.description}" class="form-control"
+											id="example-textarea" rows="3"></textarea>
 									</div>
 								</div>
 
@@ -144,18 +150,19 @@
 									<div class="mb-3 col-md-6">
 										<label for="inputZip" class="form-label">ZIP Code</label>
 										<input type="text" class="form-control" th:field="*{addressDTO.postalCode}"
-											id="inputZip" data-toggle="input-mask" data-mask-format="000000" placeholder="Enter zip code">
+											id="inputZip" data-toggle="input-mask" data-mask-format="000000"
+											placeholder="Enter zip code">
 									</div>
 								</div>
 								<div class="row g-2">
 									<div class="mb-3 col-md-6">
 										<label for="latitude" class="form-label">Latitude</label>
-										<input type="text" class="form-control" 
+										<input type="text" class="form-control" th:field=*{venueDTO.latitude}
 											id="latitude" data-toggle="input-mask" placeholder="Enter latitude">
 									</div>
 									<div class="mb-3 col-md-6">
 										<label for="Longitude" class="form-label">Longitude</label>
-										<input type="text" class="form-control" 
+										<input type="text" class="form-control" th:field=*{venueDTO.longitude}
 											id="Longitude" data-toggle="input-mask" placeholder="Enter longitude">
 									</div>
 								</div>

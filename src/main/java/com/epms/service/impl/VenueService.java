@@ -42,8 +42,7 @@ public class VenueService implements IVenueService {
 
 	@Override
 	public VenueDTO insert(VenueDTO VenueDTO) {
-		// TODO Auto-generated method stub
-		return null;
+		return venueDAO.insert(VenueDTO);
 	}
 
 	@Override

@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IVenueDAO;
@@ -66,14 +68,29 @@ public class VenueDAO implements IVenueDAO {
 
 	@Override
 	public VenueDTO insert(VenueDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("venueName", entity.getVenueName());
+		sc.addValue("description", entity.getDescription());
+		sc.addValue("venueTypeId",entity.getVenueTypeId());
+		sc.addValue("addressId", entity.getAddressId());
+		sc.addValue("email", entity.getEmail());
+		sc.addValue("contactNumber", entity.getContactNumber());
+		sc.addValue("latitude", entity.getLatitude());
+		sc.addValue("longitude", entity.getLongitude());
+		sc.addValue("cost", entity.getCost());
+		sc.addValue("guestCapacity", entity.getGuestCapacity());
+
+		int i = jdbcTemplate.update(
+				"insert into venue(venueName,description,venueTypeId,addressId,email,contactNumber,latitude,longitude,cost,guestCapacity) values(:venueName,:description,:venueTypeId,:addressId,:email,:contactNumber,:latitude,:longitude,:cost,:guestCapacity)",
+				sc, keyHolder, new String[] { "venueId" });
+
+		return findById(keyHolder.getKey().longValue());
 	}
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override

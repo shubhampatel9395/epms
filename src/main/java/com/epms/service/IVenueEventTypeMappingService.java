@@ -14,4 +14,5 @@ public interface IVenueEventTypeMappingService {
 	public VenueEventTypeMappingDTO insert(VenueEventTypeMappingDTO VenueEventTypeMappingDTO);
 	public void delete(Long id);
 	public VenueEventTypeMappingDTO update(VenueEventTypeMappingDTO entity);
+	public void insert(Long venueId, List<String> list);
 }

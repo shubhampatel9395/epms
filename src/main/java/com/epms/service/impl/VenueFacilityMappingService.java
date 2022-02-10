@@ -57,4 +57,9 @@ public class VenueFacilityMappingService implements com.epms.service.IVenueFacil
 		return null;
 	}
 
+	@Override
+	public void insert(Long venueId, List<String> list) {
+		venueFacilityMappingDAO.insert(venueId, list);
+	}
+
 }

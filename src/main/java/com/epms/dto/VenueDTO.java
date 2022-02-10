@@ -1,5 +1,6 @@
 package com.epms.dto;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import lombok.AllArgsConstructor;
@@ -14,8 +15,9 @@ public class VenueDTO {
 	private String venueName;
 	private String description;
 	private Integer addressId;
-	private Double latitude;
-	private Double longitude;
+	private Integer venueTypeId;
+	private BigDecimal latitude;
+	private BigDecimal longitude;
 	private String contactNumber;
 	private String email;
 	private Integer guestCapacity;

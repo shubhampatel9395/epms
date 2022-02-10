@@ -11,5 +11,6 @@ public class EnuVenueFacilityDTO {
 	private Integer venueFacilityId;
 	private String facility;
 	private String description;
+	private Double cost;
 	private Boolean isActive;
 }

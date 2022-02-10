@@ -72,8 +72,9 @@
 
 									<div class="mb-3 col-md-6">
 										<label for="inputSalary" class="form-label">Salary</label>
-										<input type="number" th:field="*{employeeDTO.salary}" id="inputSalary"
-											class="form-control" required placeholder="Enter salary of the employee">
+										<input type="number" th:field="*{employeeDTO.salary}" id="inputSalary" min="1"
+											oninput="this.value = !!this.value && Math.abs(this.value) >= 1 ? Math.abs(this.value) : null" class="form-control" required
+											placeholder="Enter salary of the employee">
 									</div>
 								</div>
 
@@ -87,7 +88,7 @@
 													class="mdi mdi-calendar"
 													style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
 											<input th:field="*{employeeDTO.DOB}" type="text" class="form-control"
-												data-provide="datepicker" data-date-autoclose="true"
+												data-provide="datepicker" data-date-autoclose="true" id="dob"
 												data-date-container="#datepicker4">
 										</div>
 									</div>
@@ -176,6 +177,9 @@
 
 	<th:block layout:fragment="script">
 		<script type="text/javascript">
+			$(document).ready(function () {
+				$("#dob").val(new Date(document.getElementById("dob").value).toLocaleDateString().substring(0,10));
+			});
 
 			$("#inputCountry").change(function () {
 				var selectedValue = $(this)

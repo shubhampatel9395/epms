@@ -57,5 +57,11 @@ public class VenueEventTypeMappingService implements IVenueEventTypeMappingServi
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public void insert(Long venueId, List<String> list)
+	{
+		venueEventTypeMappingDAO.insert(venueId, list);
+	}
 
 }

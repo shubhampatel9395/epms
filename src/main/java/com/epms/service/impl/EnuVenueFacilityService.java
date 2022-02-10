@@ -42,19 +42,16 @@ public class EnuVenueFacilityService implements IEnuVenueFacilityService {
 
 	@Override
 	public EnuVenueFacilityDTO insert(EnuVenueFacilityDTO EnuVenueFacilityDTO) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public EnuVenueFacilityDTO update(EnuVenueFacilityDTO entity) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

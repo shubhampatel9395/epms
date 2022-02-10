@@ -84,4 +84,14 @@ public class VenueFacilityMappingDAO implements IVenueFacilityMappingDAO {
 		return null;
 	}
 
+	@Override
+	public void insert(Long venueId,List<String> list) {
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("venueId", venueId);
+		for (String item : list) {
+			namedParameters.addValue("venueFacilityId", item);
+			jdbcTemplate.update("insert into venuefacilitymapping(venueId,facilityId) values(:venueId,:venueFacilityId)",namedParameters);
+		}
+	}
+
 }
