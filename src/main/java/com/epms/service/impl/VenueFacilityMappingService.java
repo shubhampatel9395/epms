@@ -41,25 +41,32 @@ public class VenueFacilityMappingService implements com.epms.service.IVenueFacil
 
 	@Override
 	public VenueFacilityMappingDTO insert(VenueFacilityMappingDTO VenueFacilityMappingDTO) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+	public void delete(Long venueId) {
+		venueFacilityMappingDAO.delete(venueId);
 	}
 
 	@Override
 	public VenueFacilityMappingDTO update(VenueFacilityMappingDTO entity) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void insert(Long venueId, List<String> list) {
 		venueFacilityMappingDAO.insert(venueId, list);
+	}
+
+	@Override
+	public void activate(Long venueId) {
+		venueFacilityMappingDAO.activate(venueId);
+	}
+
+	@Override
+	public void update(Long venueId, List<String> list) {
+		venueFacilityMappingDAO.update(venueId, list);
 	}
 
 }

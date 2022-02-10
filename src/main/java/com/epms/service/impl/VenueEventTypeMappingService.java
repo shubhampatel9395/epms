@@ -47,9 +47,8 @@ public class VenueEventTypeMappingService implements IVenueEventTypeMappingServi
 	}
 
 	@Override
-	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+	public void delete(Long venueId) {
+		venueEventTypeMappingDAO.delete(venueId);
 	}
 
 	@Override
@@ -62,6 +61,16 @@ public class VenueEventTypeMappingService implements IVenueEventTypeMappingServi
 	public void insert(Long venueId, List<String> list)
 	{
 		venueEventTypeMappingDAO.insert(venueId, list);
+	}
+
+	@Override
+	public void activate(Long venueId) {
+		venueEventTypeMappingDAO.activate(venueId);
+	}
+
+	@Override
+	public void update(Long venueId, List<String> list) {
+		venueEventTypeMappingDAO.update(venueId, list);
 	}
 
 }

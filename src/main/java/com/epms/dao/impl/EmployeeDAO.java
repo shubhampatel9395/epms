@@ -78,7 +78,11 @@ public class EmployeeDAO implements IEmployeeDAO {
 		namedParameters.addValue("email", entity.getEmail());
 		namedParameters.addValue("password", entity.getPassword());
 		namedParameters.addValue("mobileNumber", entity.getMobileNumber());
-		namedParameters.addValue("roleName", "ROLE_EMPLOYEE");
+		if (entity.getEmployeeRoleId() == 2) {
+			namedParameters.addValue("roleName", "ROLE_EVENTORGANIZER");
+		} else {
+			namedParameters.addValue("roleName", "ROLE_EMPLOYEE");
+		}
 		namedParameters.addValue("isCustomer", false);
 		namedParameters.addValue("isEmployee", true);
 		namedParameters.addValue("isAuth", true);

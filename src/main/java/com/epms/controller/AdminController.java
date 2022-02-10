@@ -1,11 +1,6 @@
 package com.epms.controller;
 
-import java.util.Date;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.epms.dao.impl.VenueEventTypeMappingDAO;
 import com.epms.dto.AddressDTO;
 import com.epms.dto.EmployeeDTO;
 import com.epms.dto.EnuEventTypeDTO;
@@ -195,20 +189,20 @@ public class AdminController {
 		return modelandmap;
 	}
 
-	public String getVenueFacilities(Integer venueId) {
+	public String getVenueFacilities(Long venueId) {
 		List<VenueFacilityMappingDTO> venueFacilities = venueFacilityMappingService
 				.findByNamedParameters(new MapSqlParameterSource().addValue("venueId", venueId));
 		String venueFacilitiesString = "";
 
 		for (VenueFacilityMappingDTO item : venueFacilities) {
 			venueFacilitiesString += "\n- "
-					+ enuVenueFacilityService.findById(item.getVenueFacilityId().longValue()).getFacility();
+					+ enuVenueFacilityService.findById(item.getFacilityId().longValue()).getFacility();
 		}
 
-		return venueFacilitiesString;
+		return venueFacilitiesString.substring(1);
 	}
 
-	public String getVenueEventTypes(Integer venueId) {
+	public String getVenueEventTypes(Long venueId) {
 		List<VenueEventTypeMappingDTO> venueEventTypes = venueEventTypeMappingService
 				.findByNamedParameters(new MapSqlParameterSource().addValue("venueId", venueId));
 		String venueEventTypesString = "";
@@ -218,7 +212,7 @@ public class AdminController {
 					+ enuEventTypeService.findById(item.getEventTypeId().longValue()).getEventType();
 		}
 
-		return venueEventTypesString;
+		return venueEventTypesString.substring(1);
 	}
 
 	@GetMapping("/list-venue")
@@ -286,6 +280,18 @@ public class AdminController {
 		addressService.activate(userDetailsDTO.getAddressId().longValue());
 		userDetailsService.activate(employeeDTO.getUserDetailsId().longValue());
 		employeeService.activate(employeeId);
+		return modelandmap;
+	}
+
+	@GetMapping("/activate_venue/{venueId}")
+	public ModelAndView activateVenue(@PathVariable("venueId") long venueId) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-venue");
+		VenueDTO venueDTO = venueService.findById(venueId);
+
+		addressService.activate(venueDTO.getAddressId().longValue());
+		venueService.activate(venueId);
+		venueFacilityMappingService.activate(venueId);
+		venueEventTypeMappingService.activate(venueId);
 		return modelandmap;
 	}
 
@@ -450,6 +456,28 @@ public class AdminController {
 		return modelandmap;
 	}
 
+	@GetMapping("/view_venue/{venueId}")
+	public ModelAndView viewVenue(@PathVariable("venueId") long venueId) {
+		ModelAndView modelandmap = new ModelAndView("admin/view_venue");
+
+		VenueDTO venueDTO = venueService.findById(venueId);
+		String address = getAddress(addressService.findById(venueDTO.getAddressId().longValue()));
+		String venueType = enuVenueTypeService.findById(venueDTO.getVenueTypeId().longValue()).getVenueType();
+		String venueFacilities;
+		String venueEventTypes;
+
+		venueFacilities = getVenueFacilities(venueDTO.getVenueId().longValue());
+		venueEventTypes = getVenueEventTypes(venueDTO.getVenueId().longValue());
+
+		modelandmap.addObject("venue", venueDTO);
+		modelandmap.addObject("address", address);
+		modelandmap.addObject("venueFacilities", venueFacilities);
+		modelandmap.addObject("venueEventTypes", venueEventTypes);
+		modelandmap.addObject("venueType", venueType);
+
+		return modelandmap;
+	}
+
 	@GetMapping("/delete_customer/{customerId}")
 	public ModelAndView deleteCustomer(@PathVariable("customerId") long userDetailsId) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-customer");
@@ -484,6 +512,18 @@ public class AdminController {
 		userDetailsService.delete(userDetailsDTO.getUserDetailsId().longValue());
 		employeeService.delete(employeeId);
 
+		return modelandmap;
+	}
+
+	@GetMapping("/delete_venue/{venueId}")
+	public ModelAndView deleteVenue(@PathVariable("venueId") long venueId) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-venue");
+		VenueDTO venueDTO = venueService.findById(venueId);
+
+		addressService.activate(venueDTO.getAddressId().longValue());
+		venueService.delete(venueId);
+		venueFacilityMappingService.delete(venueId);
+		venueEventTypeMappingService.delete(venueId);
 		return modelandmap;
 	}
 
@@ -776,6 +816,128 @@ public class AdminController {
 
 		addressService.update(oldAddressDTO);
 		employeeService.update(oldEmployeeDTO);
+		return modelandmap;
+	}
+
+	@GetMapping("/edit_venue/{venueId}")
+	public ModelAndView editVenue(@PathVariable("venueId") long venueId) {
+		ModelAndView modelandmap = new ModelAndView("admin/edit_venue");
+
+		MapSqlParameterSource paramSource = new MapSqlParameterSource();
+		paramSource.addValue("isActive", true);
+		VenueDTO venueDTO = venueService.findById(venueId);
+		AddressDTO addressDTO = addressService.findById(venueDTO.getAddressId().longValue());
+		List<EnuEventTypeDTO> eventTypes = enuEventTypeService.findByNamedParameters(paramSource);
+		List<EnuVenueFacilityDTO> facilities = enuVenueFacilityService.findByNamedParameters(paramSource);
+		List<EnuVenueTypeDTO> venueTypes = enuVenueTypeService.findByNamedParameters(paramSource);
+		List<String> venueEventTypesStrings = new ArrayList<>();
+		List<String> venueFacilitiesStrings = new ArrayList<>();
+
+		List<VenueFacilityMappingDTO> venueFacilities = venueFacilityMappingService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("venueId", venueId));
+		for (VenueFacilityMappingDTO item : venueFacilities) {
+			venueFacilitiesStrings.add(item.getFacilityId().toString());
+		}
+		List<VenueEventTypeMappingDTO> venueEventTypes = venueEventTypeMappingService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("venueId", venueId));
+		for (VenueEventTypeMappingDTO item : venueEventTypes) {
+			venueEventTypesStrings.add(item.getEventTypeId().toString());
+		}
+		VenueTempDTO venueTempDTO = new VenueTempDTO(venueEventTypesStrings, venueFacilitiesStrings);
+
+		modelandmap.addObject("facilities", facilities);
+		modelandmap.addObject("eventTypes", eventTypes);
+		modelandmap.addObject("venueTypes", venueTypes);
+		modelandmap.addObject("venueDTO", venueDTO);
+		modelandmap.addObject("addressDTO", addressDTO);
+		modelandmap.addObject("venueTempDTO", venueTempDTO);
+
+		modelandmap.addObject("countries", enuCountryService.findAll());
+
+		MapSqlParameterSource paramSource1 = new MapSqlParameterSource();
+		paramSource1.addValue("countryId", addressDTO.getCountryId());
+		modelandmap.addObject("states", enuStateService.findByNamedParameters(paramSource1));
+
+		paramSource1 = new MapSqlParameterSource();
+		paramSource1.addValue("stateId", addressDTO.getStateId());
+		modelandmap.addObject("cities", enuCityService.findByNamedParameters(paramSource1));
+		return modelandmap;
+	}
+
+	@PostMapping("/edit_venue")
+	public ModelAndView saveVenue(@Valid @ModelAttribute("venueDTO") VenueDTO venueDTO,
+			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO,
+			@Valid @ModelAttribute("venueTempDTO") VenueTempDTO venueTempDTO) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-venue");
+
+		VenueDTO oldVenueDTO = venueService.findById(venueDTO.getVenueId().longValue());
+		AddressDTO oldAddressDTO = addressService.findById(venueDTO.getAddressId().longValue());
+
+		if (!(venueDTO.getVenueName().equals(oldVenueDTO.getVenueName()))) {
+			oldVenueDTO.setVenueName(venueDTO.getVenueName());
+		}
+
+		if (!(venueDTO.getDescription().equals(oldVenueDTO.getDescription()))) {
+			oldVenueDTO.setDescription(venueDTO.getDescription());
+		}
+
+		if (!(venueDTO.getVenueTypeId().equals(oldVenueDTO.getVenueTypeId()))) {
+			oldVenueDTO.setVenueTypeId(venueDTO.getVenueTypeId());
+		}
+
+		if (!(venueDTO.getEmail().equals(oldVenueDTO.getEmail()))) {
+			oldVenueDTO.setEmail(venueDTO.getEmail());
+		}
+
+		if (!(venueDTO.getContactNumber().equals(oldVenueDTO.getContactNumber()))) {
+			oldVenueDTO.setContactNumber(venueDTO.getContactNumber());
+		}
+
+		if (!(venueDTO.getLatitude().equals(oldVenueDTO.getLatitude()))) {
+			oldVenueDTO.setLatitude(venueDTO.getLatitude());
+		}
+
+		if (!(venueDTO.getLongitude().equals(oldVenueDTO.getLongitude()))) {
+			oldVenueDTO.setLongitude(venueDTO.getLongitude());
+		}
+
+		if (!(venueDTO.getCost().equals(oldVenueDTO.getCost()))) {
+			oldVenueDTO.setCost(venueDTO.getCost());
+		}
+
+		if (!(venueDTO.getGuestCapacity().equals(oldVenueDTO.getGuestCapacity()))) {
+			oldVenueDTO.setGuestCapacity(venueDTO.getGuestCapacity());
+		}
+
+		if (!(addressDTO.getAddress1().equals(oldAddressDTO.getAddress1()))) {
+			oldAddressDTO.setAddress1(addressDTO.getAddress1());
+		}
+
+		if (!(addressDTO.getAddress2().equals(oldAddressDTO.getAddress2()))) {
+			oldAddressDTO.setAddress2(addressDTO.getAddress2());
+		}
+
+		if (!(addressDTO.getCityId().equals(oldAddressDTO.getCityId()))) {
+			oldAddressDTO.setCityId(addressDTO.getCityId());
+		}
+
+		if (!(addressDTO.getStateId().equals(oldAddressDTO.getStateId()))) {
+			oldAddressDTO.setStateId(addressDTO.getStateId());
+		}
+
+		if (!(addressDTO.getCountryId().equals(oldAddressDTO.getCountryId()))) {
+			oldAddressDTO.setCountryId(addressDTO.getCountryId());
+		}
+
+		if (!(addressDTO.getPostalCode().equals(oldAddressDTO.getPostalCode()))) {
+			oldAddressDTO.setPostalCode(addressDTO.getPostalCode());
+		}
+
+		addressService.update(oldAddressDTO);
+		venueService.update(oldVenueDTO);
+		venueEventTypeMappingService.update(venueDTO.getVenueId().longValue(), venueTempDTO.getSelectedEventTypes());
+		venueFacilityMappingService.update(venueDTO.getVenueId().longValue(), venueTempDTO.getSelectedFacilities());
+		
 		return modelandmap;
 	}
 }

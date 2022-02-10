@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class VenueFacilityMappingDTO {
 	private Integer venueFacilityMappingId;
 	private Integer venueId;
-	private Integer venueFacilityId;
+	private Integer facilityId;
 	private Boolean isActive;
 }

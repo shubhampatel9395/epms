@@ -47,14 +47,17 @@ public class VenueService implements IVenueService {
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+		venueDAO.delete(id);
 	}
 
 	@Override
 	public VenueDTO update(VenueDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		return venueDAO.update(entity);
+	}
+
+	@Override
+	public void activate(Long id) {
+		venueDAO.activate(id);
 	}
 
 }

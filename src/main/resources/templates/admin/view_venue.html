@@ -1,0 +1,72 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/_layout}">
+
+<head>
+	<title>Venue Details</title>
+	<style>
+		.page-title-box .page-title-right {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<div class="page-title-right">
+							<a th:href="@{/admin/list-venue}" class="btn btn-secondary mb-2">Back</a>
+						</div>
+						<h4 class="page-title">Venue Details</h4>
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<dl class="row mb-0">
+								<dt class="col-sm-3">Venue Name</dt>
+								<dd class="col-sm-9" th:text="${venue.venueName}"></dd>
+								
+								<dt class="col-sm-3">Description</dt>
+								<dd class="col-sm-9" th:text="${venue.description}"></dd>
+								
+								<dt class="col-sm-3">Venue Type</dt>
+								<dd class="col-sm-9" th:text="${venueType}"></dd>
+								
+								<dt class="col-sm-3">Address</dt>
+								<dd class="col-sm-9" th:utext="${#strings.replace(address,'&#10;','&lt;br&gt;')}"></dd>
+
+								<dt class="col-sm-3">Email Address</dt>
+								<dd class="col-sm-9" th:text="${venue.email}"></dd>
+
+								<dt class="col-sm-3">Contact Number</dt>
+								<dd class="col-sm-9" th:text="${venue.contactNumber}"></dd>
+								
+								<dt class="col-sm-3">Guest Capacity</dt>
+								<dd class="col-sm-9" th:text="${venue.guestCapacity}"></dd>
+								
+								<dt class="col-sm-3">Cost</dt>
+								<dd class="col-sm-9" th:text="${venue.cost}"></dd>
+								
+								<dt class="col-sm-3">Available Facilities</dt>
+								<dd class="col-sm-9" th:utext="${#strings.replace(venueFacilities,'&#10;','&lt;br&gt;')}"></dd>
+								
+								<dt class="col-sm-3">Event Type available for booking</dt>
+								<dd class="col-sm-9" th:utext="${#strings.replace(venueEventTypes,'&#10;','&lt;br&gt;')}"></dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+	</th:block>
+</body>
+
+</html>

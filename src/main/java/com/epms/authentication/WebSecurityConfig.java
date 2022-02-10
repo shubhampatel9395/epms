@@ -1,4 +1,4 @@
-package com.epms.common;
+package com.epms.authentication;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

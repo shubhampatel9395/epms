@@ -1,4 +1,4 @@
-package com.epms.common;
+package com.epms.authentication;
 
 import java.util.ArrayList;
 import java.util.Collection;

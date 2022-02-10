@@ -14,5 +14,5 @@ import lombok.ToString;
 public class VenueTempDTO {
 	List<String> selectedEventTypes;
 	List<String> selectedFacilities;
-	List<Double> costs;
+	// List<Double> costs;
 }

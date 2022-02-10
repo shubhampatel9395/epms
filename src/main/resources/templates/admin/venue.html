@@ -96,11 +96,11 @@
 												<div th:unless="${venue.isActive}" style="display:inline-block;">
 													<a data-bs-toggle="modal"
 														th:data-bs-target="'#staticBackdropActivate' + ${venue.venueId}"
-														th:href="@{'/admin/activate_venue/' + ${venue.venueId}"
+														th:href="@{'/admin/activate_venue/' + ${venue.venueId}}"
 														class="action-icon"> <i class="mdi mdi-account-check"></i></a>
 													<!-- Modal -->
 													<div class="modal fade"
-														th:id="'staticBackdropActivate' + ${venue.venueId}}"
+														th:id="'staticBackdropActivate' + ${venue.venueId}"
 														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
 														aria-labelledby="staticBackdropLabel" aria-hidden="true">
 														<div class="modal-dialog">

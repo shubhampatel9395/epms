@@ -72,26 +72,45 @@ public class VenueFacilityMappingDAO implements IVenueFacilityMappingDAO {
 		return null;
 	}
 
+	// With VenueId
 	@Override
-	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+	public void delete(Long venueId) {
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("id", venueId);
+		jdbcTemplate.update("update venuefacilitymapping set isActive=false where venueId=:id", sc);
 	}
 
 	@Override
 	public VenueFacilityMappingDTO update(VenueFacilityMappingDTO entity) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void insert(Long venueId,List<String> list) {
+	public void insert(Long venueId, List<String> list) {
 		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
 		namedParameters.addValue("venueId", venueId);
+
 		for (String item : list) {
 			namedParameters.addValue("venueFacilityId", item);
-			jdbcTemplate.update("insert into venuefacilitymapping(venueId,facilityId) values(:venueId,:venueFacilityId)",namedParameters);
+			jdbcTemplate.update(
+					"insert into venuefacilitymapping(venueId,facilityId) values(:venueId,:venueFacilityId)",
+					namedParameters);
 		}
 	}
 
+	// With VenueId
+	@Override
+	public void activate(Long venueId) {
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("id", venueId);
+		jdbcTemplate.update("update venuefacilitymapping set isActive=true where venueId=:id", sc);
+	}
+
+	@Override
+	public void update(Long venueId, List<String> list) {
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("venueId", venueId);
+		jdbcTemplate.update("delete from venuefacilitymapping where venueId=:venueId", namedParameters);
+		insert(venueId,list);
+	}
 }

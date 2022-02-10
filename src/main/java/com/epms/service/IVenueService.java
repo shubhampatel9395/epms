@@ -14,4 +14,5 @@ public interface IVenueService {
 	public VenueDTO insert(VenueDTO VenueDTO);
 	public void delete(Long id);
 	public VenueDTO update(VenueDTO entity);
+	public void activate(Long id);
 }

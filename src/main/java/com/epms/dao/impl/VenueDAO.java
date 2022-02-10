@@ -73,7 +73,7 @@ public class VenueDAO implements IVenueDAO {
 		MapSqlParameterSource sc = new MapSqlParameterSource();
 		sc.addValue("venueName", entity.getVenueName());
 		sc.addValue("description", entity.getDescription());
-		sc.addValue("venueTypeId",entity.getVenueTypeId());
+		sc.addValue("venueTypeId", entity.getVenueTypeId());
 		sc.addValue("addressId", entity.getAddressId());
 		sc.addValue("email", entity.getEmail());
 		sc.addValue("contactNumber", entity.getContactNumber());
@@ -91,12 +91,36 @@ public class VenueDAO implements IVenueDAO {
 
 	@Override
 	public void delete(Long id) {
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("id", id);
+		jdbcTemplate.update("update venue set isActive=false where venueId=:id", sc);
 	}
 
 	@Override
 	public VenueDTO update(VenueDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("venueId", entity.getVenueId());
+		sc.addValue("venueName", entity.getVenueName());
+		sc.addValue("description", entity.getDescription());
+		sc.addValue("venueTypeId", entity.getVenueTypeId());
+		sc.addValue("email", entity.getEmail());
+		sc.addValue("contactNumber", entity.getContactNumber());
+		sc.addValue("latitude", entity.getLatitude());
+		sc.addValue("longitude", entity.getLongitude());
+		sc.addValue("cost", entity.getCost());
+		sc.addValue("guestCapacity", entity.getGuestCapacity());
+
+		jdbcTemplate.update(
+				"update venue set venueName=:venueName,description=:description,email=:email,venueTypeId=:venueTypeId,contactNumber=:contactNumber,latitude=:latitude,longitude=:longitude,cost=:cost,guestCapacity=:guestCapacity where venueId=:venueId",
+				sc);
+		return entity;
+	}
+
+	@Override
+	public void activate(Long id) {
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("id", id);
+		jdbcTemplate.update("update venue set isActive=true where venueId=:id", sc);
 	}
 
 }

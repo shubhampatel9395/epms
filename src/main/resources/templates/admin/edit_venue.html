@@ -2,7 +2,7 @@
 	layout:decorate="~{admin/_layout}">
 
 <head>
-	<title>Add Venue</title>
+	<title>Update Venue Details</title>
 	<style>
 		.page-title-box .page-title-right {
 			display: block;
@@ -20,15 +20,16 @@
 						<div class="page-title-right">
 							<a th:href="@{/admin/list-venue}" class="btn btn-secondary mb-2">Back</a>
 						</div>
-						<h4 class="page-title">Add Venue</h4>
+						<h4 class="page-title">Edit Venue</h4>
 					</div>
 				</div>
 				<div class="col-12">
 					<div class="card">
 						<div class="card-body">
-							<form th:action="@{/admin/add_venue}" method="post" enctype="multipart/form-data">
-								Select Files: <input type="file" name="files" multiple="multiple" /> <br />
-								<br /> <input value="Upload" type="submit" />
+							<form th:action="@{/admin/edit_venue}" method="post">
+								<input type="hidden" th:field="*{venueDTO.venueId}" />
+								<input type="hidden" th:field="*{venueDTO.addressId}" />
+
 								<div class="row g-2">
 									<div class="mb-3 col-md-6">
 										<label for="venueName" class="form-label">Venue Name</label>
@@ -134,9 +135,10 @@
 									</div>
 									<div class="mb-3 col-md-6">
 										<label for="inputState" class="form-label">State</label>
-										<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select"
-											disabled>
+										<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select">
 											<option value="">--Select State--</option>
+											<option th:each="state : ${states}" th:value="${state.stateId}"
+												th:text="${state.state}"></option>
 										</select>
 									</div>
 								</div>
@@ -144,9 +146,10 @@
 								<div class="row g-2">
 									<div class="mb-3 col-md-6">
 										<label for="inputCity" class="form-label">City</label>
-										<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select"
-											disabled>
+										<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select">
 											<option value="" readonly>--Select City--</option>
+											<option th:each="city : ${cities}" th:value="${city.cityId}"
+												th:text="${city.city}"></option>
 										</select>
 									</div>
 									<div class="mb-3 col-md-6">
@@ -168,14 +171,13 @@
 											id="Longitude" data-toggle="input-mask" placeholder="Enter longitude">
 									</div>
 								</div>
-
 								<div class="mb-0 d-grid text-center">
-									<button class="btn btn-primary" type="submit"><i
-											class="mdi mdi-plus-circle me-2"></i>
-										Add Venue
+									<button class="btn btn-primary" type="submit">
+										Save Venue
 									</button>
 								</div>
 								<!-- social-->
+
 							</form>
 						</div>
 					</div>
@@ -187,6 +189,7 @@
 
 	<th:block layout:fragment="script">
 		<script type="text/javascript">
+
 			$("#inputCountry").change(function () {
 				var selectedValue = $(this)
 					.find(":selected")

@@ -1,4 +1,4 @@
-package com.epms.common;
+package com.epms.authentication;
 
 import java.util.List;
 
@@ -24,6 +24,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     	MapSqlParameterSource paramSource = new MapSqlParameterSource();
 		paramSource.addValue("email", username);
+		paramSource.addValue("isActive", true);
 		List<UserDetailsDTO> userDetailsDTO =  iUserDetailsService.findByNamedParameters(paramSource);
         if (CollectionUtils.isEmpty(userDetailsDTO)) {
             throw new UsernameNotFoundException("User not found");

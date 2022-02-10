@@ -72,10 +72,12 @@ public class VenueEventTypeMappingDAO implements IVenueEventTypeMappingDAO {
 		return null;
 	}
 
+	// With VenueId
 	@Override
-	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+	public void delete(Long venueId) {
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("id", venueId);
+		jdbcTemplate.update("update venueeventtypemapping set isActive=false where venueId=:id", sc);
 	}
 
 	@Override
@@ -92,6 +94,22 @@ public class VenueEventTypeMappingDAO implements IVenueEventTypeMappingDAO {
 			namedParameters.addValue("eventTypeId", item);
 			jdbcTemplate.update("insert into venueeventtypemapping(venueId,eventTypeId) values(:venueId,:eventTypeId)",namedParameters);
 		}
+	}
+
+	// With VenueId
+	@Override
+	public void activate(Long venueId) {
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("id", venueId);
+		jdbcTemplate.update("update venueeventtypemapping set isActive=true where venueId=:id", sc);
+	}
+
+	@Override
+	public void update(Long venueId, List<String> list) {
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("venueId", venueId);
+		jdbcTemplate.update("delete from venueeventtypemapping where venueId=:venueId",namedParameters);
+		insert(venueId,list);
 	}
 
 }
