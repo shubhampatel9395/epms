@@ -29,4 +29,5 @@ public class UserDetailsDTO {
 	private Integer createdBy;
 	private Integer updatedBy;
 	private String roleName;
+	private String resetPasswordToken;
 }

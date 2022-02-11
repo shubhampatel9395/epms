@@ -74,4 +74,10 @@ public class UserDetailsService implements IUserDetailsService {
 	public void activate(Long id) {
 		userDetailsDAO.activate(id);
 	}
+
+	@Override
+	public void updateResetPasswordToken(String token, String email) {
+		userDetailsDAO.updateResetPasswordToken(token,email);
+		
+	}
 }

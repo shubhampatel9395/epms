@@ -1,23 +1,30 @@
 package com.epms.controller;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
 import javax.sql.rowset.serial.SerialBlob;
 import javax.sql.rowset.serial.SerialException;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,6 +47,8 @@ import com.epms.dto.VenueEventTypeMappingDTO;
 import com.epms.dto.VenueFacilityMappingDTO;
 import com.epms.dto.VenueImageMappingDTO;
 import com.epms.dto.VenueTempDTO;
+import com.epms.email.configuration.IMailService;
+import com.epms.email.configuration.Mail;
 import com.epms.service.IAddressService;
 import com.epms.service.IEmployeeService;
 import com.epms.service.IEnuCityService;
@@ -57,6 +66,7 @@ import com.epms.service.IVenueFacilityMappingService;
 import com.epms.service.IVenueImageMappingService;
 import com.epms.service.IVenueService;
 
+import javassist.expr.NewArray;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -113,6 +123,9 @@ public class AdminController {
 
 	@Autowired
 	IVenueImageMappingService venueImageMappingService;
+
+	@Autowired
+	IMailService mailService;
 
 	public String getAddress(AddressDTO addressDTO) {
 //		String address;
@@ -493,21 +506,21 @@ public class AdminController {
 
 		return modelandmap;
 	}
-	
-	 @RequestMapping(value = "/image/{image_id}", produces = MediaType.IMAGE_PNG_VALUE)
-	    public ResponseEntity<byte[]> getImage(@PathVariable("image_id") Long imageId) throws IOException {
-	    	Blob img = venueImageMappingService.findById(imageId).getImage();
-	        byte[] imageContent = null;
-			try {
-				imageContent = img.getBytes(1, (int) img.length());
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	        final HttpHeaders headers = new HttpHeaders();
-	        headers.setContentType(MediaType.IMAGE_PNG);
-	        return new ResponseEntity<byte[]>(imageContent, headers, HttpStatus.OK);
-	    }
+
+	@RequestMapping(value = "/image/{image_id}", produces = MediaType.IMAGE_PNG_VALUE)
+	public ResponseEntity<byte[]> getImage(@PathVariable("image_id") Long imageId) throws IOException {
+		Blob img = venueImageMappingService.findById(imageId).getImage();
+		byte[] imageContent = null;
+		try {
+			imageContent = img.getBytes(1, (int) img.length());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		final HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.IMAGE_PNG);
+		return new ResponseEntity<byte[]>(imageContent, headers, HttpStatus.OK);
+	}
 
 	@GetMapping("/view_venue/{venueId}")
 	public ModelAndView viewVenue(@PathVariable("venueId") long venueId) {
@@ -518,8 +531,9 @@ public class AdminController {
 		String venueType = enuVenueTypeService.findById(venueDTO.getVenueTypeId().longValue()).getVenueType();
 		String venueFacilities;
 		String venueEventTypes;
-		List<VenueImageMappingDTO> images = venueImageMappingService.findByNamedParameters(new MapSqlParameterSource().addValue("venueId", venueId));
-		
+		List<VenueImageMappingDTO> images = venueImageMappingService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("venueId", venueId));
+
 //		response.setContentType("image/jpeg, image/jpg, image/png, image/gif");
 		venueFacilities = getVenueFacilities(venueDTO.getVenueId().longValue());
 		venueEventTypes = getVenueEventTypes(venueDTO.getVenueId().longValue());
@@ -1047,5 +1061,53 @@ public class AdminController {
 		}
 
 		return "uploadfiles";
+	}
+
+	@GetMapping("/forgot-password")
+	public ModelAndView showForgotPasswordForm() {
+		return new ModelAndView("forgotPassword");
+
+	}
+
+	@PostMapping("/forgot-password")
+	public ModelAndView processForgotPassword(HttpServletRequest request, ModelAndView model) {
+
+		String email = request.getParameter("email");
+
+		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+		parameterSource.addValue("email", email);
+		parameterSource.addValue("isActive", true);
+		UserDetailsDTO userDetailsDTO = DataAccessUtils
+				.singleResult(userDetailsService.findByNamedParameters(parameterSource));
+		if (userDetailsDTO != null) {
+			try {
+				String token = UUID.randomUUID().toString();
+				userDetailsService.updateResetPasswordToken(token, email);
+
+				String resetPasswordLink = getSiteURL(request) + "/reset-password?token=" + token;
+				Mail mail = new Mail();
+				mail.setMailTo(email);
+				mail.setMailSubject("Here's the link to reset your password");
+				mail.setMailContent("<p>Hello,</p>" + "<p>You have requested to reset your password.</p>"
+						+ "<p>Click the link below to change your password:</p>" + "<p><a href=\"" + resetPasswordLink
+						+ "\">Change my password</a></p>" + "<br>"
+						+ "<p>Ignore this email if you do remember your password, "
+						+ "or you have not made the request.</p>");
+				mailService.sendEmail(mail);
+				model.addObject("message", "We have sent a reset password link to your email. Please check.");
+
+			} catch (Exception e) {
+				model.addObject("error", "Error while sending email");
+			}
+		} else {
+			model.addObject("message", "Email is not register in the system.");
+		}
+		model.setViewName("redirect:/forgot-password");
+		return model;
+	}
+
+	public static String getSiteURL(HttpServletRequest request) {
+		String siteURL = request.getRequestURL().toString();
+		return siteURL.replace(request.getServletPath(), "");
 	}
 }
