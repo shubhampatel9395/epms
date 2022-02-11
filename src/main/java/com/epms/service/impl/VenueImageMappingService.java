@@ -42,8 +42,7 @@ public class VenueImageMappingService implements IVenueImageMappingService {
 
 	@Override
 	public VenueImageMappingDTO insert(VenueImageMappingDTO VenueImageMappingDTO) {
-		// TODO Auto-generated method stub
-		return null;
+		return venueImageMappingDAO.insert(VenueImageMappingDTO);
 	}
 
 	@Override

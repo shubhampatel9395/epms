@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IVenueImageMappingDAO;
@@ -68,8 +70,16 @@ public class VenueImageMappingDAO implements IVenueImageMappingDAO {
 
 	@Override
 	public VenueImageMappingDTO insert(VenueImageMappingDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("venueId", entity.getVenueId());
+		sc.addValue("image", entity.getImage());
+
+		int i = jdbcTemplate.update("insert into venueimagemapping(venueId,image) values(:venueId,:image)", sc,
+				keyHolder, new String[] { "venueImageMappingId" });
+
+		return findById(keyHolder.getKey().longValue());
 	}
 
 	@Override

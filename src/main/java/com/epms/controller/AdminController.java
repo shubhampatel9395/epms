@@ -1,12 +1,21 @@
 package com.epms.controller;
 
+import java.io.IOException;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.sql.rowset.serial.SerialBlob;
+import javax.sql.rowset.serial.SerialException;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +23,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.epms.dto.AddressDTO;
@@ -27,6 +38,7 @@ import com.epms.dto.UserDetailsDTO;
 import com.epms.dto.VenueDTO;
 import com.epms.dto.VenueEventTypeMappingDTO;
 import com.epms.dto.VenueFacilityMappingDTO;
+import com.epms.dto.VenueImageMappingDTO;
 import com.epms.dto.VenueTempDTO;
 import com.epms.service.IAddressService;
 import com.epms.service.IEmployeeService;
@@ -42,6 +54,7 @@ import com.epms.service.IServiceProviderService;
 import com.epms.service.IUserDetailsService;
 import com.epms.service.IVenueEventTypeMappingService;
 import com.epms.service.IVenueFacilityMappingService;
+import com.epms.service.IVenueImageMappingService;
 import com.epms.service.IVenueService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -97,6 +110,9 @@ public class AdminController {
 
 	@Autowired
 	IVenueEventTypeMappingService venueEventTypeMappingService;
+
+	@Autowired
+	IVenueImageMappingService venueImageMappingService;
 
 	public String getAddress(AddressDTO addressDTO) {
 //		String address;
@@ -402,12 +418,34 @@ public class AdminController {
 	@PostMapping("/add_venue")
 	public ModelAndView addNewVenue(@Valid @ModelAttribute("venueDTO") VenueDTO venueDTO,
 			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO,
-			@Valid @ModelAttribute("venueTempDTO") VenueTempDTO venueTempDTO) {
+			@Valid @ModelAttribute("venueTempDTO") VenueTempDTO venueTempDTO,
+			@RequestParam("files") MultipartFile[] files) {
 		final ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-venue");
 		venueDTO.setAddressId(addressService.insert(addressDTO).getAddressId());
 		VenueDTO insertedDTO = venueService.insert(venueDTO);
 		venueFacilityMappingService.insert(insertedDTO.getVenueId().longValue(), venueTempDTO.getSelectedFacilities());
 		venueEventTypeMappingService.insert(insertedDTO.getVenueId().longValue(), venueTempDTO.getSelectedEventTypes());
+
+		for (MultipartFile file : files) {
+			if (!file.isEmpty()) {
+				VenueImageMappingDTO obj = new VenueImageMappingDTO();
+				try {
+					obj.setImage(new SerialBlob(file.getBytes()));
+					obj.setVenueId(insertedDTO.getVenueId());
+				} catch (SerialException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				venueImageMappingService.insert(obj);
+			}
+		}
+
 		return modelandmap;
 	}
 
@@ -455,6 +493,21 @@ public class AdminController {
 
 		return modelandmap;
 	}
+	
+	 @RequestMapping(value = "/image/{image_id}", produces = MediaType.IMAGE_PNG_VALUE)
+	    public ResponseEntity<byte[]> getImage(@PathVariable("image_id") Long imageId) throws IOException {
+	    	Blob img = venueImageMappingService.findById(imageId).getImage();
+	        byte[] imageContent = null;
+			try {
+				imageContent = img.getBytes(1, (int) img.length());
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	        final HttpHeaders headers = new HttpHeaders();
+	        headers.setContentType(MediaType.IMAGE_PNG);
+	        return new ResponseEntity<byte[]>(imageContent, headers, HttpStatus.OK);
+	    }
 
 	@GetMapping("/view_venue/{venueId}")
 	public ModelAndView viewVenue(@PathVariable("venueId") long venueId) {
@@ -465,7 +518,9 @@ public class AdminController {
 		String venueType = enuVenueTypeService.findById(venueDTO.getVenueTypeId().longValue()).getVenueType();
 		String venueFacilities;
 		String venueEventTypes;
-
+		List<VenueImageMappingDTO> images = venueImageMappingService.findByNamedParameters(new MapSqlParameterSource().addValue("venueId", venueId));
+		
+//		response.setContentType("image/jpeg, image/jpg, image/png, image/gif");
 		venueFacilities = getVenueFacilities(venueDTO.getVenueId().longValue());
 		venueEventTypes = getVenueEventTypes(venueDTO.getVenueId().longValue());
 
@@ -474,6 +529,7 @@ public class AdminController {
 		modelandmap.addObject("venueFacilities", venueFacilities);
 		modelandmap.addObject("venueEventTypes", venueEventTypes);
 		modelandmap.addObject("venueType", venueType);
+		modelandmap.addObject("images", images);
 
 		return modelandmap;
 	}
@@ -937,7 +993,59 @@ public class AdminController {
 		venueService.update(oldVenueDTO);
 		venueEventTypeMappingService.update(venueDTO.getVenueId().longValue(), venueTempDTO.getSelectedEventTypes());
 		venueFacilityMappingService.update(venueDTO.getVenueId().longValue(), venueTempDTO.getSelectedFacilities());
-		
+
 		return modelandmap;
+	}
+
+	@PostMapping("upload/files")
+	public String handleFilesUpload(@RequestParam("files") MultipartFile[] files,
+			@RequestParam("venueId") Integer venueId, ModelAndView map) {
+		StringBuilder sb = new StringBuilder();
+
+		for (MultipartFile file : files) {
+
+			if (!file.isEmpty()) {
+				VenueImageMappingDTO obj = new VenueImageMappingDTO();
+				try {
+					obj.setImage(new SerialBlob(file.getBytes()));
+					obj.setVenueId(venueId);
+				} catch (SerialException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				venueImageMappingService.insert(obj);
+
+//				try {
+//					if (!Files.exists(Paths.get(UPLOAD_FOLDER))) {
+//						try {
+//							Files.createDirectories(Paths.get(UPLOAD_FOLDER));
+//						} catch (IOException ioe) {
+//							ioe.printStackTrace();
+//						}
+//					}
+//
+//					Files.copy(file.getInputStream(), Paths.get(UPLOAD_FOLDER, file.getOriginalFilename()));
+//					sb.append("You successfully uploaded " + file.getOriginalFilename() + "!\n");
+//
+//					map.addAttribute("msg", sb.toString());
+//				} catch (IOException | RuntimeException e) {
+//					sb.append("Failued to upload " + (file != null ? file.getOriginalFilename() : "") + " => "
+//							+ e.getMessage() + String.valueOf(e) + "\n");
+//
+//					map.addAttribute("msg", sb.toString());
+//				}
+//			} else {
+//				sb.append("Failed to upload file\n");
+//				map.addAttribute("msg", sb.toString());
+			}
+		}
+
+		return "uploadfiles";
 	}
 }
