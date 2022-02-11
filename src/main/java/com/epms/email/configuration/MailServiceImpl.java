@@ -13,6 +13,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import com.epms.dto.UserDetailsDTO;
 
@@ -38,18 +39,18 @@ public class MailServiceImpl implements IMailService {
 			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
 
 			mimeMessageHelper.setSubject(mail.getMailSubject());
-			mimeMessageHelper.setFrom(new InternetAddress(env.getProperty("spring.mail.username")));
+			// mimeMessageHelper.setFrom(new InternetAddress(env.getProperty("spring.mail.username")));
 			mimeMessageHelper.setTo(mail.getMailTo());
-			mimeMessageHelper.setText(mail.getMailContent());
-
-			mail.getAttachments().stream().forEach(attachment -> {
-				try {
-					mimeMessageHelper.addAttachment(attachment.getName(), attachment);
-				} catch (MessagingException e) {
-					log.error("exception while mail attachment sending {} :", e);
-				}
-			});
-
+			mimeMessageHelper.setText(mail.getMailContent(),true);
+			if (!CollectionUtils.isEmpty(mail.getAttachments())) {
+				mail.getAttachments().stream().forEach(attachment -> {
+					try {
+						mimeMessageHelper.addAttachment(attachment.getName(), attachment);
+					} catch (MessagingException e) {
+						log.error("exception while mail attachment sending {} :", e);
+					}
+				});
+			}
 			mailSender.send(mimeMessageHelper.getMimeMessage());
 
 		} catch (MessagingException e) {
