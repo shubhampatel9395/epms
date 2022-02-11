@@ -99,26 +99,20 @@ public class UserDetailsDAO implements IUserDetailsDAO {
 	@Override
 	public UserDetailsDTO update(UserDetailsDTO entity) {
 		/*
-		MapSqlParameterSource sc = new MapSqlParameterSource();
-		if (entity.getServiceProviderName() == null) {
-			sc.addValue("userDetailsId", entity.getUserDetailsId());
-			sc.addValue("firstName", entity.getFirstName());
-			sc.addValue("lastName", entity.getLastName());
-			sc.addValue("email", entity.getEmail());
-			sc.addValue("mobileNumber", entity.getMobileNumber());
-			jdbcTemplate.update(
-					"update userDetails set firstName=:firstName,lastName=:lastName,email=:email,mobileNumber=:mobileNumber where userDetailsId=:userDetailsId",
-					sc);
-		} else {
-			sc.addValue("userDetailsId", entity.getUserDetailsId());
-			sc.addValue("serviceProviderName", entity.getServiceProviderName());
-			sc.addValue("email", entity.getEmail());
-			sc.addValue("mobileNumber", entity.getMobileNumber());
-			jdbcTemplate.update(
-					"update userDetails set serviceProviderName=:serviceProviderName,email=:email,mobileNumber=:mobileNumber where userDetailsId=:userDetailsId",
-					sc);
-		}
-		*/
+		 * MapSqlParameterSource sc = new MapSqlParameterSource(); if
+		 * (entity.getServiceProviderName() == null) { sc.addValue("userDetailsId",
+		 * entity.getUserDetailsId()); sc.addValue("firstName", entity.getFirstName());
+		 * sc.addValue("lastName", entity.getLastName()); sc.addValue("email",
+		 * entity.getEmail()); sc.addValue("mobileNumber", entity.getMobileNumber());
+		 * jdbcTemplate.update(
+		 * "update userDetails set firstName=:firstName,lastName=:lastName,email=:email,mobileNumber=:mobileNumber where userDetailsId=:userDetailsId"
+		 * , sc); } else { sc.addValue("userDetailsId", entity.getUserDetailsId());
+		 * sc.addValue("serviceProviderName", entity.getServiceProviderName());
+		 * sc.addValue("email", entity.getEmail()); sc.addValue("mobileNumber",
+		 * entity.getMobileNumber()); jdbcTemplate.update(
+		 * "update userDetails set serviceProviderName=:serviceProviderName,email=:email,mobileNumber=:mobileNumber where userDetailsId=:userDetailsId"
+		 * , sc); }
+		 */
 		MapSqlParameterSource sc = new MapSqlParameterSource();
 		sc.addValue("userDetailsId", entity.getUserDetailsId());
 		sc.addValue("firstName", entity.getFirstName());
@@ -135,7 +129,7 @@ public class UserDetailsDAO implements IUserDetailsDAO {
 	public List<UserDetailsDTO> isUniqueEmail(String email) {
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		parameterSource.addValue("email", email);
-		
+
 		List<UserDetailsDTO> userDetailsDTOs = findByNamedParameters(parameterSource);
 		return userDetailsDTOs;
 	}
@@ -144,7 +138,7 @@ public class UserDetailsDAO implements IUserDetailsDAO {
 	public List<UserDetailsDTO> isUniqueMobileNumber(String mobileNumber) {
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		parameterSource.addValue("mobileNumber", mobileNumber);
-		
+
 		List<UserDetailsDTO> userDetailsDTOs = findByNamedParameters(parameterSource);
 		return userDetailsDTOs;
 	}
@@ -160,6 +154,16 @@ public class UserDetailsDAO implements IUserDetailsDAO {
 	public void activate(Long id) {
 		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
 		namedParameters.addValue("userDetailsId", id);
-		jdbcTemplate.update("update userDetails set isActive=true,isAuth=true where userDetailsId=:userDetailsId", namedParameters);
+		jdbcTemplate.update("update userDetails set isActive=true,isAuth=true where userDetailsId=:userDetailsId",
+				namedParameters);
+	}
+
+	@Override
+	public void updateResetPasswordToken(String token, String email) {
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("email", email);
+		jdbcTemplate.update("update userDetails set resetPasswordToken=" + token + " where email=:email",
+				namedParameters);
+
 	}
 }
