@@ -33,6 +33,7 @@ import com.epms.dto.EmployeeDTO;
 import com.epms.dto.EnuEventTypeDTO;
 import com.epms.dto.EnuVenueFacilityDTO;
 import com.epms.dto.EnuVenueTypeDTO;
+import com.epms.dto.PackageDetailsDTO;
 import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.UserDetailsDTO;
 import com.epms.dto.VenueDTO;
@@ -50,6 +51,7 @@ import com.epms.service.IEnuServiceTypeService;
 import com.epms.service.IEnuStateService;
 import com.epms.service.IEnuVenueFacilityService;
 import com.epms.service.IEnuVenueTypeService;
+import com.epms.service.IPackageDetailsService;
 import com.epms.service.IServiceProviderService;
 import com.epms.service.IUserDetailsService;
 import com.epms.service.IVenueEventTypeMappingService;
@@ -113,6 +115,9 @@ public class AdminController {
 
 	@Autowired
 	IVenueImageMappingService venueImageMappingService;
+	
+	@Autowired
+	IPackageDetailsService packageDetailsService;
 
 	public String getAddress(AddressDTO addressDTO) {
 //		String address;
@@ -252,6 +257,23 @@ public class AdminController {
 //		modelandmap.addObject("venueFacilities", venueFacilities);
 //		modelandmap.addObject("venueEventTypes", venueEventTypes);
 		modelandmap.addObject("venueTypes", venueTypes);
+		return modelandmap;
+	}
+	
+	@GetMapping("/list-package")
+	public ModelAndView listPackage() {
+		ModelAndView modelandmap = new ModelAndView("admin/package");
+		List<PackageDetailsDTO> packages = packageDetailsService.findByNamedParameters(new MapSqlParameterSource().addValue("isStatic", true));
+		List<String> availableForEventType = packages.stream().map(packageDetails -> {
+			return enuEventTypeService.findById(packageDetails.getEventTypeId().longValue()).getEventType();
+		}).collect(Collectors.toList());
+		List<String> availableInVenue = packages.stream().map(packageDetails -> {
+			return venueService.findById(packageDetails.getVenueId().longValue()).getVenueName();
+		}).collect(Collectors.toList());
+
+		modelandmap.addObject("packages", packages);
+		modelandmap.addObject("availableForEventType", availableForEventType);
+		modelandmap.addObject("availableInVenue", availableInVenue);
 		return modelandmap;
 	}
 
@@ -448,6 +470,38 @@ public class AdminController {
 
 		return modelandmap;
 	}
+	
+	@GetMapping("/getVenueCost/{venueId}")
+	public Double getVenueCost(@PathVariable Long venueId)
+	{
+		return 0.0;
+	}
+	
+	@GetMapping("/add_package")
+	public ModelAndView addPackage() {
+		ModelAndView modelandmap = new ModelAndView("admin/add_package");
+		modelandmap.addObject("packageDetailsDTO", new PackageDetailsDTO());
+		modelandmap.addObject("serviceTypes", enuServiceTypeService.findAllActive());
+		modelandmap.addObject("venueNames", venueService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		modelandmap.addObject("eventTypes", enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		return modelandmap;
+	}
+
+	@PostMapping("/add_package")
+	public ModelAndView addNewPackage(
+			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO,
+			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
+		final ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
+
+		serviceProviderDTO.setAddressId(addressService.insert(addressDTO).getAddressId());
+
+		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		String encodedPassword = passwordEncoder.encode(serviceProviderDTO.getPassword());
+		serviceProviderDTO.setPassword(encodedPassword);
+
+		serviceProviderService.insert(serviceProviderDTO);
+		return modelandmap;
+	}
 
 	@GetMapping("/view_customer/{customerId}")
 	public ModelAndView viewCustomer(@PathVariable("customerId") long userDetailsId) {
@@ -493,21 +547,21 @@ public class AdminController {
 
 		return modelandmap;
 	}
-	
-	 @RequestMapping(value = "/image/{image_id}", produces = MediaType.IMAGE_PNG_VALUE)
-	    public ResponseEntity<byte[]> getImage(@PathVariable("image_id") Long imageId) throws IOException {
-	    	Blob img = venueImageMappingService.findById(imageId).getImage();
-	        byte[] imageContent = null;
-			try {
-				imageContent = img.getBytes(1, (int) img.length());
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	        final HttpHeaders headers = new HttpHeaders();
-	        headers.setContentType(MediaType.IMAGE_PNG);
-	        return new ResponseEntity<byte[]>(imageContent, headers, HttpStatus.OK);
-	    }
+
+	@RequestMapping(value = "/image/{image_id}", produces = MediaType.IMAGE_PNG_VALUE)
+	public ResponseEntity<byte[]> getImage(@PathVariable("image_id") Long imageId) throws IOException {
+		Blob img = venueImageMappingService.findById(imageId).getImage();
+		byte[] imageContent = null;
+		try {
+			imageContent = img.getBytes(1, (int) img.length());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		final HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.IMAGE_PNG);
+		return new ResponseEntity<byte[]>(imageContent, headers, HttpStatus.OK);
+	}
 
 	@GetMapping("/view_venue/{venueId}")
 	public ModelAndView viewVenue(@PathVariable("venueId") long venueId) {
@@ -518,8 +572,9 @@ public class AdminController {
 		String venueType = enuVenueTypeService.findById(venueDTO.getVenueTypeId().longValue()).getVenueType();
 		String venueFacilities;
 		String venueEventTypes;
-		List<VenueImageMappingDTO> images = venueImageMappingService.findByNamedParameters(new MapSqlParameterSource().addValue("venueId", venueId));
-		
+		List<VenueImageMappingDTO> images = venueImageMappingService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("venueId", venueId));
+
 //		response.setContentType("image/jpeg, image/jpg, image/png, image/gif");
 		venueFacilities = getVenueFacilities(venueDTO.getVenueId().longValue());
 		venueEventTypes = getVenueEventTypes(venueDTO.getVenueId().longValue());
@@ -923,7 +978,8 @@ public class AdminController {
 	@PostMapping("/edit_venue")
 	public ModelAndView saveVenue(@Valid @ModelAttribute("venueDTO") VenueDTO venueDTO,
 			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO,
-			@Valid @ModelAttribute("venueTempDTO") VenueTempDTO venueTempDTO) {
+			@Valid @ModelAttribute("venueTempDTO") VenueTempDTO venueTempDTO,
+			@RequestParam("files") MultipartFile[] files) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-venue");
 
 		VenueDTO oldVenueDTO = venueService.findById(venueDTO.getVenueId().longValue());
@@ -994,6 +1050,25 @@ public class AdminController {
 		venueEventTypeMappingService.update(venueDTO.getVenueId().longValue(), venueTempDTO.getSelectedEventTypes());
 		venueFacilityMappingService.update(venueDTO.getVenueId().longValue(), venueTempDTO.getSelectedFacilities());
 
+		for (MultipartFile file : files) {
+			if (!file.isEmpty()) {
+				VenueImageMappingDTO obj = new VenueImageMappingDTO();
+				try {
+					obj.setImage(new SerialBlob(file.getBytes()));
+					obj.setVenueId(oldVenueDTO.getVenueId());
+				} catch (SerialException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				venueImageMappingService.insert(obj);
+			}
+		}
 		return modelandmap;
 	}
 
