@@ -1,0 +1,156 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/_layout}">
+
+<head>
+	<title>Packages List</title>
+	<!-- third party css -->
+	<link th:href="@{/assets/css/vendor/dataTables.bootstrap5.css}" rel="stylesheet" type="text/css" />
+	<link th:href="@{/assets/css/vendor/responsive.bootstrap5.css}" rel="stylesheet" type="text/css" />
+
+
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+
+			<!-- start page title -->
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<div class="page-title-right">
+							<a th:href="@{/admin/add_package}" class="btn btn-danger mb-2"><i
+									class="mdi mdi-plus-circle me-2"></i> Add Package</a>
+						</div>
+						<h4 class="page-title">Packages</h4>
+					</div>
+				</div>
+			</div>
+			<!-- end page title -->
+
+			<div class="row">
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<div class="table-responsive">
+								<table id="basic-datatable" class="table dt-responsive nowrap w-100">
+									<thead>
+										<tr>
+											<th>Title</th>
+											<th>Description</th>
+											<th>Event Type</th>
+											<th>Venue Name</th>
+											<th>Guest Capacity</th>
+											<th>Amount</th>
+											<th style="width: 85px;">Action</th>
+										</tr>
+									</thead>
+
+									<tbody>
+										<tr th:each="package : ${packages}">
+											<td th:text="${package.title}"></td>
+											<td th:text="${package.description}"></td>
+											<td th:utext="${availableForEventType[packageStat.index]}"></td>
+											<td th:text="${availableInVenue[packageStat.index]}"></td>
+											<td th:text="${package.guestAmount}"></td>
+											<td th:text="${package.totalCost}"></td>
+											<td class="table-action">
+												<a th:href="@{'/admin/view_package/' + ${package.packageDetailsId}}"
+													class="action-icon"> <i class="mdi mdi-eye"></i></a>
+												<a th:href="@{'/admin/edit_package/' + ${package.packageDetailsId}}"
+													class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a>
+												<div th:if="${package.isActive}" style="display:inline-block;">
+													<a data-bs-toggle="modal" th:data-bs-target="'#staticBackdropDelete' + ${package.packageDetailsId}"
+														th:href="@{'/admin/delete_package/' + ${package.packageDetailsId}}"
+														class="action-icon"> <i class="mdi mdi-delete"></i></a>
+													<!-- Modal -->
+													<div class="modal fade" th:id="'staticBackdropDelete' + ${package.packageDetailsId}"
+														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+														aria-labelledby="staticBackdropLabel" aria-hidden="true">
+														<div class="modal-dialog">
+															<div class="modal-content">
+																<div class="modal-header">
+																	<h5 class="modal-title" id="staticBackdropLabel">
+																		Delete Package
+																	</h5>
+																	<button type="button" class="btn-close"
+																		data-bs-dismiss="modal"
+																		aria-hidden="true"></button>
+																</div> <!-- end modal header -->
+																<div class="modal-body">
+																	Are you sure you want to deactive this package?
+																</div>
+																<div class="modal-footer">
+																	<button type="button" class="btn btn-secondary"
+																		data-bs-dismiss="modal">Close</button>
+																	<a type="button"
+																		th:href="@{'/admin/delete_package/' + ${package.packageDetailsId}}"
+																		class="btn btn-danger">Delete</a>
+																</div> <!-- end modal footer -->
+															</div> <!-- end modal content-->
+														</div> <!-- end modal dialog-->
+													</div> <!-- end modal-->
+												</div>
+												<div th:unless="${package.isActive}" style="display:inline-block;">
+													<a data-bs-toggle="modal" th:data-bs-target="'#staticBackdropActivate' + ${package.packageDetailsId}"
+														th:href="@{'/admin/activate_package/' + ${package.packageDetailsId}}"
+														class="action-icon"> <i class="mdi mdi-account-check"></i></a>
+													<!-- Modal -->
+													<div class="modal fade" th:id="'staticBackdropActivate' + ${package.packageDetailsId}"
+														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+														aria-labelledby="staticBackdropLabel1" aria-hidden="true">
+														<div class="modal-dialog">
+															<div class="modal-content">
+																<div class="modal-header">
+																	<h5 class="modal-title" id="staticBackdropLabel1">
+																		Activate Package
+																	</h5>
+																	<button type="button" class="btn-close"
+																		data-bs-dismiss="modal"
+																		aria-hidden="true"></button>
+																</div> <!-- end modal header -->
+																<div class="modal-body">
+																	Are you sure you want to active this package?
+																</div>
+																<div class="modal-footer">
+																	<button type="button" class="btn btn-secondary"
+																		data-bs-dismiss="modal">Close</button>
+																	<a type="button"
+																		th:href="@{'/admin/activate_package/' + ${package.packageDetailsId}}"
+																		class="btn btn-danger">Activate</a>
+																</div> <!-- end modal footer -->
+															</div> <!-- end modal content-->
+														</div> <!-- end modal dialog-->
+													</div> <!-- end modal-->
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div> <!-- end card-body-->
+					</div> <!-- end card-->
+				</div> <!-- end col -->
+			</div>
+			<!-- end row -->
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+		<!-- third party js -->
+		<script th:src="@{/assets/js/vendor/jquery.dataTables.min.js}"></script>
+		<script th:src="@{/assets/js/vendor/dataTables.bootstrap5.js}"></script>
+		<script th:src="@{/assets/js/vendor/dataTables.responsive.min.js}"></script>
+		<script th:src="@{/assets/js/vendor/responsive.bootstrap5.min.js}"></script>
+
+		<!-- third party js ends -->
+
+		<!-- demo app -->
+		<script th:src="@{/assets/js/pages/demo.datatable-init.js}"></script>
+		<!-- end demo js-->
+	</th:block>
+</body>
+
+</html>

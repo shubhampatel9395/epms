@@ -1,0 +1,173 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/_layout}">
+
+<head>
+	<title>Add Package</title>
+	<style>
+		.page-title-box .page-title-right {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<div class="page-title-right">
+							<a th:href="@{/admin/list-package}" class="btn btn-secondary mb-2">Back</a>
+						</div>
+						<h4 class="page-title">Add Package</h4>
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<form th:action="@{/admin/add_package}" method="post">
+								<div class="mb-3">
+									<label for="firstname" class="form-label">Package Title</label>
+									<input class="form-control" th:field="*{packageDetailsDTO.title}" type="text"
+										id="firstname" placeholder="Enter your First name" required>
+								</div>
+								<div class="mb-3">
+									<label for="description" class="form-label">Package Description</label>
+									<textarea th:field="${packageDetailsDTO.description}" class="form-control"
+										id="example-textarea" rows="3"></textarea>
+								</div>
+
+								<div class="row g-2">
+									<div class="mb-3 col-md-6">
+										<label for="inputEventType" class="form-label">Available for which event
+											type?</label>
+										<select id="inputEventType" th:field="*{packageDetailsDTO.eventTypeId}"
+											class="form-select" required>
+											<option value="" hidden readonly>--Select Event Type--</option>
+											<option th:each="eventType : ${eventTypes}"
+												th:value="${eventType.eventTypeId}" th:text="${eventType.eventType}">
+											</option>
+										</select>
+									</div>
+
+									<div class="mb-3 col-md-6">
+										<label for="inputVenue" class="form-label">Venue</label>
+										<select id="inputVenue" th:field="*{packageDetailsDTO.venueId}"
+											class="form-select" required>
+											<option value="" hidden readonly>--Select Available Venue--</option>
+											<option th:each="venueName : ${venueNames}" th:value="${venueName.venueId}"
+												th:text="${venueName.venueName}">
+											</option>
+										</select>
+									</div>
+								</div>
+
+								<div class="mb-3">
+									<label for="inputGuest" class="form-label">Maximum Guest Allowed</label>
+									<input type="number" th:field="*{packageDetailsDTO.guestAmount}" id="inputGuest"
+										class="form-control" required
+										placeholder="Enter maximum guest allowed for the package">
+								</div>
+								<div class="row g-2">
+									<div class="mb-3 col-md-6">
+										<label for="getCost" class="form-label">Total Cost<small
+												style="display: inline-block; font-size: 0.75rem; color:  #808080;">(
+												Includes cost of venue and services )</small></label>
+										<input type="number" id="getCost" class="form-control" disabled>
+									</div>
+									<div class="mb-3 col-md-6">
+										<label for="inputCost" class="form-label">Additional Cost<small
+												style="display: inline-block; font-size: 0.75rem; color:  #808080;">(
+												For
+												packages )</small></label>
+										<input type="number" th:field="*{packageDetailsDTO.totalCost}" id="inputCost"
+											class="form-control" required
+											placeholder="Enter additional cost for the package">
+									</div>
+								</div>
+
+								<div class="mb-0 d-grid text-center">
+									<button class="btn btn-primary" type="submit"><i
+											class="mdi mdi-plus-circle me-2"></i>
+										Add Package
+									</button>
+								</div>
+								<!-- social-->
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+		<script type="text/javascript">
+			$("#inputVenue").change(function () {
+				var selectedValue = $(this).find(":selected").val();
+				var oldCost = $("#getCost").val();
+				$.ajax({
+					type: "GET",
+					dataType: 'json',
+					url: "getVenueCost/" + selectedValue + '',
+					success: function (result) {
+						$("#getCost").val(oldCost + result);
+					}
+				});
+			});
+		
+			$("#inputCountry").change(function () {
+				var selectedValue = $(this)
+					.find(":selected")
+					.val();
+				if (selectedValue === "") {
+					$("#inputState").val("");
+					$("#inputState").prop('disabled', true);
+
+					$("#inputCity").val("");
+					$("#inputCity").prop('disabled', true);
+				}
+				$.ajax({
+					type: "GET",
+					dataType: 'json',
+					url: "/getStates/" + selectedValue + '',
+					success: function (result) {
+						$("#inputState").prop('disabled', false);
+						$("#inputState").empty();
+						$("#inputState").append($("<option></option>").val("").html("--Select State--"));
+						$.each(result, function () {
+							$("#inputState").append($("<option></option>").val(this['stateId']).html(this['state']));
+						});
+					}
+				});
+			});
+
+			$("#inputState").change(function () {
+				var selectedValue = $(this)
+					.find(":selected")
+					.val();
+				if (selectedValue === "") {
+					$("#inputCity").val("");
+					$("#inputCity").prop('disabled', true);
+				}
+				$.ajax({
+					type: "GET",
+					dataType: 'json',
+					url: "/getCities/" + selectedValue + '',
+					success: function (result) {
+						$("#inputCity").prop('disabled', false);
+						$("#inputCity").empty();
+						$("#inputCity").append($("<option></option>").val("").html("--Select City--"));
+						$.each(result, function () {
+							$("#inputCity").append($("<option></option>").val(this['cityId']).html(this['city']));
+						});
+					}
+				});
+			});
+		</script>
+	</th:block>
+</body>
+
+</html>
