@@ -1,5 +1,9 @@
 package com.epms.controller;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -269,44 +273,50 @@ public class CustomerController {
 		return siteURL.replace(request.getServletPath(), "");
 	}
 
-	@GetMapping("/reset_password")
-	public ModelAndView showResetPasswordForm(@RequestParam(value = "token") String token,
-			RedirectAttributes rm) {
+	@GetMapping("/reset-password")
+	public ModelAndView showResetPasswordForm(@RequestParam(value = "token") String token, RedirectAttributes rm) {
 		ModelAndView model = new ModelAndView("resetPassword");
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		parameterSource.addValue("resetPasswordToken", token);
 		parameterSource.addValue("isActive", true);
 		UserDetailsDTO userDetailsDTO = DataAccessUtils
 				.singleResult(userDetailsService.findByNamedParameters(parameterSource));
-		model.addObject("token", token);
 
-		if (userDetailsDTO == null) {
+		if (userDetailsDTO != null && userDetailsDTO.getResetPasswordTokenTime() != null) {
+			LocalDateTime now = LocalDateTime.now();
+			long minutes = ChronoUnit.MINUTES.between(now, userDetailsDTO.getResetPasswordTokenTime());
+			if (minutes >= 10) {
+				rm.addFlashAttribute("error", "Please try forgot password again because link is expired.");
+			}
+			model.addObject("token", token);
+
+		} else {
 			rm.addFlashAttribute("error", "Invalid Token");
 		}
 		return model;
 	}
-	
+
 	@PostMapping("/reset-password")
 	public ModelAndView processResetPassword(HttpServletRequest request, ModelAndView model, RedirectAttributes rm) {
-	    String token = request.getParameter("token");
-	    String password = request.getParameter("password");
-	     
-	    MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+		String token = request.getParameter("token");
+		String password = request.getParameter("password");
+
+		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		parameterSource.addValue("resetPasswordToken", token);
 		parameterSource.addValue("isActive", true);
 		UserDetailsDTO userDetailsDTO = DataAccessUtils
 				.singleResult(userDetailsService.findByNamedParameters(parameterSource));
-	     
-	    if (userDetailsDTO == null) {
-	    	rm.addFlashAttribute("error", "Invalid Token");
-	    } else {           
-	    	BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+		if (userDetailsDTO == null) {
+			rm.addFlashAttribute("error", "Invalid Token");
+		} else {
+			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 			String encodedPassword = passwordEncoder.encode(password);
-	        userDetailsService.updateUserPassword(userDetailsDTO.getUserDetailsId(), encodedPassword);
-	        rm.addFlashAttribute("message", "You have successfully changed your password.");
-	    }
-	     
-	    model.setViewName("redirect:/reset-password");
+			userDetailsService.updateUserPassword(userDetailsDTO.getUserDetailsId(), encodedPassword);
+			rm.addFlashAttribute("message", "You have successfully changed your password.");
+		}
+
+		model.setViewName("redirect:/reset-password");
 		return model;
 	}
 }

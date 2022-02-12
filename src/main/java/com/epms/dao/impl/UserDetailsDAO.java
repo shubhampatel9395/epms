@@ -163,7 +163,7 @@ public class UserDetailsDAO implements IUserDetailsDAO {
 		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
 		namedParameters.addValue("email", email);
 		namedParameters.addValue("token", token);
-		jdbcTemplate.update("update userDetails set resetPasswordToken=:token  where email=:email and isActive=true",
+		jdbcTemplate.update("update userDetails set resetPasswordToken=:token, resetPasswordTokenTime = now() where email=:email and isActive=true",
 				namedParameters);
 
 	}

@@ -1,5 +1,6 @@
 package com.epms.dto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import lombok.AllArgsConstructor;
@@ -30,4 +31,5 @@ public class UserDetailsDTO {
 	private Integer updatedBy;
 	private String roleName;
 	private String resetPasswordToken;
+	private LocalDateTime resetPasswordTokenTime;
 }
