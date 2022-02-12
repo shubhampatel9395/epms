@@ -11,4 +11,5 @@ public interface IUserDetailsDAO extends ICRUDRepository<UserDetailsDTO, Long> {
 	public List<UserDetailsDTO> isUniqueMobileNumber(String mobileNumber);
 	public void activate(Long id);
 	public void updateResetPasswordToken(String token, String email);
+	void updateUserPassword(Integer userDetailsId, String password);
 }

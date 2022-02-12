@@ -80,4 +80,9 @@ public class UserDetailsService implements IUserDetailsService {
 		userDetailsDAO.updateResetPasswordToken(token,email);
 		
 	}
+
+	@Override
+	public void updateUserPassword(Integer userDetailsId, String password) {
+		userDetailsDAO.updateUserPassword(userDetailsId, password);
+	}
 }

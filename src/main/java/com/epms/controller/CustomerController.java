@@ -286,4 +286,28 @@ public class CustomerController {
 		}
 		return model;
 	}
+	
+	@PostMapping("/reset-password")
+	public ModelAndView processResetPassword(HttpServletRequest request, ModelAndView model, RedirectAttributes rm) {
+	    String token = request.getParameter("token");
+	    String password = request.getParameter("password");
+	     
+	    MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+		parameterSource.addValue("resetPasswordToken", token);
+		parameterSource.addValue("isActive", true);
+		UserDetailsDTO userDetailsDTO = DataAccessUtils
+				.singleResult(userDetailsService.findByNamedParameters(parameterSource));
+	     
+	    if (userDetailsDTO == null) {
+	    	rm.addFlashAttribute("error", "Invalid Token");
+	    } else {           
+	    	BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+			String encodedPassword = passwordEncoder.encode(password);
+	        userDetailsService.updateUserPassword(userDetailsDTO.getUserDetailsId(), encodedPassword);
+	        rm.addFlashAttribute("message", "You have successfully changed your password.");
+	    }
+	     
+	    model.setViewName("redirect:/reset-password");
+		return model;
+	}
 }
