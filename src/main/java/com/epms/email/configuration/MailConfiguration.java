@@ -24,11 +24,15 @@ public class MailConfiguration {
 		mailSender.setPassword(env.getProperty("spring.mail.password"));
 
 		Properties javaMailProperties = new Properties();
-		// javaMailProperties.put("mail.smtp.ssl.enable", "true");
-		javaMailProperties.put("mail.smtp.starttls.enable", "true");
-		javaMailProperties.put("mail.smtp.auth", "true");
 		javaMailProperties.put("mail.transport.protocol", "smtp");
+		javaMailProperties.put("mail.smtp.auth", "true");
+		javaMailProperties.put("mail.smtp.starttls.enable", "true");
 		javaMailProperties.put("mail.debug", "true");
+		javaMailProperties.put("mail.smtp.ssl.enable", "true");
+//		javaMailProperties.put("mail.smtp.ssl.trust", "theRemoteSmtpServer");
+//		javaMailProperties.put("mail.smtp.socketFactory.fallback", "true");
+//		javaMailProperties.put("mail.smtp.socketFactory.port", env.getProperty("spring.mail.port"));
+//		javaMailProperties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 
 		mailSender.setJavaMailProperties(javaMailProperties);
 		return mailSender;

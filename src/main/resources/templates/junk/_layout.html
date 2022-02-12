@@ -1007,3 +1007,138 @@
 <!-- Mirrored from coderthemes.com/hyper_2/saas/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 04 Jan 2022 06:46:22 GMT -->
 
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Package Cost
+$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+$(this).change(function () {
+var oldCost;
+newCostFinal = 0;
+if (isNaN($("#getCost").val()) || $("#inputVenue").find(":selected").val() == "") {
+oldCost = 0;
+newCostFinal = 0;
+}
+else {
+oldCost = $("#getCost").val();
+newCostFinal = oldCost;
+}
+
+$.ajax({
+type: "GET",
+dataType: 'json',
+url: "getServiceProviderCost/" + $(this).find(":selected").val() + '',
+success: function (result) {
+newCostFinal = parseFloat(newCostFinal) + parseFloat(result);
+console.log(newCostFinal);
+$("#getCost").val('' + newCostFinal);
+}
+});
+});
+})
+});
+
+//var serviceNumbers = /*[[${#lists.size(serviceTypes)}]]*/ 'default';
+//var selectCheckBoxes = document.querySelectorAll('[id^=service]');
+
+//for (var selectCheckBox in selectCheckBoxes) {
+// var selectedValue = $(this).find(":selected").val();
+//console.log(this.id);
+//}
+// console.log(selectCheckBoxes);
+// console.log(serviceNumbers);
+
+$("#inputCountry").change(function () {
+var selectedValue = $(this)
+.find(":selected")
+.val();
+if (selectedValue === "") {
+$("#inputState").val("");
+$("#inputState").prop('disabled', true);
+
+$("#inputCity").val("");
+$("#inputCity").prop('disabled', true);
+}
+$.ajax({
+type: "GET",
+dataType: 'json',
+url: "/getStates/" + selectedValue + '',
+success: function (result) {
+$("#inputState").prop('disabled', false);
+$("#inputState").empty();
+$("#inputState").append($("<option></option>").val("").html("--Select State--"));
+$.each(result, function () {
+$("#inputState").append($("<option></option>").val(this['stateId']).html(this['state']));
+});
+}
+});
+});
+
+$("#inputState").change(function () {
+var selectedValue = $(this)
+.find(":selected")
+.val();
+if (selectedValue === "") {
+$("#inputCity").val("");
+$("#inputCity").prop('disabled', true);
+}
+$.ajax({
+type: "GET",
+dataType: 'json',
+url: "/getCities/" + selectedValue + '',
+success: function (result) {
+$("#inputCity").prop('disabled', false);
+$("#inputCity").empty();
+$("#inputCity").append($("<option></option>").val("").html("--Select City--"));
+$.each(result, function () {
+$("#inputCity").append($("<option></option>").val(this['cityId']).html(this['city']));
+});
+}
+});
+});
+
+var newCostFinal;
+$("#inputVenue").change(function () {
+var selectedValue = $(this).find(":selected").val();
+
+if (isNaN($("#getCost").val()) || $("#inputVenue").find(":selected").val() == "") {
+newCostFinal = 0;
+}
+else {
+newCostFinal = $("#getCost").val();
+}
+
+$.ajax({
+type: "GET",
+dataType: 'json',
+url: "getVenueCost/" + selectedValue + '',
+success: function (result) {
+newCostFinal = parseFloat(newCostFinal) + parseFloat(result);
+//console.log(typeof newCost);
+//console.log(oldCost);
+//console.log(result);
+console.log(newCostFinal);
+$("#getCost").val('' + newCostFinal);
+}
+});
+});
+
+
+<div class="mb-3 col-md-6">
+	<label for="getCost" class="form-label">Total Cost<small
+			style="display: inline-block; font-size: 0.75rem; color:  #808080;">(
+			Includes cost of venue and services )</small></label>
+	<input type="number" id="getCost" class="form-control" disabled>
+</div>

@@ -250,7 +250,7 @@ public class CustomerController {
 				mail.setMailTo(email);
 				mail.setMailSubject("Here's the link to reset your password");
 				mail.setContentType("text/html");
-				mail.setMailContent("<p>Hello " + userDetailsDTO.getFirstName() + " " + userDetailsDTO.getLastName()
+				mail.setMailContent("<p>Hi " + userDetailsDTO.getFirstName() + " " + userDetailsDTO.getLastName()
 						+ ",</p>" + "<p>You have requested to reset your password.</p>"
 						+ "<p>Click the link below to change your password:</p>" + "<p><a href=\"" + resetPasswordLink
 						+ "\">Change my password</a></p>" + "<br>"
@@ -259,6 +259,7 @@ public class CustomerController {
 				mailService.sendEmail(mail);
 				rm.addFlashAttribute("message", "We have sent a reset password link to your email. Please check.");
 			} catch (Exception e) {
+				System.out.println(e);
 				rm.addFlashAttribute("error", "Error while sending email");
 			}
 		} else {
