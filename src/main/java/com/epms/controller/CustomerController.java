@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -40,6 +41,7 @@ import com.epms.service.IEnuStateService;
 import com.epms.service.IUserDetailsService;
 
 import groovyjarjarantlr4.v4.runtime.misc.NotNull;
+import groovyjarjarpicocli.CommandLine.Parameters;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -225,7 +227,7 @@ public class CustomerController {
 	}
 
 	@PostMapping("/forgot-password")
-	public ModelAndView processForgotPassword(HttpServletRequest request, ModelAndView model,RedirectAttributes rm) {
+	public ModelAndView processForgotPassword(HttpServletRequest request, ModelAndView model, RedirectAttributes rm) {
 
 		String email = request.getParameter("email");
 
@@ -244,7 +246,8 @@ public class CustomerController {
 				mail.setMailTo(email);
 				mail.setMailSubject("Here's the link to reset your password");
 				mail.setContentType("text/html");
-				mail.setMailContent("<p>Hello " + userDetailsDTO.getFirstName() + " " + userDetailsDTO.getLastName()  + ",</p>" + "<p>You have requested to reset your password.</p>"
+				mail.setMailContent("<p>Hello " + userDetailsDTO.getFirstName() + " " + userDetailsDTO.getLastName()
+						+ ",</p>" + "<p>You have requested to reset your password.</p>"
 						+ "<p>Click the link below to change your password:</p>" + "<p><a href=\"" + resetPasswordLink
 						+ "\">Change my password</a></p>" + "<br>"
 						+ "<p>Ignore this email if you do remember your password, "
@@ -265,5 +268,22 @@ public class CustomerController {
 	public static String getSiteURL(HttpServletRequest request) {
 		String siteURL = request.getRequestURL().toString();
 		return siteURL.replace(request.getServletPath(), "");
+	}
+
+	@GetMapping("/reset_password")
+	public ModelAndView showResetPasswordForm(@RequestParam(value = "token") String token,
+			RedirectAttributes rm) {
+		ModelAndView model = new ModelAndView("resetPassword");
+		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+		parameterSource.addValue("resetPasswordToken", token);
+		parameterSource.addValue("isActive", true);
+		UserDetailsDTO userDetailsDTO = DataAccessUtils
+				.singleResult(userDetailsService.findByNamedParameters(parameterSource));
+		model.addObject("token", token);
+
+		if (userDetailsDTO == null) {
+			rm.addFlashAttribute("error", "Invalid Token");
+		}
+		return model;
 	}
 }
