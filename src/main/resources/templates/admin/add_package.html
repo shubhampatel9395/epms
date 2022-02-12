@@ -69,31 +69,122 @@
 										class="form-control" required
 										placeholder="Enter maximum guest allowed for the package">
 								</div>
+								<div class="mb-3">
+									<label class="font-20 form-label">Services available in package</label>
+								</div>
+								<!--
 								<div class="row g-2">
 									<div class="mb-3 col-md-6">
-										<label for="getCost" class="form-label">Total Cost<small
-												style="display: inline-block; font-size: 0.75rem; color:  #808080;">(
-												Includes cost of venue and services )</small></label>
-										<input type="number" id="getCost" class="form-control" disabled>
+										<input type="checkbox" class="form-check-input" id="service2">
+										<label class="form-check-label" for="service2">Cateror</label>
 									</div>
 									<div class="mb-3 col-md-6">
-										<label for="inputCost" class="form-label">Additional Cost<small
-												style="display: inline-block; font-size: 0.75rem; color:  #808080;">(
-												For
-												packages )</small></label>
-										<input type="number" th:field="*{packageDetailsDTO.totalCost}" id="inputCost"
-											class="form-control" required
-											placeholder="Enter additional cost for the package">
+										<select id="serviceprovider2" class="form-select" disabled="">
+											<option value="" hidden="" readonly="">--Select Service Provider--</option>
+										</select>
 									</div>
 								</div>
 
+								<div class="row g-2">
+									<div class="mb-3 col-md-6">
+										<input type="checkbox" class="form-check-input" id="service3">
+										<label class="form-check-label" for="service3">Decorator</label>
+									</div>
+									<div class="mb-3 col-md-6">
+										<select id="serviceprovider3" class="form-select" disabled="">
+											<option value="" hidden="" readonly="">--Select Service Provider--</option>
+										</select>
+									</div>
+								</div>
+
+								<div class="row g-2">
+									<div class="mb-3 col-md-6">
+										<input type="checkbox" class="form-check-input" id="service4">
+										<label class="form-check-label" for="service4">Photographer</label>
+									</div>
+									<div class="mb-3 col-md-6">
+										<select id="serviceprovider4" class="form-select" disabled="">
+											<option value="" hidden="" readonly="">--Select Service Provider--</option>
+										</select>
+									</div>
+								</div>
+
+								<div class="row g-2">
+									<div class="mb-3 col-md-6">
+										<input type="checkbox" class="form-check-input" id="service5">
+										<label class="form-check-label" for="service5">Videographer</label>
+									</div>
+									<div class="mb-3 col-md-6">
+										<select id="serviceprovider5" class="form-select" disabled="">
+											<option value="" hidden="" readonly="">--Select Service Provider--</option>
+										</select>
+									</div>
+								</div>
+					-->
+
+								<div class="row g-2" th:each="serviceType : ${serviceTypes}">
+									<div class="mb-3 col-md-6">
+										<input type="checkbox" class="form-check-input"
+											th:id="'service' + ${serviceType.serviceTypeId}">
+										<label class="form-check-label"
+											th:for="'service' + ${serviceType.serviceTypeId}"
+											th:text="${serviceType.service}"></label>
+									</div>
+									<div class="mb-3 col-md-6">
+										<select th:id="'serviceprovider' + ${serviceType.serviceTypeId}"
+											class="form-select" disabled>
+											<option value="" hidden readonly>--Select Service Provider--</option>
+											<option th:each="serviceProvider : ${serviceProviders}"
+												th:if="${serviceProvider.serviceTypeId} == ${serviceType.serviceTypeId}"
+												th:value="${serviceProvider.serviceProviderId}"
+												th:text="${serviceProvider.serviceProviderName}"></option>
+										</select>
+									</div>
+								</div>
+								<div class="mb-3">
+									<label for="inputCost" class="form-label">Additional Cost<small
+											style="display: inline-block; font-size: 0.75rem; color:  #808080;">(
+											For
+											packages )</small></label>
+									<input type="number" th:field="*{packageDetailsDTO.totalCost}" id="inputCost"
+										class="form-control" required
+										placeholder="Enter additional cost for the package">
+								</div>
+
 								<div class="mb-0 d-grid text-center">
-									<button class="btn btn-primary" type="submit"><i
+									<a data-bs-toggle="modal" data-bs-target="#staticBackdropConfirm"
+										class="btn btn-primary" onclick="calculateCost()"><i
 											class="mdi mdi-plus-circle me-2"></i>
 										Add Package
-									</button>
+									</a>
+									<!-- Modal -->
+									<div class="modal fade" id="staticBackdropConfirm" data-bs-backdrop="static"
+										data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel"
+										aria-hidden="true">
+										<div class="modal-dialog">
+											<div class="modal-content">
+												<div class="modal-header">
+													<h5 class="modal-title" id="staticBackdropLabel">
+														Confirm Package
+													</h5>
+													<button type="button" class="btn-close" data-bs-dismiss="modal"
+														aria-hidden="true"></button>
+												</div> <!-- end modal header -->
+												<div class="modal-body">
+													<span id="confirmText"></span>
+													Are you sure you want to add this package?
+												</div>
+												<div class="modal-footer">
+													<button type="button" class="btn btn-secondary"
+														data-bs-dismiss="modal">Close</button>
+													<button type="submit" class="btn btn-success">Create</button>
+												</div> <!-- end modal footer -->
+											</div> <!-- end modal content-->
+										</div> <!-- end modal dialog-->
+									</div> <!-- end modal-->
 								</div>
 								<!-- social-->
+
 							</form>
 						</div>
 					</div>
@@ -104,67 +195,46 @@
 	</th:block>
 
 	<th:block layout:fragment="script">
-		<script type="text/javascript">
-			$("#inputVenue").change(function () {
-				var selectedValue = $(this).find(":selected").val();
-				var oldCost = $("#getCost").val();
-				$.ajax({
-					type: "GET",
-					dataType: 'json',
-					url: "getVenueCost/" + selectedValue + '',
-					success: function (result) {
-						$("#getCost").val(oldCost + result);
-					}
-				});
-			});
-		
-			$("#inputCountry").change(function () {
-				var selectedValue = $(this)
-					.find(":selected")
-					.val();
-				if (selectedValue === "") {
-					$("#inputState").val("");
-					$("#inputState").prop('disabled', true);
+		<script th:inline="javascript" type="text/javascript">
+			function calculateCost() {
+				var packageCost = [];
 
-					$("#inputCity").val("");
-					$("#inputCity").prop('disabled', true);
+				if ($("#inputVenue").val() != "") {
+					packageCost.push($("#inputVenue").find(":selected").val());
 				}
-				$.ajax({
-					type: "GET",
-					dataType: 'json',
-					url: "/getStates/" + selectedValue + '',
-					success: function (result) {
-						$("#inputState").prop('disabled', false);
-						$("#inputState").empty();
-						$("#inputState").append($("<option></option>").val("").html("--Select State--"));
-						$.each(result, function () {
-							$("#inputState").append($("<option></option>").val(this['stateId']).html(this['state']));
-						});
-					}
-				});
-			});
 
-			$("#inputState").change(function () {
-				var selectedValue = $(this)
-					.find(":selected")
-					.val();
-				if (selectedValue === "") {
-					$("#inputCity").val("");
-					$("#inputCity").prop('disabled', true);
-				}
-				$.ajax({
-					type: "GET",
-					dataType: 'json',
-					url: "/getCities/" + selectedValue + '',
-					success: function (result) {
-						$("#inputCity").prop('disabled', false);
-						$("#inputCity").empty();
-						$("#inputCity").append($("<option></option>").val("").html("--Select City--"));
-						$.each(result, function () {
-							$("#inputCity").append($("<option></option>").val(this['cityId']).html(this['city']));
-						});
+				$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+					if ($(this).find(":selected").val() != "") {
+						packageCost.push($(this).find(":selected").val());
 					}
 				});
+
+				$.ajax({
+					type: "POST",
+					url: "getPackageCost",
+					data: {packageData: packageCost},
+					success: function (result) {
+						$("#confirmText").text("Total package cost is: " + result);
+					},
+					error: function (e) {
+						alert('Error: ' + e);
+					}
+				});
+			}
+
+			$(document).ready(function () {
+				$("input:checkbox").each(function () {
+					$(this).change(function () {
+						//console.log($(this).prop('checked'));
+						if ($(this).prop('checked')) {
+							$('#' + $(this).attr("id").replace("service", "serviceprovider") + '').prop('disabled', false);
+						}
+						else {
+							$('#' + $(this).attr("id").replace("service", "serviceprovider") + '').prop('disabled', true);
+							$('#' + $(this).attr("id").replace("service", "serviceprovider") + '').val("");
+						}
+					});
+				})
 			});
 		</script>
 	</th:block>

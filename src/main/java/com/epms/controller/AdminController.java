@@ -31,6 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.epms.dto.AddressDTO;
 import com.epms.dto.EmployeeDTO;
 import com.epms.dto.EnuEventTypeDTO;
+import com.epms.dto.EnuServiceTypeDTO;
 import com.epms.dto.EnuVenueFacilityDTO;
 import com.epms.dto.EnuVenueTypeDTO;
 import com.epms.dto.PackageDetailsDTO;
@@ -478,18 +479,49 @@ public class AdminController {
 
 	@GetMapping("/getVenueCost/{venueId}")
 	public Double getVenueCost(@PathVariable Long venueId) {
-		return 0.0;
+		System.out.println(venueService.findById(venueId).getCost());
+		return venueService.findById(venueId).getCost();
+	}
+	
+	@GetMapping("/getServiceProviderCost/{serviceProviderId}")
+	public Double getServiceProviderCost(@PathVariable Long serviceProviderId) {
+		System.out.println(serviceProviderService.findById(serviceProviderId).getCost());
+		return serviceProviderService.findById(serviceProviderId).getCost();
+	}
+	
+	@PostMapping("/getPackageCost")
+	public double getPackageCost(@RequestParam(value="packageData") List<String> packageData)
+	{
+		System.out.println(packageData);
+		double cost = 0;
+		cost += venueService.findById(new Long(packageData.get(0))).getCost();
+		for(int i=0;i<packageData.size();i++)
+		{
+			cost += serviceProviderService.findById(new Long(packageData.get(i))).getCost();
+		}
+		return cost;
 	}
 
 	@GetMapping("/add_package")
 	public ModelAndView addPackage() {
 		ModelAndView modelandmap = new ModelAndView("admin/add_package");
 		modelandmap.addObject("packageDetailsDTO", new PackageDetailsDTO());
-		modelandmap.addObject("serviceTypes", enuServiceTypeService.findAllActive());
+		List<EnuServiceTypeDTO> serviceTypes = enuServiceTypeService.findAllActive();
+		List<ServiceProviderDTO> serviceProviders = serviceProviderService.findAll();
+		
+		for(int i=0;i<serviceProviders.size();i++)
+		{
+			serviceProviders.get(i).setServiceProviderName(userDetailsService.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId", serviceProviders.get(i).getUserDetailsId())).get(0).getServiceProviderName());
+		}
+	
+		modelandmap.addObject("serviceTypes", serviceTypes);
+		modelandmap.addObject("serviceProviders", serviceProviders);
 		modelandmap.addObject("venueNames",
 				venueService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		modelandmap.addObject("eventTypes",
 				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		modelandmap.addObject("serviceTypes",
+				enuServiceTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		return modelandmap;
 	}
 
@@ -497,16 +529,17 @@ public class AdminController {
 	public ModelAndView addNewPackage(
 			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO,
 			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
-		final ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
-
-		serviceProviderDTO.setAddressId(addressService.insert(addressDTO).getAddressId());
-
-		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		String encodedPassword = passwordEncoder.encode(serviceProviderDTO.getPassword());
-		serviceProviderDTO.setPassword(encodedPassword);
-
-		serviceProviderService.insert(serviceProviderDTO);
-		return modelandmap;
+		return new ModelAndView("redirect:/admin/list-package");
+//		final ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
+//
+//		serviceProviderDTO.setAddressId(addressService.insert(addressDTO).getAddressId());
+//
+//		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+//		String encodedPassword = passwordEncoder.encode(serviceProviderDTO.getPassword());
+//		serviceProviderDTO.setPassword(encodedPassword);
+//
+//		serviceProviderService.insert(serviceProviderDTO);
+//		return modelandmap;
 	}
 
 	@GetMapping("/view_customer/{customerId}")
