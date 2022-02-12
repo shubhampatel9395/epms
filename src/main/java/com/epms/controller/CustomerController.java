@@ -251,7 +251,6 @@ public class CustomerController {
 						+ "or you have not made the request.</p>");
 				mailService.sendEmail(mail);
 				rm.addFlashAttribute("message", "We have sent a reset password link to your email. Please check.");
-
 			} catch (Exception e) {
 				rm.addFlashAttribute("error", "Error while sending email");
 			}
