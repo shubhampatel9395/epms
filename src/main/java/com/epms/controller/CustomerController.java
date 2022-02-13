@@ -254,13 +254,13 @@ public class CustomerController {
 						+ ",</p>" + "<p>You have requested to reset your password.</p>"
 						+ "<p>Click the link below to change your password:</p>" + "<p><a href=\"" + resetPasswordLink
 						+ "\">Change my password</a></p>" + "<br>"
-						+ "<p>Ignore this email if you do remember your password, "
+						+ "<p>The above link will be expired in 5 minutes. Ignore this email if you do remember your password, "
 						+ "or you have not made the request.</p>");
-				System.out.println(resetPasswordLink);
-			    mailService.sendEmail(mail);
+				log.debug("resetPasswordLink: {}",resetPasswordLink);
+				mailService.sendEmail(mail);
 				rm.addFlashAttribute("message", "We have sent a reset password link to your email. Please check.");
 			} catch (Exception e) {
-				System.out.println(e);
+				log.error("Exception :  {}",e);
 				rm.addFlashAttribute("error", "Error while sending email");
 			}
 		} else {
@@ -286,11 +286,12 @@ public class CustomerController {
 
 		if (userDetailsDTO != null && userDetailsDTO.getResetPasswordTokenTime() != null) {
 			LocalDateTime now = LocalDateTime.now();
-			long minutes = ChronoUnit.MINUTES.between(now, userDetailsDTO.getResetPasswordTokenTime());
-			if (minutes >= 2) {
+			long minutes = ChronoUnit.MINUTES.between(userDetailsDTO.getResetPasswordTokenTime(),now );
+			if (minutes >= 5) {
 				model.addObject("error", "Please try forgot password again because link is expired.");
+			} else {
+				model.addObject("token", token);
 			}
-			model.addObject("token", token);
 
 		} else {
 			model.addObject("error", "Invalid Token");
@@ -311,7 +312,7 @@ public class CustomerController {
 
 		if (userDetailsDTO == null) {
 			rm.addFlashAttribute("error", "Invalid Token");
-			model.setViewName("redirect:/reset-password?token="+token);
+			model.setViewName("redirect:/reset-password?token=" + token);
 		} else {
 			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 			String encodedPassword = passwordEncoder.encode(password);
@@ -319,7 +320,6 @@ public class CustomerController {
 			model.setViewName("redirect:/login");
 		}
 
-		
 		return model;
 	}
 }
