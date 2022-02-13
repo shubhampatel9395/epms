@@ -256,7 +256,8 @@ public class CustomerController {
 						+ "\">Change my password</a></p>" + "<br>"
 						+ "<p>Ignore this email if you do remember your password, "
 						+ "or you have not made the request.</p>");
-				mailService.sendEmail(mail);
+				System.out.println(resetPasswordLink);
+			    mailService.sendEmail(mail);
 				rm.addFlashAttribute("message", "We have sent a reset password link to your email. Please check.");
 			} catch (Exception e) {
 				System.out.println(e);
@@ -286,13 +287,13 @@ public class CustomerController {
 		if (userDetailsDTO != null && userDetailsDTO.getResetPasswordTokenTime() != null) {
 			LocalDateTime now = LocalDateTime.now();
 			long minutes = ChronoUnit.MINUTES.between(now, userDetailsDTO.getResetPasswordTokenTime());
-			if (minutes >= 10) {
-				rm.addFlashAttribute("error", "Please try forgot password again because link is expired.");
+			if (minutes >= 2) {
+				model.addObject("error", "Please try forgot password again because link is expired.");
 			}
 			model.addObject("token", token);
 
 		} else {
-			rm.addFlashAttribute("error", "Invalid Token");
+			model.addObject("error", "Invalid Token");
 		}
 		return model;
 	}
@@ -310,14 +311,15 @@ public class CustomerController {
 
 		if (userDetailsDTO == null) {
 			rm.addFlashAttribute("error", "Invalid Token");
+			model.setViewName("redirect:/reset-password?token="+token);
 		} else {
 			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 			String encodedPassword = passwordEncoder.encode(password);
 			userDetailsService.updateUserPassword(userDetailsDTO.getUserDetailsId(), encodedPassword);
-			rm.addFlashAttribute("message", "You have successfully changed your password.");
+			model.setViewName("redirect:/login");
 		}
 
-		model.setViewName("redirect:/reset-password");
+		
 		return model;
 	}
 }
