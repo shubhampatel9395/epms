@@ -1,8 +1,5 @@
 package com.epms.email.configuration;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -14,8 +11,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-
-import com.epms.dto.UserDetailsDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,9 +34,10 @@ public class MailServiceImpl implements IMailService {
 			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
 
 			mimeMessageHelper.setSubject(mail.getMailSubject());
-			// mimeMessageHelper.setFrom(new InternetAddress(env.getProperty("spring.mail.username")));
+			mimeMessageHelper.setFrom(new InternetAddress(env.getProperty("spring.mail.username")));
 			mimeMessageHelper.setTo(mail.getMailTo());
 			mimeMessageHelper.setText(mail.getMailContent(),true);
+			
 			if (!CollectionUtils.isEmpty(mail.getAttachments())) {
 				mail.getAttachments().stream().forEach(attachment -> {
 					try {

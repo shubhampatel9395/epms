@@ -209,10 +209,16 @@
 					}
 				});
 
+				console.log(packageCost);
+
 				$.ajax({
 					type: "POST",
 					url: "getPackageCost",
+					dataType: "json",
+					contextType: "application/json",
+					traditional: true,
 					data: {packageData: packageCost},
+					// data: packageCost,
 					success: function (result) {
 						$("#confirmText").text("Total package cost is: " + result);
 					},

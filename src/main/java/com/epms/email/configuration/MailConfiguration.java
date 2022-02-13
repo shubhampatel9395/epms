@@ -28,7 +28,7 @@ public class MailConfiguration {
 		javaMailProperties.put("mail.smtp.auth", "true");
 		javaMailProperties.put("mail.smtp.starttls.enable", "true");
 		javaMailProperties.put("mail.debug", "true");
-		javaMailProperties.put("mail.smtp.ssl.enable", "true");
+//		javaMailProperties.put("mail.smtp.ssl.enable", "true");
 //		javaMailProperties.put("mail.smtp.ssl.trust", "theRemoteSmtpServer");
 //		javaMailProperties.put("mail.smtp.socketFactory.fallback", "true");
 //		javaMailProperties.put("mail.smtp.socketFactory.port", env.getProperty("spring.mail.port"));

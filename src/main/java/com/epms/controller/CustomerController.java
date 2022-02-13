@@ -244,7 +244,7 @@ public class CustomerController {
 			try {
 				String token = UUID.randomUUID().toString();
 				userDetailsService.updateResetPasswordToken(token, email);
-
+				// Control Panel\System and Security\Windows Defender Firewall\Customize Settings
 				String resetPasswordLink = getSiteURL(request) + "/reset-password?token=" + token;
 				Mail mail = new Mail();
 				mail.setMailTo(email);
@@ -252,11 +252,11 @@ public class CustomerController {
 				mail.setContentType("text/html");
 				mail.setMailContent("<p>Hi " + userDetailsDTO.getFirstName() + " " + userDetailsDTO.getLastName()
 						+ ",</p>" + "<p>You have requested to reset your password.</p>"
-						+ "<p>Click the link below to change your password:</p>" + "<p><a href=\"" + resetPasswordLink
-						+ "\">Change my password</a></p>" + "<br>"
+						+ "<p>Click the link below to change your password:</p>" 
+						+ "<p><a href=\"" + resetPasswordLink + "\">Change my password</a></p>"
 						+ "<p>The above link will be expired in 5 minutes. Ignore this email if you do remember your password, "
 						+ "or you have not made the request.</p>");
-				log.debug("resetPasswordLink: {}",resetPasswordLink);
+				// log.debug("resetPasswordLink: {}",resetPasswordLink);
 				mailService.sendEmail(mail);
 				rm.addFlashAttribute("message", "We have sent a reset password link to your email. Please check.");
 			} catch (Exception e) {
