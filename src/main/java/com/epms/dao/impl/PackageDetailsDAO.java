@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IPackageDetailsDAO;
@@ -68,20 +70,39 @@ public class PackageDetailsDAO implements IPackageDetailsDAO {
 
 	@Override
 	public PackageDetailsDTO insert(PackageDetailsDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("title", entity.getTitle());
+		namedParameters.addValue("description", entity.getDescription());
+		namedParameters.addValue("guestAmount", entity.getGuestAmount());
+		namedParameters.addValue("totalCost", entity.getTotalCost());
+		namedParameters.addValue("eventTypeId", entity.getEventTypeId());
+		namedParameters.addValue("venueId", entity.getVenueId());
+
+		jdbcTemplate.update(
+				"insert into packagedetails(title,description,guestAmount,totalCost,eventTypeId,venueId) values(:title,:description,:guestAmount,:totalCost,:eventTypeId,:venueId)",
+				namedParameters, keyHolder, new String[] { "packageDetailsId" });
+		return findById(keyHolder.getKey().longValue());
 	}
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("id", id);
+		jdbcTemplate.update("update packagedetails set isActive=false where packageDetailsId=:id", sc);
 	}
 
 	@Override
 	public PackageDetailsDTO update(PackageDetailsDTO entity) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void activate(long packageDetailsId) {
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("id", packageDetailsId);
+		jdbcTemplate.update("update packagedetails set isActive=true where packageDetailsId=:id", sc);
 	}
 
 }

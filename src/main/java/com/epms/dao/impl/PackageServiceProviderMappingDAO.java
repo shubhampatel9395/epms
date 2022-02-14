@@ -74,16 +74,38 @@ public class PackageServiceProviderMappingDAO implements IPackageServiceProvider
 		return null;
 	}
 
+	// Using packageDetailsId
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("id", id);
+		jdbcTemplate.update("update packageserviceprovidermapping set isActive=false where packageId=:id", sc);
 	}
 
 	@Override
 	public PackageServiceProviderMappingDTO update(PackageServiceProviderMappingDTO entity) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void insert(Long packageId, List<String> serviceProviderList) {
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("packageId", packageId);
+		for (String serviceProviderId : serviceProviderList) {
+			namedParameters.addValue("serviceProviderId", serviceProviderId);
+			jdbcTemplate.update(
+					"insert into packageserviceprovidermapping(packageId,serviceProviderId) values(:packageId,:serviceProviderId)",
+					namedParameters);
+		}
+	}
+
+	// Using packageDetailsId
+	@Override
+	public void activate(long packageDetailsId) {
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("id", packageDetailsId);
+		jdbcTemplate.update("update packageserviceprovidermapping set isActive=true where packageId=:id", sc);
 	}
 
 }

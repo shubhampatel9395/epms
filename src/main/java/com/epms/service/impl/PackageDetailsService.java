@@ -42,20 +42,23 @@ public class PackageDetailsService implements IPackageDetailsService {
 
 	@Override
 	public PackageDetailsDTO insert(PackageDetailsDTO PackageDetailsDTO) {
-		// TODO Auto-generated method stub
-		return null;
+		return packageDetailsDAO.insert(PackageDetailsDTO);
 	}
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+		packageDetailsDAO.delete(id);
 	}
 
 	@Override
 	public PackageDetailsDTO update(PackageDetailsDTO entity) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void activate(long packageDetailsId) {
+		packageDetailsDAO.activate(packageDetailsId);
 	}
 
 }

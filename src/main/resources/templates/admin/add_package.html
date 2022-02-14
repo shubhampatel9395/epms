@@ -3,6 +3,7 @@
 
 <head>
 	<title>Add Package</title>
+	<meta th:name="${_csrf.parameterName}" th:content="${_csrf.token}" />
 	<style>
 		.page-title-box .page-title-right {
 			display: block;
@@ -54,7 +55,7 @@
 									<div class="mb-3 col-md-6">
 										<label for="inputVenue" class="form-label">Venue</label>
 										<select id="inputVenue" th:field="*{packageDetailsDTO.venueId}"
-											class="form-select" required>
+											class="form-select" required disabled>
 											<option value="" hidden readonly>--Select Available Venue--</option>
 											<option th:each="venueName : ${venueNames}" th:value="${venueName.venueId}"
 												th:text="${venueName.venueName}">
@@ -132,7 +133,8 @@
 									</div>
 									<div class="mb-3 col-md-6">
 										<select th:id="'serviceprovider' + ${serviceType.serviceTypeId}"
-											class="form-select" disabled>
+											class="form-select" th:field="*{packageTempDTO.serviceProviderIdList}"
+											disabled>
 											<option value="" hidden readonly>--Select Service Provider--</option>
 											<option th:each="serviceProvider : ${serviceProviders}"
 												th:if="${serviceProvider.serviceTypeId} == ${serviceType.serviceTypeId}"
@@ -146,10 +148,11 @@
 											style="display: inline-block; font-size: 0.75rem; color:  #808080;">(
 											For
 											packages )</small></label>
-									<input type="number" th:field="*{packageDetailsDTO.totalCost}" id="inputCost"
-										class="form-control" required
+									<input type="number" id="inputCost" class="form-control" required
 										placeholder="Enter additional cost for the package">
 								</div>
+
+								<input type="hidden" id="finalCost" th:field="*{packageDetailsDTO.totalCost}" />
 
 								<div class="mb-0 d-grid text-center">
 									<a data-bs-toggle="modal" data-bs-target="#staticBackdropConfirm"
@@ -172,12 +175,12 @@
 												</div> <!-- end modal header -->
 												<div class="modal-body">
 													<span id="confirmText"></span>
-													Are you sure you want to add this package?
 												</div>
 												<div class="modal-footer">
 													<button type="button" class="btn btn-secondary"
 														data-bs-dismiss="modal">Close</button>
-													<button type="submit" class="btn btn-success">Create</button>
+													<button type="submit" id="btnSubmit"
+														class="btn btn-success">Create</button>
 												</div> <!-- end modal footer -->
 											</div> <!-- end modal content-->
 										</div> <!-- end modal dialog-->
@@ -197,7 +200,41 @@
 	<th:block layout:fragment="script">
 		<script th:inline="javascript" type="text/javascript">
 			function calculateCost() {
+				if ($("#inputVenue").val() == "") {
+					$("#confirmText").text("Please Select Venue for the package.");
+					$("#btnSubmit").prop("disabled", true);
+					$("#inputVenue").focus();
+					return;
+				}
+
+				var isError = false;
+				$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+					// console.log($(this).prop('disabled') === false);
+					// console.log($(this).find(":selected").val() === "");
+					if ($(this).prop('disabled') === false && $(this).find(":selected").val() === "") {
+						$("#confirmText").text("Please select service provider for the selected service.");
+						$("#btnSubmit").prop("disabled", true);
+						$(this).focus();
+						isError = true;
+					}
+				});
+
+				if (isError == true) {
+					$("#confirmText").text("Please select service provider for the selected services.");
+					$("#btnSubmit").prop("disabled", true);
+					return;
+				}
+
+				if ($("#inputCost").val() == "") {
+					$("#confirmText").text("Please enter cost for the package.");
+					$("#btnSubmit").prop("disabled", true);
+					$("#inputCost"), focus();
+					return;
+				}
+
+				$("#btnSubmit").prop("disabled", false);
 				var packageCost = [];
+				var token = $("meta[name='_csrf']").attr("content");
 
 				if ($("#inputVenue").val() != "") {
 					packageCost.push($("#inputVenue").find(":selected").val());
@@ -209,24 +246,41 @@
 					}
 				});
 
-				console.log(packageCost);
+				packageCost.push($("#inputCost").val());
 
 				$.ajax({
 					type: "POST",
-					url: "getPackageCost",
-					dataType: "json",
-					contextType: "application/json",
+					contentType: "application/json",
+					datatype: 'json',
 					traditional: true,
-					data: {packageData: packageCost},
-					// data: packageCost,
+					url: "/admin/getPackageCost/",
+					headers: {"X-CSRF-TOKEN": token}, //send CSRF token in header
+					data: JSON.stringify(packageCost),
 					success: function (result) {
-						$("#confirmText").text("Total package cost is: " + result);
+						$("#finalCost").val(result);
+						$("#confirmText").html("Total package cost is: " + result + ".<br/>Are you sure you want to add this package?");
 					},
 					error: function (e) {
 						alert('Error: ' + e);
 					}
 				});
 			}
+			
+			$("#inputEventType").change(function(){
+				$.ajax({
+					type: "GET",
+					dataType: 'json',
+					url: "getVenues/" + $(this).find(":selected").val() + '',
+					success: function (result) {
+						$("#inputVenue").prop('disabled', false);
+						$("#inputVenue").empty();
+						$("#inputVenue").append($("<option></option>").val("").html("--Select Available Venue--"));
+						$.each(result, function () {
+							$("#inputVenue").append($("<option></option>").val(this['venueId']).html(this['venueName']));
+						});
+					}
+				});
+			});
 
 			$(document).ready(function () {
 				$("input:checkbox").each(function () {

@@ -1,0 +1,69 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/_layout}">
+
+<head>
+	<title>Package Details</title>
+	<style>
+		.page-title-box .page-title-right {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<div class="page-title-right">
+							<a th:href="@{/admin/list-package}" class="btn btn-secondary mb-2">Back</a>
+						</div>
+						<h4 class="page-title"> Package Details</h4>
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<dl class="row mb-0">
+								<dt class="col-sm-3">Package Title</dt>
+								<dd class="col-sm-9" th:text="${packageDetailsDTO.title}"></dd>
+
+								<dt class="col-sm-3">Description</dt>
+								<dd class="col-sm-9" th:text="${packageDetailsDTO.description}"></dd>
+
+								<dt class="col-sm-3">Number of allowed guests</dt>
+								<dd class="col-sm-9" th:utext="${packageDetailsDTO.guestAmount}"></dd>
+
+								<dt class="col-sm-3">For which Event Type?</dt>
+								<dd class="col-sm-9" th:utext="${eventType}"></dd>
+
+								<dt class="col-sm-3">Venue</dt>
+								<dd class="col-sm-9" th:utext="${#strings.replace(venueDetails,'&#10;','&lt;br&gt;')}">
+								</dd>
+
+								<dt class="col-sm-3">Services Available</dt>
+								<dd class="col-sm-9">
+									<span th:each="entry : ${serviceWithProviders}">
+										<strong><span th:text="${entry.key} + ' - '"></span></strong>
+										<span th:text="${entry.value}"></span><br/>
+									</span>
+								</dd>
+
+								<dt class="col-sm-3" style="clear: left;">Total Cost</dt>
+								<dd class="col-sm-9" th:text="${packageDetailsDTO.totalCost}"></dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+	</th:block>
+</body>
+
+</html>

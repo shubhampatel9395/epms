@@ -1,12 +1,16 @@
 package com.epms.controller;
 
 import java.io.IOException;
+import java.net.http.HttpRequest;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.sql.rowset.serial.SerialBlob;
 import javax.sql.rowset.serial.SerialException;
 import javax.validation.Valid;
@@ -22,6 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +40,8 @@ import com.epms.dto.EnuServiceTypeDTO;
 import com.epms.dto.EnuVenueFacilityDTO;
 import com.epms.dto.EnuVenueTypeDTO;
 import com.epms.dto.PackageDetailsDTO;
+import com.epms.dto.PackageServiceProviderMappingDTO;
+import com.epms.dto.PackageTempDTO;
 import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.UserDetailsDTO;
 import com.epms.dto.VenueDTO;
@@ -54,12 +61,14 @@ import com.epms.service.IEnuStateService;
 import com.epms.service.IEnuVenueFacilityService;
 import com.epms.service.IEnuVenueTypeService;
 import com.epms.service.IPackageDetailsService;
+import com.epms.service.IPackageServiceProviderMappingService;
 import com.epms.service.IServiceProviderService;
 import com.epms.service.IUserDetailsService;
 import com.epms.service.IVenueEventTypeMappingService;
 import com.epms.service.IVenueFacilityMappingService;
 import com.epms.service.IVenueImageMappingService;
 import com.epms.service.IVenueService;
+import com.epms.service.impl.PackageServiceProviderMappingService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -123,6 +132,9 @@ public class AdminController {
 
 	@Autowired
 	IMailService mailService;
+
+	@Autowired
+	IPackageServiceProviderMappingService packageServiceProviderMappingService;
 
 	public String getAddress(AddressDTO addressDTO) {
 //		String address;
@@ -339,6 +351,14 @@ public class AdminController {
 		return modelandmap;
 	}
 
+	@GetMapping("/activate_package/{packageDetailsId}")
+	public ModelAndView activatePackage(@PathVariable("packageDetailsId") long packageDetailsId) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-package");
+		packageDetailsService.activate(packageDetailsId);
+		packageServiceProviderMappingService.activate(packageDetailsId);
+		return modelandmap;
+	}
+
 	@GetMapping("/add_customer")
 	public ModelAndView addCustomer() {
 		ModelAndView modelandmap = new ModelAndView("admin/add_customer");
@@ -482,24 +502,40 @@ public class AdminController {
 		System.out.println(venueService.findById(venueId).getCost());
 		return venueService.findById(venueId).getCost();
 	}
-	
+
 	@GetMapping("/getServiceProviderCost/{serviceProviderId}")
 	public Double getServiceProviderCost(@PathVariable Long serviceProviderId) {
 		System.out.println(serviceProviderService.findById(serviceProviderId).getCost());
 		return serviceProviderService.findById(serviceProviderId).getCost();
 	}
-	
+
 	@PostMapping("/getPackageCost")
-	public double getPackageCost(@RequestParam(value="packageData") List<String> packageData)
-	{
-		System.out.println(packageData);
+	public double getPackageCost(@RequestBody List<String> packageCost) {
+		System.out.println(packageCost);
 		double cost = 0;
-		cost += venueService.findById(new Long(packageData.get(0))).getCost();
-		for(int i=0;i<packageData.size();i++)
-		{
-			cost += serviceProviderService.findById(new Long(packageData.get(i))).getCost();
+		cost += venueService.findById(Long.parseLong(packageCost.get(0))).getCost();
+		System.out.println(cost);
+		for (int i = 1; i < packageCost.size() - 1; i++) {
+			cost += serviceProviderService.findById(Long.parseLong(packageCost.get(i))).getCost();
+			System.out.println(cost);
 		}
+		cost += Long.parseLong(packageCost.get(packageCost.size() - 1));
+		System.out.println(cost);
+
 		return cost;
+	}
+
+	@GetMapping("/getVenues/{eventTypeId}")
+	public List<VenueDTO> getVenuesOnEventType(@PathVariable Long eventTypeId) {
+		List<VenueEventTypeMappingDTO> listVenues = venueEventTypeMappingService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("eventTypeId", eventTypeId));
+		List<VenueDTO> venues = new ArrayList<>();
+
+		for (int i = 0; i < listVenues.size(); i++) {
+			venues.add(venueService.findById(listVenues.get(i).getVenueId().longValue()));
+		}
+
+		return venues;
 	}
 
 	@GetMapping("/add_package")
@@ -508,12 +544,16 @@ public class AdminController {
 		modelandmap.addObject("packageDetailsDTO", new PackageDetailsDTO());
 		List<EnuServiceTypeDTO> serviceTypes = enuServiceTypeService.findAllActive();
 		List<ServiceProviderDTO> serviceProviders = serviceProviderService.findAll();
-		
-		for(int i=0;i<serviceProviders.size();i++)
-		{
-			serviceProviders.get(i).setServiceProviderName(userDetailsService.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId", serviceProviders.get(i).getUserDetailsId())).get(0).getServiceProviderName());
+
+		for (int i = 0; i < serviceProviders.size(); i++) {
+			serviceProviders.get(i)
+					.setServiceProviderName(
+							userDetailsService
+									.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId",
+											serviceProviders.get(i).getUserDetailsId()))
+									.get(0).getServiceProviderName());
 		}
-	
+
 		modelandmap.addObject("serviceTypes", serviceTypes);
 		modelandmap.addObject("serviceProviders", serviceProviders);
 		modelandmap.addObject("venueNames",
@@ -522,24 +562,19 @@ public class AdminController {
 				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		modelandmap.addObject("serviceTypes",
 				enuServiceTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		modelandmap.addObject("packageTempDTO", new PackageTempDTO());
 		return modelandmap;
 	}
 
 	@PostMapping("/add_package")
-	public ModelAndView addNewPackage(
-			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO,
-			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
-		return new ModelAndView("redirect:/admin/list-package");
-//		final ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
-//
-//		serviceProviderDTO.setAddressId(addressService.insert(addressDTO).getAddressId());
-//
-//		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-//		String encodedPassword = passwordEncoder.encode(serviceProviderDTO.getPassword());
-//		serviceProviderDTO.setPassword(encodedPassword);
-//
-//		serviceProviderService.insert(serviceProviderDTO);
-//		return modelandmap;
+	public ModelAndView addNewPackage(@Valid @ModelAttribute("packageDetailsDTO") PackageDetailsDTO serviceProviderDTO,
+			@Valid @ModelAttribute("packageTempDTO") PackageTempDTO packageTempDTO) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-package");
+		Long packageId = packageDetailsService.insert(serviceProviderDTO).getPackageDetailsId().longValue();
+		if (packageTempDTO.getServiceProviderIdList() != null) {
+			packageServiceProviderMappingService.insert(packageId, packageTempDTO.getServiceProviderIdList());
+		}
+		return modelandmap;
 	}
 
 	@GetMapping("/view_customer/{customerId}")
@@ -628,6 +663,32 @@ public class AdminController {
 		return modelandmap;
 	}
 
+	@GetMapping("/view_package/{packageDetailsId}")
+	public ModelAndView viewPackage(@PathVariable("packageDetailsId") long packageDetailsId) {
+		ModelAndView modelandmap = new ModelAndView("admin/view_package");
+
+		PackageDetailsDTO packageDetailsDTO = packageDetailsService.findById(packageDetailsId);
+		List<PackageServiceProviderMappingDTO> packageServiceProviderMappings = packageServiceProviderMappingService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("packageId", packageDetailsId));
+		Map<String, String> serviceWithProviders = new HashMap<String, String>();
+		for (PackageServiceProviderMappingDTO entry : packageServiceProviderMappings) {
+			ServiceProviderDTO temp = serviceProviderService.findById(entry.getServiceProviderId().longValue());
+			serviceWithProviders.put(enuServiceTypeService.findById(temp.getServiceTypeId().longValue()).getService(),
+					userDetailsService.findById(temp.getUserDetailsId().longValue()).getServiceProviderName());
+		}
+		String venueDetails = venueService.findById(packageDetailsDTO.getVenueId().longValue()).getVenueName() + ", "
+				+ getAddress(addressService.findById(
+						venueService.findById(packageDetailsDTO.getVenueId().longValue()).getAddressId().longValue()));
+		String eventType = enuEventTypeService.findById(packageDetailsDTO.getEventTypeId().longValue()).getEventType();
+
+		modelandmap.addObject("venueDetails", venueDetails);
+		modelandmap.addObject("eventType", eventType);
+		modelandmap.addObject("packageDetailsDTO", packageDetailsDTO);
+		modelandmap.addObject("serviceWithProviders", serviceWithProviders);
+		// System.out.println(serviceWithProviders);
+		return modelandmap;
+	}
+
 	@GetMapping("/delete_customer/{customerId}")
 	public ModelAndView deleteCustomer(@PathVariable("customerId") long userDetailsId) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-customer");
@@ -674,6 +735,14 @@ public class AdminController {
 		venueService.delete(venueId);
 		venueFacilityMappingService.delete(venueId);
 		venueEventTypeMappingService.delete(venueId);
+		return modelandmap;
+	}
+
+	@GetMapping("/delete_package/{packageDetailsId}")
+	public ModelAndView deletePackage(@PathVariable("packageDetailsId") long packageDetailsId) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-package");
+		packageDetailsService.delete(packageDetailsId);
+		packageServiceProviderMappingService.delete(packageDetailsId);
 		return modelandmap;
 	}
 

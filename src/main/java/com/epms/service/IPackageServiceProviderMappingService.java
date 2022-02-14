@@ -14,4 +14,6 @@ public interface IPackageServiceProviderMappingService {
 	public PackageServiceProviderMappingDTO insert(PackageServiceProviderMappingDTO PackageServiceProviderMappingDTO);
 	public void delete(Long id);
 	public PackageServiceProviderMappingDTO update(PackageServiceProviderMappingDTO entity);
+	public void insert(Long packageId,List<String> serviceProviderList);
+	public void activate(long packageDetailsId);
 }

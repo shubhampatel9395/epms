@@ -48,14 +48,23 @@ public class PackageServiceProviderMappingService implements IPackageServiceProv
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+		packageServiceProviderMappingDAO.delete(id);
 	}
 
 	@Override
 	public PackageServiceProviderMappingDTO update(PackageServiceProviderMappingDTO entity) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void insert(Long packageId,List<String> serviceProviderList) {
+		packageServiceProviderMappingDAO.insert(packageId,serviceProviderList);
+	}
+
+	@Override
+	public void activate(long packageDetailsId) {
+		packageServiceProviderMappingDAO.activate(packageDetailsId);
 	}
 
 }

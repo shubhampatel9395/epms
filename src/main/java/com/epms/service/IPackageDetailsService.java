@@ -14,4 +14,5 @@ public interface IPackageDetailsService {
 	public PackageDetailsDTO insert(PackageDetailsDTO PackageDetailsDTO);
 	public void delete(Long id);
 	public PackageDetailsDTO update(PackageDetailsDTO entity);
+	public void activate(long packageDetailsId);
 }

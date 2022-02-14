@@ -5,4 +5,6 @@ import com.epms.dto.PackageDetailsDTO;
 
 public interface IPackageDetailsDAO extends ICRUDRepository<PackageDetailsDTO, Long> {
 
+	public void activate(long packageDetailsId);
+
 }
