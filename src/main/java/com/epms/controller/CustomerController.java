@@ -187,6 +187,10 @@ public class CustomerController {
 				return new ModelAndView("admin/dashboard");
 			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_SERVICEPROVIDER")) {
 				return new ModelAndView("serviceprovider/index");
+			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_EMPLOYEE")) {
+				return new ModelAndView("employee/index");
+			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
+				return new ModelAndView("eventorganizer/index");
 			}
 		}
 		return new ModelAndView("index");
@@ -320,6 +324,49 @@ public class CustomerController {
 			model.setViewName("redirect:/login");
 		}
 
+		return model;
+	}
+	
+	@GetMapping("change-password")
+	public ModelAndView showChangePasswordPage() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+			return new ModelAndView("login");
+		} else {
+			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) authentication.getPrincipal();
+			if (userDetails.getRoleName().equalsIgnoreCase("ROLE_CUSTOMER")) {
+				return new ModelAndView("customer/changePassword"); // customer index
+			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_ADMIN")) {
+				return new ModelAndView("admin/changePassword");
+			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_SERVICEPROVIDER")) {
+				return new ModelAndView("serviceprovider/changePassword");
+			}else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
+				return new ModelAndView("eventorganizer/changePassword");
+			} else {
+				return new ModelAndView("employee/changePassword");
+			}
+		}
+	}
+
+	@PostMapping("change-password")
+	public ModelAndView changePassword(HttpServletRequest request, ModelAndView model, RedirectAttributes rm) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+			return new ModelAndView("login");
+		} else {
+			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) authentication.getPrincipal();
+			UserDetailsDTO userDetailsDTO = userDetailsService.findById(userDetails.getUserDetailsId().longValue());
+			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+			if (!passwordEncoder.matches(request.getParameter("oldPassword"), userDetails.getPassword())) {
+				rm.addFlashAttribute("error", "Please enter valid old password");
+				model.setViewName("redirect:/change-password");
+			} else {
+				String encodedPassword = passwordEncoder.encode(request.getParameter("newPassword"));
+				userDetailsService.updateUserPassword(userDetailsDTO.getUserDetailsId(), encodedPassword);
+				rm.addFlashAttribute("message", "your password is successfully changed.");
+				model.setViewName("redirect:/change-password");
+			}
+		}
 		return model;
 	}
 }
