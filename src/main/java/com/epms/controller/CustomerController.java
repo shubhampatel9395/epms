@@ -229,12 +229,12 @@ public class CustomerController {
 		return modelandmap;
 	}
 
-	@GetMapping("/forgot-password")
+	@GetMapping("forgot-password")
 	public ModelAndView showForgotPasswordForm() {
 		return new ModelAndView("forgotPassword");
 	}
 
-	@PostMapping("/forgot-password")
+	@PostMapping("forgot-password")
 	public ModelAndView processForgotPassword(HttpServletRequest request, ModelAndView model, RedirectAttributes rm) {
 
 		String email = request.getParameter("email");
@@ -279,7 +279,7 @@ public class CustomerController {
 		return siteURL.replace(request.getServletPath(), "");
 	}
 
-	@GetMapping("/reset-password")
+	@GetMapping("reset-password")
 	public ModelAndView showResetPasswordForm(@RequestParam(value = "token") String token, RedirectAttributes rm) {
 		ModelAndView model = new ModelAndView("resetPassword");
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
@@ -303,7 +303,7 @@ public class CustomerController {
 		return model;
 	}
 
-	@PostMapping("/reset-password")
+	@PostMapping("reset-password")
 	public ModelAndView processResetPassword(HttpServletRequest request, ModelAndView model, RedirectAttributes rm) {
 		String token = request.getParameter("token");
 		String password = request.getParameter("password");
@@ -354,15 +354,14 @@ public class CustomerController {
 		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
 			return new ModelAndView("login");
 		} else {
-			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) authentication.getPrincipal();
-			UserDetailsDTO userDetailsDTO = userDetailsService.findById(userDetails.getUserDetailsId().longValue());
+			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 			if (!passwordEncoder.matches(request.getParameter("oldPassword"), userDetails.getPassword())) {
 				rm.addFlashAttribute("error", "Please enter valid old password");
 				model.setViewName("redirect:/change-password");
 			} else {
 				String encodedPassword = passwordEncoder.encode(request.getParameter("newPassword"));
-				userDetailsService.updateUserPassword(userDetailsDTO.getUserDetailsId(), encodedPassword);
+				userDetailsService.updateUserPassword(userDetails.getUserDetailsId(), encodedPassword);
 				rm.addFlashAttribute("message", "your password is successfully changed.");
 				model.setViewName("redirect:/change-password");
 			}
