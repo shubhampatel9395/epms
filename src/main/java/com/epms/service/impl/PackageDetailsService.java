@@ -52,8 +52,7 @@ public class PackageDetailsService implements IPackageDetailsService {
 
 	@Override
 	public PackageDetailsDTO update(PackageDetailsDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		return packageDetailsDAO.update(entity);
 	}
 
 	@Override

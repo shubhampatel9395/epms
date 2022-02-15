@@ -108,4 +108,11 @@ public class PackageServiceProviderMappingDAO implements IPackageServiceProvider
 		jdbcTemplate.update("update packageserviceprovidermapping set isActive=true where packageId=:id", sc);
 	}
 
+	@Override
+	public void deleteByPackageId(long packageId) {
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("packageId", packageId);
+		jdbcTemplate.update("delete from packageserviceprovidermapping where packageId=:packageId", sc);
+	}
+
 }

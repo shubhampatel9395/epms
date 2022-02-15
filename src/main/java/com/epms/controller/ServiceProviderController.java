@@ -47,14 +47,14 @@ public class ServiceProviderController {
 
 	@Autowired
 	IAddressService addressService;
-	
+
 	@Autowired
 	IEnuServiceTypeService enuServiceTypeService;
-	
+
 	@Autowired
 	IServiceProviderService serviceProviderService;
 
-	@GetMapping
+	@GetMapping("/dashboard")
 	public ModelAndView homePage() {
 		return new ModelAndView("serviceProvider/index");
 	}
@@ -66,7 +66,7 @@ public class ServiceProviderController {
 		paramSource.addValue("countryId", countryId);
 		return enuStateService.findByNamedParameters(paramSource);
 	}
-	
+
 	@GetMapping("/getCities/{stateId}")
 	public List<EnuCityDTO> getCities(@PathVariable @NotNull Integer stateId) {
 		log.info("Loading cities in registration page");
@@ -74,7 +74,7 @@ public class ServiceProviderController {
 		paramSource.addValue("stateId", stateId);
 		return enuCityService.findByNamedParameters(paramSource);
 	}
-	
+
 	@GetMapping("/serviceprovider-registration")
 	public ModelAndView loadServiceProviderRegistrationPage() {
 		log.info("Load serviceprovider registration page");
@@ -87,8 +87,9 @@ public class ServiceProviderController {
 	}
 
 	@PostMapping("/serviceprovider-registration")
-	public ModelAndView submitServiceProviderRegistration(@Valid @ModelAttribute("serviceProviderDTO")ServiceProviderDTO serviceProviderDTO,
-			@Valid @ModelAttribute("addressDTO")AddressDTO addressDTO) {
+	public ModelAndView submitServiceProviderRegistration(
+			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO,
+			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
 		AddressDTO insertAddressDTO = addressService.insert(addressDTO);
 		serviceProviderDTO.setAddressId(insertAddressDTO.getAddressId());
 		ServiceProviderDTO insertServiceProviderDTO = serviceProviderService.insert(serviceProviderDTO);

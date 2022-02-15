@@ -94,8 +94,19 @@ public class PackageDetailsDAO implements IPackageDetailsDAO {
 
 	@Override
 	public PackageDetailsDTO update(PackageDetailsDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("packageDetailsId", entity.getPackageDetailsId());
+		namedParameters.addValue("title", entity.getTitle());
+		namedParameters.addValue("description", entity.getDescription());
+		namedParameters.addValue("guestAmount", entity.getGuestAmount());
+		namedParameters.addValue("totalCost", entity.getTotalCost());
+		namedParameters.addValue("eventTypeId", entity.getEventTypeId());
+		namedParameters.addValue("venueId", entity.getVenueId());
+
+		jdbcTemplate.update(
+				"update packagedetails set title=:title,description=:description,guestAmount=:guestAmount,totalCost=:totalCost,eventTypeId=:eventTypeId,venueId=:venueId where packageDetailsId=:packageDetailsId",
+				namedParameters);
+		return entity;
 	}
 
 	@Override

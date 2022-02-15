@@ -50,7 +50,9 @@
 										<tr th:each="venue : ${venues}">
 											<td th:text="${venue.venueName}"></td>
 											<td th:text="${venueTypes[venueStat.index]}"></td>
-											<td th:utext="${#strings.replace(addresses[venueStat.index],'&#10;','&lt;br&gt;')}"></td>
+											<td
+												th:utext="${#strings.replace(addresses[venueStat.index],'&#10;','&lt;br&gt;')}">
+											</td>
 											<td th:text="${venue.contactNumber}"></td>
 											<td th:text="${venue.email}"></td>
 											<td th:text="${venue.cost}"></td>
@@ -73,14 +75,14 @@
 															<div class="modal-content">
 																<div class="modal-header">
 																	<h5 class="modal-title" id="staticBackdropLabel">
-																		Delete Employee
+																		Delete Venue
 																	</h5>
 																	<button type="button" class="btn-close"
 																		data-bs-dismiss="modal"
 																		aria-hidden="true"></button>
 																</div> <!-- end modal header -->
 																<div class="modal-body">
-																	Are you sure you want to deactive this employee?
+																	Are you sure you want to deactive this venue?
 																</div>
 																<div class="modal-footer">
 																	<button type="button" class="btn btn-secondary"
@@ -107,14 +109,14 @@
 															<div class="modal-content">
 																<div class="modal-header">
 																	<h5 class="modal-title" id="staticBackdropLabel">
-																		Activate Employee
+																		Activate Venue
 																	</h5>
 																	<button type="button" class="btn-close"
 																		data-bs-dismiss="modal"
 																		aria-hidden="true"></button>
 																</div> <!-- end modal header -->
 																<div class="modal-body">
-																	Are you sure you want to active this employee?
+																	Are you sure you want to active this venue?
 																</div>
 																<div class="modal-footer">
 																	<button type="button" class="btn btn-secondary"

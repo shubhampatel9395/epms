@@ -67,4 +67,9 @@ public class PackageServiceProviderMappingService implements IPackageServiceProv
 		packageServiceProviderMappingDAO.activate(packageDetailsId);
 	}
 
+	@Override
+	public void deleteByPackageId(long packageId) {
+		packageServiceProviderMappingDAO.deleteByPackageId(packageId);
+	}
+
 }

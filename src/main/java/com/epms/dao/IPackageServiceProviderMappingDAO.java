@@ -11,4 +11,6 @@ public interface IPackageServiceProviderMappingDAO extends ICRUDRepository<Packa
 
 	public void activate(long packageDetailsId);
 
+	public void deleteByPackageId(long packageId);
+
 }

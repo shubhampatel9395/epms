@@ -184,17 +184,16 @@ public class CustomerController {
 			if (userDetails.getRoleName().equalsIgnoreCase("ROLE_CUSTOMER")) {
 				return new ModelAndView("index"); // customer index
 			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_ADMIN")) {
-				return new ModelAndView("admin/dashboard");
+				return new ModelAndView("redirect:/admin/dashboard");
 			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_SERVICEPROVIDER")) {
-				return new ModelAndView("serviceprovider/index");
+				return new ModelAndView("redirect:/serviceprovider/dashboard");
 			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_EMPLOYEE")) {
-				return new ModelAndView("employee/index");
+				return new ModelAndView("redirect:/employee/dashboard");
 			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
-				return new ModelAndView("eventorganizer/index");
+				return new ModelAndView("redirect:/eventorganizer/dashboard");
 			}
 		}
 		return new ModelAndView("index");
-
 	}
 
 	@GetMapping("logout")

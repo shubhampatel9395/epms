@@ -194,6 +194,12 @@
 	</th:block>
 
 	<th:block layout:fragment="script">
+		<!-- plugin js -->
+		<script th:src="@{/assets/js/vendor/dropzone.min.js}"></script>
+
+		<!-- init js -->
+		<script th:src="@{/assets/js/ui/component.fileupload.js}"></script>
+
 		<script type="text/javascript">
 			$("#inputCountry").change(function () {
 				var selectedValue = $(this)

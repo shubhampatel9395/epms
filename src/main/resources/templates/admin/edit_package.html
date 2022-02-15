@@ -1,0 +1,318 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/_layout}">
+
+<head>
+	<title>Update Package Details</title>
+	<meta th:name="${_csrf.parameterName}" th:content="${_csrf.token}" />
+	<style>
+		.page-title-box .page-title-right {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<div class="page-title-right">
+							<a th:href="@{/admin/list-package}" class="btn btn-secondary mb-2">Back</a>
+						</div>
+						<h4 class="page-title">Edit Package</h4>
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<form th:action="@{/admin/edit_package}" method="post">
+								<input type="hidden" th:field=*{packageDetailsDTO.packageDetailsId} />
+								<div class="mb-3">
+									<label for="firstname" class="form-label">Package Title</label>
+									<input class="form-control" th:field="*{packageDetailsDTO.title}" type="text"
+										id="firstname" placeholder="Enter your First name" required>
+								</div>
+								<div class="mb-3">
+									<label for="description" class="form-label">Package Description</label>
+									<textarea th:field="${packageDetailsDTO.description}" class="form-control"
+										id="example-textarea" rows="3"></textarea>
+								</div>
+
+								<div class="row g-2">
+									<div class="mb-3 col-md-6">
+										<label for="inputEventType" class="form-label">Available for which event
+											type?</label>
+										<select id="inputEventType" th:field="*{packageDetailsDTO.eventTypeId}"
+											class="form-select" required>
+											<option value="" hidden readonly>--Select Event Type--</option>
+											<option th:each="eventType : ${eventTypes}"
+												th:value="${eventType.eventTypeId}" th:text="${eventType.eventType}">
+											</option>
+										</select>
+									</div>
+
+									<div class="mb-3 col-md-6">
+										<label for="inputVenue" class="form-label">Venue</label>
+										<select id="inputVenue" th:field="*{packageDetailsDTO.venueId}"
+											class="form-select" required>
+											<option value="" hidden readonly>--Select Available Venue--</option>
+											<option th:each="venueName : ${venueNames}" th:value="${venueName.venueId}"
+												th:text="${venueName.venueName}">
+											</option>
+										</select>
+									</div>
+								</div>
+
+								<div class="mb-3">
+									<label for="inputGuest" class="form-label">Maximum Guest Allowed</label>
+									<input type="number" th:field="*{packageDetailsDTO.guestAmount}" id="inputGuest"
+										class="form-control" required
+										placeholder="Enter maximum guest allowed for the package">
+								</div>
+								<div class="mb-3">
+									<label class="font-20 form-label">Services available in package</label>
+								</div>
+								<!--
+								<div class="row g-2">
+									<div class="mb-3 col-md-6">
+										<input type="checkbox" class="form-check-input" id="service2">
+										<label class="form-check-label" for="service2">Cateror</label>
+									</div>
+									<div class="mb-3 col-md-6">
+										<select id="serviceprovider2" class="form-select" disabled="">
+											<option value="" hidden="" readonly="">--Select Service Provider--</option>
+										</select>
+									</div>
+								</div>
+
+								<div class="row g-2">
+									<div class="mb-3 col-md-6">
+										<input type="checkbox" class="form-check-input" id="service3">
+										<label class="form-check-label" for="service3">Decorator</label>
+									</div>
+									<div class="mb-3 col-md-6">
+										<select id="serviceprovider3" class="form-select" disabled="">
+											<option value="" hidden="" readonly="">--Select Service Provider--</option>
+										</select>
+									</div>
+								</div>
+
+								<div class="row g-2">
+									<div class="mb-3 col-md-6">
+										<input type="checkbox" class="form-check-input" id="service4">
+										<label class="form-check-label" for="service4">Photographer</label>
+									</div>
+									<div class="mb-3 col-md-6">
+										<select id="serviceprovider4" class="form-select" disabled="">
+											<option value="" hidden="" readonly="">--Select Service Provider--</option>
+										</select>
+									</div>
+								</div>
+
+								<div class="row g-2">
+									<div class="mb-3 col-md-6">
+										<input type="checkbox" class="form-check-input" id="service5">
+										<label class="form-check-label" for="service5">Videographer</label>
+									</div>
+									<div class="mb-3 col-md-6">
+										<select id="serviceprovider5" class="form-select" disabled="">
+											<option value="" hidden="" readonly="">--Select Service Provider--</option>
+										</select>
+									</div>
+								</div>
+					-->
+
+								<div class="row g-2" th:each="serviceType : ${serviceTypes}">
+									<div class="mb-3 col-md-6">
+										<input type="checkbox" class="form-check-input"
+											th:id="'service' + ${serviceType.serviceTypeId}">
+										<label class="form-check-label"
+											th:for="'service' + ${serviceType.serviceTypeId}"
+											th:text="${serviceType.service}"></label>
+									</div>
+									<div class="mb-3 col-md-6">
+										<select th:id="'serviceprovider' + ${serviceType.serviceTypeId}"
+											class="form-select" th:field="*{packageTempDTO.serviceProviderIdList}"
+											disabled>
+											<option value="" hidden readonly>--Select Service Provider--</option>
+											<option th:each="serviceProvider : ${serviceProviders}"
+												th:if="${serviceProvider.serviceTypeId} == ${serviceType.serviceTypeId}"
+												th:value="${serviceProvider.serviceProviderId}"
+												th:text="${serviceProvider.serviceProviderName}"></option>
+										</select>
+									</div>
+								</div>
+								<div class="mb-3">
+									<label for="inputCost" class="form-label">Additional Cost<small
+											style="display: inline-block; font-size: 0.75rem; color:  #808080;">(
+											For
+											packages )</small></label>
+									<input type="number" id="inputCost" class="form-control" required
+										placeholder="Enter additional cost for the package">
+								</div>
+								<div class="mb-3">
+									<label class="form-label">Package Total Cost<small
+											style="display: inline-block; font-size: 0.75rem; color:  #808080;">
+											( Before update )</small></label>
+									<input class="form-control" type="number" id="totalCost"
+										th:field="*{packageDetailsDTO.totalCost}" readonly />
+								</div>
+								<div class="mb-0 d-grid text-center">
+									<a data-bs-toggle="modal" data-bs-target="#staticBackdropConfirm"
+										class="btn btn-primary" onclick="calculateCost()"><i
+											class="mdi mdi-plus-circle me-2"></i>
+										Save Package
+									</a>
+									<!-- Modal -->
+									<div class="modal fade" id="staticBackdropConfirm" data-bs-backdrop="static"
+										data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel"
+										aria-hidden="true">
+										<div class="modal-dialog">
+											<div class="modal-content">
+												<div class="modal-header">
+													<h5 class="modal-title" id="staticBackdropLabel">
+														Save Package
+													</h5>
+													<button type="button" class="btn-close" data-bs-dismiss="modal"
+														aria-hidden="true"></button>
+												</div> <!-- end modal header -->
+												<div class="modal-body">
+													<span id="confirmText"></span>
+												</div>
+												<div class="modal-footer">
+													<button type="button" class="btn btn-secondary"
+														data-bs-dismiss="modal">Close</button>
+													<button type="submit" id="btnSubmit"
+														class="btn btn-success">Save</button>
+												</div> <!-- end modal footer -->
+											</div> <!-- end modal content-->
+										</div> <!-- end modal dialog-->
+									</div> <!-- end modal-->
+								</div>
+								<!-- social-->
+
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+		<script th:inline="javascript" type="text/javascript">
+			function calculateCost() {
+				if ($("#inputVenue").val() == "") {
+					$("#confirmText").text("Please Select Venue for the package.");
+					$("#btnSubmit").prop("disabled", true);
+					$("#inputVenue").focus();
+					return;
+				}
+
+				var isError = false;
+				$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+					// console.log($(this).prop('disabled') === false);
+					// console.log($(this).find(":selected").val() === "");
+					if ($(this).prop('disabled') === false && $(this).find(":selected").val() === "") {
+						$("#confirmText").text("Please select service provider for the selected service.");
+						$("#btnSubmit").prop("disabled", true);
+						$(this).focus();
+						isError = true;
+					}
+				});
+
+				if (isError == true) {
+					$("#confirmText").text("Please select service provider for the selected services.");
+					$("#btnSubmit").prop("disabled", true);
+					return;
+				}
+
+				if ($("#inputCost").val() == "") {
+					$("#confirmText").text("Please enter cost for the package.");
+					$("#btnSubmit").prop("disabled", true);
+					$("#inputCost"), focus();
+					return;
+				}
+
+				$("#btnSubmit").prop("disabled", false);
+				var packageCost = [];
+				var token = $("meta[name='_csrf']").attr("content");
+
+				if ($("#inputVenue").val() != "") {
+					packageCost.push($("#inputVenue").find(":selected").val());
+				}
+
+				$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+					if ($(this).find(":selected").val() != "") {
+						packageCost.push($(this).find(":selected").val());
+					}
+				});
+
+				packageCost.push($("#inputCost").val());
+
+				$.ajax({
+					type: "POST",
+					contentType: "application/json",
+					datatype: 'json',
+					traditional: true,
+					url: "/admin/getPackageCost/",
+					headers: {"X-CSRF-TOKEN": token}, //send CSRF token in header
+					data: JSON.stringify(packageCost),
+					success: function (result) {
+						/*<![CDATA[*/
+						let oldCost = /*[[${packageDetailsDTO.totalCost}]]*/ "";
+						/*]]>*/
+						$("#totalCost").val(parseFloat(result));
+						$("#confirmText").html("Old package cost was: "+ oldCost +".<br/>New package cost is: " + result + ".<br/>Are you sure you want to save this package?");
+					},
+					error: function (e) {
+						alert('Error: ' + e);
+					}
+				});
+			}
+
+			$("#inputEventType").change(function () {
+				$.ajax({
+					type: "GET",
+					dataType: 'json',
+					url: "/admin/getVenues/" + $(this).find(":selected").val() + '',
+					success: function (result) {
+						$("#inputVenue").prop('disabled', false);
+						$("#inputVenue").empty();
+						$("#inputVenue").append($("<option></option>").val("").html("--Select Available Venue--"));
+						$.each(result, function () {
+							$("#inputVenue").append($("<option></option>").val(this['venueId']).html(this['venueName']));
+						});
+					}
+				});
+			});
+
+			$(document).ready(function () {
+				$("input:checkbox").each(function () {
+					$(this).change(function () {
+						//console.log($(this).prop('checked'));
+						if ($(this).prop('checked')) {
+							$('#' + $(this).attr("id").replace("service", "serviceprovider") + '').prop('disabled', false);
+						}
+						else {
+							$('#' + $(this).attr("id").replace("service", "serviceprovider") + '').prop('disabled', true);
+							$('#' + $(this).attr("id").replace("service", "serviceprovider") + '').val("");
+						}
+					});
+				})
+
+				$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+					if ($(this).find(":selected").val() != "") {
+						$('#' + $(this).attr('id').replace("serviceprovider", "service")).prop('checked', true);
+						$(this).prop("disabled", false);
+					}
+				});
+			});
+		</script>
+	</th:block>
+</body>
+
+</html>

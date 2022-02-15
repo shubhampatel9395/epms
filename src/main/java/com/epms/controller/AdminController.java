@@ -1,7 +1,6 @@
 package com.epms.controller;
 
 import java.io.IOException;
-import java.net.http.HttpRequest;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -10,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.sql.rowset.serial.SerialBlob;
 import javax.sql.rowset.serial.SerialException;
 import javax.validation.Valid;
@@ -68,7 +66,6 @@ import com.epms.service.IVenueEventTypeMappingService;
 import com.epms.service.IVenueFacilityMappingService;
 import com.epms.service.IVenueImageMappingService;
 import com.epms.service.IVenueService;
-import com.epms.service.impl.PackageServiceProviderMappingService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -514,13 +511,13 @@ public class AdminController {
 		System.out.println(packageCost);
 		double cost = 0;
 		cost += venueService.findById(Long.parseLong(packageCost.get(0))).getCost();
-		System.out.println(cost);
+		// System.out.println(cost);
 		for (int i = 1; i < packageCost.size() - 1; i++) {
 			cost += serviceProviderService.findById(Long.parseLong(packageCost.get(i))).getCost();
-			System.out.println(cost);
+			// System.out.println(cost);
 		}
 		cost += Long.parseLong(packageCost.get(packageCost.size() - 1));
-		System.out.println(cost);
+		// System.out.println(cost);
 
 		return cost;
 	}
@@ -543,7 +540,7 @@ public class AdminController {
 		ModelAndView modelandmap = new ModelAndView("admin/add_package");
 		modelandmap.addObject("packageDetailsDTO", new PackageDetailsDTO());
 		List<EnuServiceTypeDTO> serviceTypes = enuServiceTypeService.findAllActive();
-		List<ServiceProviderDTO> serviceProviders = serviceProviderService.findAll();
+		List<ServiceProviderDTO> serviceProviders = serviceProviderService.findAllActive();
 
 		for (int i = 0; i < serviceProviders.size(); i++) {
 			serviceProviders.get(i)
@@ -567,10 +564,10 @@ public class AdminController {
 	}
 
 	@PostMapping("/add_package")
-	public ModelAndView addNewPackage(@Valid @ModelAttribute("packageDetailsDTO") PackageDetailsDTO serviceProviderDTO,
+	public ModelAndView addNewPackage(@Valid @ModelAttribute("packageDetailsDTO") PackageDetailsDTO packageDetailsDTO,
 			@Valid @ModelAttribute("packageTempDTO") PackageTempDTO packageTempDTO) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-package");
-		Long packageId = packageDetailsService.insert(serviceProviderDTO).getPackageDetailsId().longValue();
+		Long packageId = packageDetailsService.insert(packageDetailsDTO).getPackageDetailsId().longValue();
 		if (packageTempDTO.getServiceProviderIdList() != null) {
 			packageServiceProviderMappingService.insert(packageId, packageTempDTO.getServiceProviderIdList());
 		}
@@ -1230,5 +1227,79 @@ public class AdminController {
 		}
 
 		return "uploadfiles";
+	}
+
+	@GetMapping("/edit_package/{packageDetailsId}")
+	public ModelAndView editPackage(@PathVariable("packageDetailsId") long packageDetailsId) {
+		ModelAndView modelandmap = new ModelAndView("admin/edit_package");
+
+		PackageDetailsDTO packageDetailsDTO = packageDetailsService.findById(packageDetailsId);
+		List<EnuServiceTypeDTO> serviceTypes = enuServiceTypeService.findAllActive();
+		List<ServiceProviderDTO> serviceProviders = serviceProviderService.findAllActive();
+		PackageTempDTO packageTempDTO = new PackageTempDTO();
+
+		for (int i = 0; i < serviceProviders.size(); i++) {
+			serviceProviders.get(i)
+					.setServiceProviderName(
+							userDetailsService
+									.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId",
+											serviceProviders.get(i).getUserDetailsId()))
+									.get(0).getServiceProviderName());
+		}
+
+		List<PackageServiceProviderMappingDTO> packageServiceProviderMappings = packageServiceProviderMappingService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("packageId", packageDetailsId));
+		List<String> serviceProvidersIdList = new ArrayList<>();
+		for (PackageServiceProviderMappingDTO entry : packageServiceProviderMappings) {
+			serviceProvidersIdList.add(entry.getServiceProviderId().toString());
+		}
+		// System.out.println(serviceProvidersIdList);
+		// System.out.println(packageDetailsDTO.getEventTypeId().longValue());
+		packageTempDTO.setServiceProviderIdList(serviceProvidersIdList);
+
+		modelandmap.addObject("packageDetailsDTO", packageDetailsDTO);
+		modelandmap.addObject("venueNames", getVenuesOnEventType(packageDetailsDTO.getEventTypeId().longValue()));
+		modelandmap.addObject("eventTypes",
+				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		modelandmap.addObject("serviceTypes", serviceTypes);
+		modelandmap.addObject("serviceProviders", serviceProviders);
+		modelandmap.addObject("packageTempDTO", packageTempDTO);
+		return modelandmap;
+	}
+
+	@PostMapping("/edit_package")
+	public ModelAndView savePackage(@Valid @ModelAttribute("packageDetailsDTO") PackageDetailsDTO packageDetailsDTO,
+			@Valid @ModelAttribute("packageTempDTO") PackageTempDTO packageTempDTO) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-package");
+
+		PackageDetailsDTO oldPackage = packageDetailsService
+				.findById(packageDetailsDTO.getPackageDetailsId().longValue());
+		if (!(oldPackage.getTitle().equals(packageDetailsDTO.getTitle()))) {
+			oldPackage.setTitle(packageDetailsDTO.getTitle());
+		}
+		if (!(oldPackage.getDescription().equals(packageDetailsDTO.getDescription()))) {
+			oldPackage.setDescription(packageDetailsDTO.getDescription());
+		}
+		if (!(oldPackage.getGuestAmount().equals(packageDetailsDTO.getGuestAmount()))) {
+			oldPackage.setGuestAmount(packageDetailsDTO.getGuestAmount());
+		}
+		if (!(oldPackage.getTotalCost().equals(packageDetailsDTO.getTotalCost()))) {
+			oldPackage.setTotalCost(packageDetailsDTO.getTotalCost());
+		}
+		if (!(oldPackage.getEventTypeId().equals(packageDetailsDTO.getEventTypeId()))) {
+			oldPackage.setEventTypeId(packageDetailsDTO.getEventTypeId());
+		}
+		if (!(oldPackage.getVenueId().equals(packageDetailsDTO.getVenueId()))) {
+			oldPackage.setVenueId(packageDetailsDTO.getVenueId());
+		}
+		packageDetailsService.update(oldPackage);
+		packageServiceProviderMappingService.deleteByPackageId(packageDetailsDTO.getPackageDetailsId().longValue());
+
+		if (packageTempDTO.getServiceProviderIdList() != null) {
+			packageServiceProviderMappingService.insert(packageDetailsDTO.getPackageDetailsId().longValue(),
+					packageTempDTO.getServiceProviderIdList());
+		}
+
+		return modelandmap;
 	}
 }
