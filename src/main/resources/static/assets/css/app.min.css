@@ -14655,7 +14655,7 @@ body[data-layout=full][data-leftbar-theme=light].hide-menu .wrapper .leftside-me
 .navbar-custom .topbar-menu .nav-link {
     padding: 0;
     color: #98a6ad;
-    min-width: 32px;
+    min-width: 200px;
     display: block;
     text-align: center;
     margin: 0 10px;
@@ -14785,7 +14785,7 @@ body[data-layout=full][data-leftbar-theme=light].hide-menu .wrapper .leftside-me
 }
 
 .nav-user {
-    padding: calc(31px * .5) 20px calc(31px * .5) 57px !important;
+    padding: calc(31px * .5) 20px calc(31px * .5) 20px !important;
     text-align: left !important;
     position: relative;
     background-color: #fafbfd;

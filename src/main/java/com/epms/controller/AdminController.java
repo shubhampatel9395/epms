@@ -19,6 +19,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -32,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.epms.dto.AddressDTO;
+import com.epms.dto.DonutDTO;
 import com.epms.dto.EmployeeDTO;
 import com.epms.dto.EnuEventTypeDTO;
 import com.epms.dto.EnuServiceTypeDTO;
@@ -134,20 +138,6 @@ public class AdminController {
 	IPackageServiceProviderMappingService packageServiceProviderMappingService;
 
 	public String getAddress(AddressDTO addressDTO) {
-//		String address;
-//		if (addressDTO.getIsActive() == true) {
-//			address = addressDTO.getAddress1();
-//			if (addressDTO.getAddress2() != null) {
-//				address += ", " + addressDTO.getAddress2();
-//			}
-//			address += ",\n " + enuCityService.findById(addressDTO.getCityId().longValue()).getCity() + ", "
-//					+ enuStateService.findById(addressDTO.getStateId().longValue()).getState() + ", "
-//					+ enuCountryService.findById(addressDTO.getCountryId().longValue()).getCountry() + " - "
-//					+ addressDTO.getPostalCode();
-//		} else {
-//			address = null;
-//		}
-
 		String address;
 		address = addressDTO.getAddress1();
 		if (addressDTO.getAddress2() != null) {
@@ -162,7 +152,13 @@ public class AdminController {
 
 	@GetMapping("/dashboard")
 	public ModelAndView homePage() {
-		return new ModelAndView("admin/index");
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+			return new ModelAndView("login");
+		} else {
+			return new ModelAndView("admin/index");
+		}
+		
 	}
 
 	@GetMapping("/list-customer")
@@ -1161,16 +1157,9 @@ public class AdminController {
 				try {
 					obj.setImage(new SerialBlob(file.getBytes()));
 					obj.setVenueId(oldVenueDTO.getVenueId());
-				} catch (SerialException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				} catch (SQLException | IOException e) {
+					log.error("Error: {}", e);
+				} 
 				venueImageMappingService.insert(obj);
 			}
 		}
@@ -1189,16 +1178,9 @@ public class AdminController {
 				try {
 					obj.setImage(new SerialBlob(file.getBytes()));
 					obj.setVenueId(venueId);
-				} catch (SerialException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				} catch (SQLException | IOException e) {
+					log.error("Error: {}", e);
+				} 
 				venueImageMappingService.insert(obj);
 
 //				try {
@@ -1253,8 +1235,6 @@ public class AdminController {
 		for (PackageServiceProviderMappingDTO entry : packageServiceProviderMappings) {
 			serviceProvidersIdList.add(entry.getServiceProviderId().toString());
 		}
-		// System.out.println(serviceProvidersIdList);
-		// System.out.println(packageDetailsDTO.getEventTypeId().longValue());
 		packageTempDTO.setServiceProviderIdList(serviceProvidersIdList);
 
 		modelandmap.addObject("packageDetailsDTO", packageDetailsDTO);
@@ -1301,5 +1281,14 @@ public class AdminController {
 		}
 
 		return modelandmap;
+	}
+	
+	@GetMapping("/getChartData/")
+	public List<DonutDTO> getDonutData()
+	{
+		List<DonutDTO> donutDTO = new ArrayList<>();
+		donutDTO.add(new DonutDTO("A",1,50.0,50.0));
+		donutDTO.add(new DonutDTO("B",2,150.0,50.0));
+		return donutDTO;
 	}
 }

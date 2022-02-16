@@ -44,9 +44,13 @@
 								</div>
 								<div class="mb-3">
 									<label for="password" class="form-label">Password</label>
+									<div class="input-group input-group-merge">
 									<input class="form-control" th:field="*{userDetailsDTO.password}" type="password"
-										required id="password" placeholder="Enter your password">
-								</div>
+											required id="password" placeholder="Enter your password">
+									<div class="input-group-text" data-password="false">
+										<span class="password-eye"></span>
+									</div>
+							</div>
 								<div class="mb-3">
 									<label for="mobileNumber" class="form-label">Mobile Number</label>
 									<input type="text" class="form-control" th:field="*{userDetailsDTO.mobileNumber}"

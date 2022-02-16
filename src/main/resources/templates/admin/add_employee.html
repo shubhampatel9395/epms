@@ -48,8 +48,12 @@
 									</div>
 									<div class="mb-3 col-md-6">
 										<label for="password" class="form-label">Password</label>
+										<div class="input-group input-group-merge">
 										<input class="form-control" th:field="*{employeeDTO.password}" type="password"
-											required id="password" placeholder="Enter your password">
+												required id="password" placeholder="Enter your password">
+										<div class="input-group-text" data-password="false">
+											<span class="password-eye"></span>
+										</div>
 									</div>
 								</div>
 
