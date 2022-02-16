@@ -57,20 +57,28 @@
 							<label for="emailaddress" class="form-label">Email address</label>
 							<input class="form-control" th:field="*{userDetailsDTO.email}" type="email" id="email"
 								required placeholder="Enter your email">
-								<p th:if="${#fields.hasErrors('userDetailsDTO.email')}" class="label label-danger" th:errors="*{userDetailsDTO.email}"></p>
+							<p th:if="${#fields.hasErrors('userDetailsDTO.email')}" class="label label-danger"
+								th:errors="*{userDetailsDTO.email}"></p>
 						</div>
 						<div class="mb-3">
 							<label for="password" class="form-label">Password</label>
-							<input class="form-control" th:field="*{userDetailsDTO.password}" type="password" required
-								id="password" placeholder="Enter your password">
-								<p th:if="${#fields.hasErrors('userDetailsDTO.password')}" class="label label-danger" th:errors="*{userDetailsDTO.password}"></p>
+							<div class="input-group input-group-merge">
+								<input class="form-control" th:field="*{userDetailsDTO.password}" type="password"
+									required id="password" placeholder="Enter your password">
+								<p th:if="${#fields.hasErrors('userDetailsDTO.password')}" class="label label-danger"
+									th:errors="*{userDetailsDTO.password}"></p>
+								<div class="input-group-text" data-password="false">
+									<span class="password-eye"></span>
+								</div>
+							</div>
 						</div>
 						<div class="mb-3">
 							<label for="mobileNumber" class="form-label">Mobile Number</label>
 							<input type="text" class="form-control" th:field="*{userDetailsDTO.mobileNumber}"
 								id="mobileNumber" required placeholder="Enter your mobile number"
 								data-toggle="input-mask" data-mask-format="0000000000">
-							<p th:if="${#fields.hasErrors('userDetailsDTO.mobileNumber')}" class="label label-danger" th:errors="*{userDetailsDTO.mobileNumber}"></p>
+							<p th:if="${#fields.hasErrors('userDetailsDTO.mobileNumber')}" class="label label-danger"
+								th:errors="*{userDetailsDTO.mobileNumber}"></p>
 						</div>
 						<div class="mb-3">
 							<label for="inputAddress" class="form-label">Address</label>
@@ -87,7 +95,8 @@
 						<div class="row g-2">
 							<div class="mb-3 col-md-6">
 								<label for="inputCountry" class="form-label">Country</label>
-								<select id="inputCountry" th:field="*{addressDTO.countryId}" class="form-select" required>
+								<select id="inputCountry" th:field="*{addressDTO.countryId}" class="form-select"
+									required>
 									<option value="" hidden readonly>--Select Country--</option>
 									<option th:each="country : ${countries}" th:value="${country.countryId}"
 										th:text="${country.country}"></option>
@@ -95,14 +104,16 @@
 							</div>
 							<div class="mb-3 col-md-6">
 								<label for="inputState" class="form-label">State</label>
-								<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select" required disabled>
+								<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select" required
+									disabled>
 									<option value="">--Select State--</option>
 								</select>
 							</div>
 						</div>
 						<div class="mb-3">
 							<label for="inputCity" class="form-label">City</label>
-							<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select" required disabled>
+							<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select" required
+								disabled>
 								<option value="" readonly>--Select City--</option>
 							</select>
 						</div>

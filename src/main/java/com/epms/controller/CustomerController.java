@@ -362,7 +362,7 @@ public class CustomerController {
 				String encodedPassword = passwordEncoder.encode(request.getParameter("newPassword"));
 				userDetailsService.updateUserPassword(userDetails.getUserDetailsId(), encodedPassword);
 				rm.addFlashAttribute("message", "your password is successfully changed.");
-				model.setViewName("redirect:/change-password");
+				return new ModelAndView("login");
 			}
 		}
 		return model;

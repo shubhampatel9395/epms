@@ -56,9 +56,15 @@
 						</div>
 						<div class="mb-3">
 							<label for="password" class="form-label">Password</label>
-							<input class="form-control" th:field="*{serviceProviderDTO.password}" type="password" required
-								id="password" placeholder="Enter your password">
+							<div class="input-group input-group-merge">
+								<input class="form-control" th:field="*{serviceProviderDTO.password}" type="password"
+									required id="password" placeholder="Enter your password">
+								<div class="input-group-text" data-password="false">
+									<span class="password-eye"></span>
+								</div>
+							</div>
 						</div>
+
 						<div class="mb-3">
 							<label for="mobileNumber" class="form-label">Mobile Number</label>
 							<input type="text" class="form-control" th:field="*{serviceProviderDTO.mobileNumber}"
@@ -67,16 +73,17 @@
 						</div>
 						<div class="mb-3">
 							<label for="inputServiceType" class="form-label">Service Type</label>
-							<select id="inputServiceType" th:field="*{serviceProviderDTO.serviceTypeId}" class="form-select">
-									<option value="" readonly>--Select Service Type--</option>
-									<option th:each="serviceType : ${serviceTypes}" th:value="${serviceType.serviceTypeId}"
-										th:text="${serviceType.service}"></option>
-								</select>
+							<select id="inputServiceType" th:field="*{serviceProviderDTO.serviceTypeId}"
+								class="form-select">
+								<option value="" readonly>--Select Service Type--</option>
+								<option th:each="serviceType : ${serviceTypes}" th:value="${serviceType.serviceTypeId}"
+									th:text="${serviceType.service}"></option>
+							</select>
 						</div>
 						<div class="mb-3">
 							<label for="inputServiceCost" class="form-label">Service Cost</label>
-							<input type="number" th:field="*{serviceProviderDTO.cost}" id="inputServiceCost" class="form-control" required
-								placeholder="Enter your service cost">
+							<input type="number" th:field="*{serviceProviderDTO.cost}" id="inputServiceCost"
+								class="form-control" required placeholder="Enter your service cost">
 						</div>
 						<div class="mb-3">
 							<label for="inputAddress" class="form-label">Address</label>
@@ -165,55 +172,55 @@
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
 	<script th:src="@{/assets/js/app.min.js}"></script>
 	<script type="text/javascript">
-			$("#inputCountry").change(function () {
-				var selectedValue = $(this)
-					.find(":selected")
-					.val();
-				if (selectedValue === "") {
-					$("#inputState").val("");
-					$("#inputState").prop('disabled', true);
+		$("#inputCountry").change(function () {
+			var selectedValue = $(this)
+				.find(":selected")
+				.val();
+			if (selectedValue === "") {
+				$("#inputState").val("");
+				$("#inputState").prop('disabled', true);
 
-					$("#inputCity").val("");
-					$("#inputCity").prop('disabled', true);
+				$("#inputCity").val("");
+				$("#inputCity").prop('disabled', true);
+			}
+			$.ajax({
+				type: "GET",
+				dataType: 'json',
+				url: "/getStates/" + selectedValue + '',
+				success: function (result) {
+					$("#inputState").prop('disabled', false);
+					$("#inputState").empty();
+					$("#inputState").append($("<option></option>").val("").html("--Select State--"));
+					$.each(result, function () {
+						$("#inputState").append($("<option></option>").val(this['stateId']).html(this['state']));
+					});
 				}
-				$.ajax({
-					type: "GET",
-					dataType: 'json',
-					url: "/getStates/" + selectedValue + '',
-					success: function (result) {
-						$("#inputState").prop('disabled', false);
-						$("#inputState").empty();
-						$("#inputState").append($("<option></option>").val("").html("--Select State--"));
-						$.each(result, function () {
-							$("#inputState").append($("<option></option>").val(this['stateId']).html(this['state']));
-						});
-					}
-				});
 			});
+		});
 
-			$("#inputState").change(function () {
-				var selectedValue = $(this)
-					.find(":selected")
-					.val();
-				if (selectedValue === "") {
-					$("#inputCity").val("");
-					$("#inputCity").prop('disabled', true);
+		$("#inputState").change(function () {
+			var selectedValue = $(this)
+				.find(":selected")
+				.val();
+			if (selectedValue === "") {
+				$("#inputCity").val("");
+				$("#inputCity").prop('disabled', true);
+			}
+			$.ajax({
+				type: "GET",
+				dataType: 'json',
+				url: "/getCities/" + selectedValue + '',
+				success: function (result) {
+					$("#inputCity").prop('disabled', false);
+					$("#inputCity").empty();
+					$("#inputCity").append($("<option></option>").val("").html("--Select City--"));
+					$.each(result, function () {
+						$("#inputCity").append($("<option></option>").val(this['cityId']).html(this['city']));
+					});
 				}
-				$.ajax({
-					type: "GET",
-					dataType: 'json',
-					url: "/getCities/" + selectedValue + '',
-					success: function (result) {
-						$("#inputCity").prop('disabled', false);
-						$("#inputCity").empty();
-						$("#inputCity").append($("<option></option>").val("").html("--Select City--"));
-						$.each(result, function () {
-							$("#inputCity").append($("<option></option>").val(this['cityId']).html(this['city']));
-						});
-					}
-				});
 			});
-		</script>
+		});
+	</script>
 </body>
 
 

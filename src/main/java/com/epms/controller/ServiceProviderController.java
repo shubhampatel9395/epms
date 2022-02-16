@@ -6,6 +6,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -92,8 +93,11 @@ public class ServiceProviderController {
 			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
 		AddressDTO insertAddressDTO = addressService.insert(addressDTO);
 		serviceProviderDTO.setAddressId(insertAddressDTO.getAddressId());
+		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		String encodedPassword = passwordEncoder.encode(serviceProviderDTO.getPassword());
+		serviceProviderDTO.setPassword(encodedPassword);
 		ServiceProviderDTO insertServiceProviderDTO = serviceProviderService.insert(serviceProviderDTO);
-		final ModelAndView modelandmap = new ModelAndView("serviceProvider/_layout_serviceProvider");
+		final ModelAndView modelandmap = new ModelAndView("serviceProvider/index");
 		modelandmap.addObject("serviceProviderDTO", insertServiceProviderDTO);
 		return modelandmap;
 	}
