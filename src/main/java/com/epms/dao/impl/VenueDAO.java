@@ -123,4 +123,12 @@ public class VenueDAO implements IVenueDAO {
 		jdbcTemplate.update("update venue set isActive=true where venueId=:id", sc);
 	}
 
+	@Override
+	public Integer getCount() {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("isActive", true);
+		int count = jdbcTemplate.queryForObject("select count(1) from venue where isActive=:isActive",namedParams,Integer.class);
+		return count;
+	}
+
 }

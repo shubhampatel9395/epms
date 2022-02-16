@@ -177,4 +177,32 @@ public class UserDetailsDAO implements IUserDetailsDAO {
 				namedParameters);
 
 	}
+
+	@Override
+	public Integer getCustomerCount() {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("isActive", true);
+		namedParams.addValue("isCustomer", true);
+		int count = jdbcTemplate.queryForObject("select count(1) from userdetails where isActive=:isActive and isCustomer=:isCustomer",namedParams,Integer.class);
+		return count;
+	}
+
+	@Override
+	public Integer getServiceproviderCount() {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("isActive", true);
+		namedParams.addValue("isServiceProvider", true);
+		int count = jdbcTemplate.queryForObject("select count(1) from userdetails where isActive=:isActive and isServiceProvider=:isServiceProvider",namedParams,Integer.class);
+		return count;
+	}
+
+	@Override
+	public List<UserDetailsDTO> getLastDayData(MapSqlParameterSource parameterSource) {
+		String sql = "select * from userdetails where 1=1 and createdAt >= DATE(NOW()) - INTERVAL 1 DAY";
+		for (Entry<String, Object> param : parameterSource.getValues().entrySet()) {
+			sql += " and " + param.getKey() + " = :" + param.getKey();
+		}
+
+		return jdbcTemplate.query(sql, parameterSource, new BeanPropertyRowMapper<UserDetailsDTO>(UserDetailsDTO.class));
+	}
 }

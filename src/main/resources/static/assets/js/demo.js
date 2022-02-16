@@ -1,12 +1,12 @@
 var briteChartApp = window.briteChartApp || {};
-var a;
+var da;
 $.ajax({
 	type: "GET",
 	dataType: 'json',
 	url: "/admin/getChartData/",
 	success: function(result) {
-		a = JSON.stringify(result);
-		console.log(a);
+		da = JSON.parse(JSON.stringify(result));
+		console.log(da);
 	}
 });
 
@@ -45,7 +45,7 @@ $.ajax({
 	}),
 		i(function() {
 			// var a;
-			console.log(a);
+			console.log(da);
 			/*
 			var a = [
 				{ name: "Shiny11", id: 1, quantity: 86, percentage: 5 },
@@ -59,7 +59,7 @@ $.ajax({
 				d3.selectAll(".donut-chart").remove(),
 					d3.selectAll(".britechart-legend").remove(),
 					0 < i(".donut-container").length &&
-					briteChartApp.createDonutChart(".donut-container", a);
+					briteChartApp.createDonutChart(".donut-container", da);
 			}
 			i(window).on("resize", function(e) {
 				e.preventDefault(), setTimeout(u, 200);

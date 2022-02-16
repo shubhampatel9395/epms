@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IEventDAO;
 import com.epms.dto.EventDTO;
+import com.epms.dto.UserDetailsDTO;
 
 import groovy.util.logging.Slf4j;
 
@@ -81,5 +82,33 @@ public class EventDAO implements IEventDAO {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public Integer getCountByEventType(String eventType)
+	{
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("eventType", eventType);
+		namedParams.addValue("isActive", true);
+		namedParams.addValue("status", "Registered");
+		int count = jdbcTemplate.queryForObject("select count(1) from event e join enueventtype et on e.eventTypeId = et.eventTypeId join enueventstatus ees on e.eventStatusId = ees.statusId where et.eventType = :eventType and ees.status=:status and e.isActive=:isActive",namedParams,Integer.class);
+		return count;
+	}
+	
+	@Override
+	public Integer getCount()
+	{
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("isActive", true);
+		namedParams.addValue("status", "Registered");
+		int count = jdbcTemplate.queryForObject("select count(1) from event e join enueventstatus ees on e.eventStatusId = ees.statusId where ees.status=:status and e.isActive=:isActive",namedParams,Integer.class);
+		return count;
+	}
 
+	@Override
+	public List<EventDTO> getLastDayData() {
+		String sql = "select * from event where 1=1 and createdAt >= DATE(NOW()) - INTERVAL 1 DAY";
+		return jdbcTemplate.query(sql.toString(), new MapSqlParameterSource(),
+				new BeanPropertyRowMapper<EventDTO>(EventDTO.class));
+	}
 }
+

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,12 +37,15 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.epms.dto.AddressDTO;
+import com.epms.dto.AdminDashboardDTO;
+import com.epms.dto.AdminLatestActivityDTO;
 import com.epms.dto.DonutDTO;
 import com.epms.dto.EmployeeDTO;
 import com.epms.dto.EnuEventTypeDTO;
 import com.epms.dto.EnuServiceTypeDTO;
 import com.epms.dto.EnuVenueFacilityDTO;
 import com.epms.dto.EnuVenueTypeDTO;
+import com.epms.dto.EventDTO;
 import com.epms.dto.PackageDetailsDTO;
 import com.epms.dto.PackageServiceProviderMappingDTO;
 import com.epms.dto.PackageTempDTO;
@@ -62,6 +67,7 @@ import com.epms.service.IEnuServiceTypeService;
 import com.epms.service.IEnuStateService;
 import com.epms.service.IEnuVenueFacilityService;
 import com.epms.service.IEnuVenueTypeService;
+import com.epms.service.IEventService;
 import com.epms.service.IPackageDetailsService;
 import com.epms.service.IPackageServiceProviderMappingService;
 import com.epms.service.IServiceProviderService;
@@ -137,6 +143,9 @@ public class AdminController {
 	@Autowired
 	IPackageServiceProviderMappingService packageServiceProviderMappingService;
 
+	@Autowired
+	IEventService eventService;
+
 	public String getAddress(AddressDTO addressDTO) {
 		String address;
 		address = addressDTO.getAddress1();
@@ -149,16 +158,48 @@ public class AdminController {
 				+ addressDTO.getPostalCode();
 		return address;
 	}
+	
+	public List<AdminLatestActivityDTO> getLatestActivities()
+	{
+		List<AdminLatestActivityDTO> activityDTOs = new ArrayList<>();
+		List<UserDetailsDTO> customerDTOs = userDetailsService.getLastDayData(new MapSqlParameterSource().addValue("isCustomer", true));
+		List<UserDetailsDTO> serviceProviderDTOs = userDetailsService.getLastDayData(new MapSqlParameterSource().addValue("isServiceProvider", true));
+		List<EventDTO> eventDTOs = eventService.getLastDayData();
+		
+		activityDTOs.addAll(customerDTOs.stream().map(customerDTO -> {
+			return new AdminLatestActivityDTO("CUSTOMER", customerDTO.getFirstName() + " " + customerDTO.getLastName(), " registered in the system.", customerDTO.getCreatedAt());
+		}).collect(Collectors.toList()));
+		
+		activityDTOs.addAll(serviceProviderDTOs.stream().map(serviceproviderDTO -> {
+			return new AdminLatestActivityDTO("SERVICEPROVIDER", serviceproviderDTO.getServiceProviderName() , " registered in the system. Verify to give access.", serviceproviderDTO.getCreatedAt());
+		}).collect(Collectors.toList()));
+		
+		activityDTOs.addAll(eventDTOs.stream().map(eventDTO -> {
+			return new AdminLatestActivityDTO("EVENT", eventDTO.getEventTitle() , " registered in the system. Review it.", eventDTO.getCreatedAt());
+		}).collect(Collectors.toList()));
+		activityDTOs.sort(Collections.reverseOrder(Comparator.comparing(AdminLatestActivityDTO::getCreatedAt)));
+		return activityDTOs;
+	}
 
 	@GetMapping("/dashboard")
 	public ModelAndView homePage() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
-			return new ModelAndView("login");
+			return new ModelAndView("redirect:/login");
 		} else {
-			return new ModelAndView("admin/index");
+			ModelAndView modelandmap = new ModelAndView("admin/index");
+			
+			AdminDashboardDTO adminDashboardDTO = new AdminDashboardDTO();
+			List<AdminLatestActivityDTO> activityDTOs = getLatestActivities();
+			adminDashboardDTO.customerCount = userDetailsService.getCustomerCount();
+			adminDashboardDTO.serviceproviderCount = userDetailsService.getServiceproviderCount();
+			adminDashboardDTO.eventCount = eventService.getCount();
+			adminDashboardDTO.venueCount = venueService.getCount();
+			
+			modelandmap.addObject("activityDTOs", activityDTOs);
+			modelandmap.addObject("adminDashboardDTO", adminDashboardDTO);
+			return modelandmap;
 		}
-		
 	}
 
 	@GetMapping("/list-customer")
@@ -1159,7 +1200,7 @@ public class AdminController {
 					obj.setVenueId(oldVenueDTO.getVenueId());
 				} catch (SQLException | IOException e) {
 					log.error("Error: {}", e);
-				} 
+				}
 				venueImageMappingService.insert(obj);
 			}
 		}
@@ -1180,7 +1221,7 @@ public class AdminController {
 					obj.setVenueId(venueId);
 				} catch (SQLException | IOException e) {
 					log.error("Error: {}", e);
-				} 
+				}
 				venueImageMappingService.insert(obj);
 
 //				try {
@@ -1282,13 +1323,27 @@ public class AdminController {
 
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/getChartData/")
-	public List<DonutDTO> getDonutData()
-	{
+	public List<DonutDTO> getDonutData() {
+		List<EnuEventTypeDTO> eventTypes = enuEventTypeService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true));
+		List<String> eventTypeNames = new ArrayList<>();
+		List<Integer> quantity = eventTypes.stream().map(eventType -> {
+			eventTypeNames.add(eventType.getEventType());
+			return eventService.getCountByEventType(eventType.getEventType());
+		}).collect(Collectors.toList());
+		// Integer totalEvent = eventService.getCount();
+		Integer totalEvent = 10;
+		List<Double> percentage = quantity.stream().map(q -> {
+			return (double) (q / totalEvent) * 100;
+		}).collect(Collectors.toList());
+
 		List<DonutDTO> donutDTO = new ArrayList<>();
-		donutDTO.add(new DonutDTO("A",1,50.0,50.0));
-		donutDTO.add(new DonutDTO("B",2,150.0,50.0));
+		for (int i = 0; i < eventTypeNames.size(); i++) {
+			donutDTO.add(new DonutDTO(eventTypeNames.get(i), i + 1, (Double) quantity.get(i).doubleValue(),
+					percentage.get(i)));
+		}
 		return donutDTO;
 	}
 }

@@ -330,7 +330,7 @@ public class CustomerController {
 	public ModelAndView showChangePasswordPage() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
-			return new ModelAndView("login");
+			return new ModelAndView("redirect:/login");
 		} else {
 			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) authentication.getPrincipal();
 			if (userDetails.getRoleName().equalsIgnoreCase("ROLE_CUSTOMER")) {
@@ -351,7 +351,7 @@ public class CustomerController {
 	public ModelAndView changePassword(HttpServletRequest request, ModelAndView model, RedirectAttributes rm) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
-			return new ModelAndView("login");
+			return new ModelAndView("redirect:/login");
 		} else {
 			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();

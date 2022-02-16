@@ -60,4 +60,9 @@ public class VenueService implements IVenueService {
 		venueDAO.activate(id);
 	}
 
+	@Override
+	public Integer getCount() {
+		return venueDAO.getCount();
+	}
+
 }

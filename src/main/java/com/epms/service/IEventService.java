@@ -14,4 +14,7 @@ public interface IEventService {
 	public EventDTO insert(EventDTO EventDTO);
 	public void delete(Long id);
 	public EventDTO update(EventDTO entity);
+	public Integer getCountByEventType(String eventType);
+	public Integer getCount();
+	public List<EventDTO> getLastDayData();
 }

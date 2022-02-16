@@ -58,4 +58,19 @@ public class EventService implements IEventService {
 		return null;
 	}
 
+	@Override
+	public Integer getCountByEventType(String eventType) {
+		return eventDAO.getCountByEventType(eventType);
+	}
+
+	@Override
+	public Integer getCount() {
+		return eventDAO.getCount();
+	}
+
+	@Override
+	public List<EventDTO> getLastDayData() {
+		return eventDAO.getLastDayData();
+	}
+
 }

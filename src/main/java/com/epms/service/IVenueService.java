@@ -15,4 +15,5 @@ public interface IVenueService {
 	public void delete(Long id);
 	public VenueDTO update(VenueDTO entity);
 	public void activate(Long id);
+	public Integer getCount();
 }

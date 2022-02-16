@@ -85,4 +85,19 @@ public class UserDetailsService implements IUserDetailsService {
 	public void updateUserPassword(Integer userDetailsId, String password) {
 		userDetailsDAO.updateUserPassword(userDetailsId, password);
 	}
+
+	@Override
+	public Integer getCustomerCount() {
+		return userDetailsDAO.getCustomerCount();
+	}
+
+	@Override
+	public Integer getServiceproviderCount() {
+		return userDetailsDAO.getServiceproviderCount();
+	}
+
+	@Override
+	public List<UserDetailsDTO> getLastDayData(MapSqlParameterSource parameterSource) {
+		return userDetailsDAO.getLastDayData(parameterSource);
+	}
 }
