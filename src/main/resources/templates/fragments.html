@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+<head>
+</head>
+
+<body>
+	<th:block th:fragment="resultsList1" th:if="${#lists.isEmpty(packageDetailsDTOs)}">
+		<div class="row" id="main">
+			<p> No packages available for event type.</p>
+		</div>
+	</th:block>
+
+	<th:block th:fragment="resultsList" th:unless="${#lists.isEmpty(packageDetailsDTOs)}" id="results-block">
+		<div class="row" id="main">
+			<div class="col-md-6 col-xxl-3" th:each="package: ${packageDetailsDTOs}">
+				<!-- project card -->
+				<div class="card d-block">
+					<div class="card-body">
+						<!-- project title-->
+						<h4 class="mt-0">
+							<span class="text-title" style="cursor: pointer;" th:text="${package.title}"></span>
+							<span class="float-end" th:text="${package.totalCost}"></span>
+							<i class="mdi mdi-currency-inr float-end" style="margin-right: 0.25rem;"></i>
+						</h4>
+						<div class="badge bg-success mb-3" th:text="${eventTypes[packageStat.index]}"></div>
+						<p th:if="${package.description != ''}" class="font-13 mb-3" th:text="${package.description}">
+						</p>
+
+						<!-- project detail-->
+						<p class="mb-1">
+							<span class="pe-2 text-nowrap mb-1 d-inline-block">
+								<i class="uil-map-pin-alt text-muted"></i>
+								<b>Venue Details</b>
+							</span>
+						<p th:text="${venueDetails[packageStat.index]}"></p>
+						</p>
+
+						<p class="mb-1">
+							<span class="pe-2 text-nowrap mb-1 d-inline-block">
+								<i class="uil-map-pin-alt text-muted"></i>
+								<b>Service Details</b>
+							</span>
+						<p class="mb-0" th:each="entry : ${serviceWithProviders[packageStat.index]}">
+							<span th:text="${entry.key} + ' - ' + ${entry.value}"></span>
+						</p>
+						</p>
+					</div> <!-- end card-body-->
+				</div> <!-- end card-->
+			</div> <!-- end col -->
+		</div>
+	</th:block>
+</body>
+
+</html>
