@@ -4,10 +4,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -36,6 +39,9 @@ import com.epms.dto.AddressDTO;
 import com.epms.dto.EnquiryDTO;
 import com.epms.dto.EnuCityDTO;
 import com.epms.dto.EnuStateDTO;
+import com.epms.dto.PackageDetailsDTO;
+import com.epms.dto.PackageServiceProviderMappingDTO;
+import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.UserDetailsDTO;
 import com.epms.email.configuration.IMailService;
 import com.epms.email.configuration.Mail;
@@ -43,8 +49,14 @@ import com.epms.service.IAddressService;
 import com.epms.service.IEnquiryService;
 import com.epms.service.IEnuCityService;
 import com.epms.service.IEnuCountryService;
+import com.epms.service.IEnuEventTypeService;
+import com.epms.service.IEnuServiceTypeService;
 import com.epms.service.IEnuStateService;
+import com.epms.service.IPackageDetailsService;
+import com.epms.service.IPackageServiceProviderMappingService;
+import com.epms.service.IServiceProviderService;
 import com.epms.service.IUserDetailsService;
+import com.epms.service.IVenueService;
 
 import groovyjarjarantlr4.v4.runtime.misc.NotNull;
 import groovyjarjarpicocli.CommandLine.Parameters;
@@ -75,7 +87,25 @@ public class CustomerController {
 	@Autowired
 	IMailService mailService;
 
-	@GetMapping("index")
+	@Autowired
+	IPackageDetailsService packageDetailsService;
+
+	@Autowired
+	IServiceProviderService serviceProviderService;
+
+	@Autowired
+	IEnuServiceTypeService enuServiceTypeService;
+
+	@Autowired
+	IPackageServiceProviderMappingService packageServiceProviderMappingService;
+
+	@Autowired
+	IVenueService venueService;
+
+	@Autowired
+	IEnuEventTypeService enuEventTypeService;
+
+	@GetMapping("home")
 	public ModelAndView homePage() {
 		return new ModelAndView("index");
 	}
@@ -234,9 +264,75 @@ public class CustomerController {
 		return modelandmap;
 	}
 
+	public String getAddress(AddressDTO addressDTO) {
+		String address;
+		address = addressDTO.getAddress1();
+		if (addressDTO.getAddress2() != null) {
+			address += ", " + addressDTO.getAddress2();
+		}
+		address += ",\n " + enuCityService.findById(addressDTO.getCityId().longValue()).getCity() + ", "
+				+ enuStateService.findById(addressDTO.getStateId().longValue()).getState() + ", "
+				+ enuCountryService.findById(addressDTO.getCountryId().longValue()).getCountry() + " - "
+				+ addressDTO.getPostalCode();
+		return address;
+	}
+
+	@GetMapping("getPackagesOfEvent/{eventTypeId}")
+	public ModelAndView packagesByEventType(ModelAndView modelandmap, @PathVariable long eventTypeId) {
+		List<PackageDetailsDTO> packageDetailsDTO;
+		if (eventTypeId == -1) {
+			packageDetailsDTO = packageDetailsService
+					.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true));
+			modelandmap.setViewName("fragments :: resultsList");
+		} else {
+			packageDetailsDTO = packageDetailsService.findByNamedParameters(
+					new MapSqlParameterSource().addValue("isActive", true).addValue("eventTypeId", eventTypeId));
+		}
+
+		if (packageDetailsDTO.size() == 0) {
+			modelandmap.setViewName("fragments :: resultsList1");
+		} else {
+			modelandmap.setViewName("fragments :: resultsList");
+		}
+
+		List<PackageServiceProviderMappingDTO> packageServiceProviderMappings = packageServiceProviderMappingService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true));
+
+		List<String> venueDetails = packageDetailsDTO.stream().map(packageDTO -> {
+			return venueService.findById(packageDTO.getVenueId().longValue()).getVenueName() + ", "
+					+ getAddress(addressService.findById(
+							venueService.findById(packageDTO.getVenueId().longValue()).getAddressId().longValue()));
+		}).collect(Collectors.toList());
+
+		List<String> eventType = packageDetailsDTO.stream().map(packageDTO -> {
+			return enuEventTypeService.findById(packageDTO.getEventTypeId().longValue()).getEventType();
+		}).collect(Collectors.toList());
+
+		List<Map<String, String>> serviceWithProviders = packageDetailsDTO.stream().map(item -> {
+			Map<String, String> t = new HashMap<String, String>();
+			packageServiceProviderMappings.stream().map(item2 -> {
+				ServiceProviderDTO temp = serviceProviderService.findById(item2.getServiceProviderId().longValue());
+				return t.put(enuServiceTypeService.findById(temp.getServiceTypeId().longValue()).getService(),
+						userDetailsService.findById(temp.getUserDetailsId().longValue()).getServiceProviderName());
+			}).collect(Collectors.toList());
+			return t;
+		}).collect(Collectors.toList());
+
+		modelandmap.addObject("venueDetails", venueDetails);
+		modelandmap.addObject("eventNames",
+				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		modelandmap.addObject("eventTypes", eventType);
+		modelandmap.addObject("packageDetailsDTOs", packageDetailsDTO);
+		modelandmap.addObject("serviceWithProviders", serviceWithProviders);
+		// modelandmap.setViewName("fragments :: resultsList");
+		return modelandmap;
+	}
+
 	@GetMapping("packages")
 	public ModelAndView packages() {
 		final ModelAndView modelandmap = new ModelAndView("packages");
+		modelandmap.addObject("eventNames",
+				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		return modelandmap;
 	}
 
@@ -259,7 +355,8 @@ public class CustomerController {
 			try {
 				String token = UUID.randomUUID().toString();
 				userDetailsService.updateResetPasswordToken(token, email);
-				// Control Panel\System and Security\Windows Defender Firewall\Customize Settings
+				// Control Panel\System and Security\Windows Defender Firewall\Customize
+				// Settings
 				String resetPasswordLink = getSiteURL(request) + "/reset-password?token=" + token;
 				Mail mail = new Mail();
 				mail.setMailTo(email);
@@ -267,15 +364,15 @@ public class CustomerController {
 				mail.setContentType("text/html");
 				mail.setMailContent("<p>Hi " + userDetailsDTO.getFirstName() + " " + userDetailsDTO.getLastName()
 						+ ",</p>" + "<p>You have requested to reset your password.</p>"
-						+ "<p>Click the link below to change your password:</p>" 
-						+ "<p><a href=\"" + resetPasswordLink + "\">Change my password</a></p>"
+						+ "<p>Click the link below to change your password:</p>" + "<p><a href=\"" + resetPasswordLink
+						+ "\">Change my password</a></p>"
 						+ "<p>The above link will be expired in 5 minutes. Ignore this email if you do remember your password, "
 						+ "or you have not made the request.</p>");
 				// log.debug("resetPasswordLink: {}",resetPasswordLink);
 				mailService.sendEmail(mail);
 				rm.addFlashAttribute("message", "We have sent a reset password link to your email. Please check.");
 			} catch (Exception e) {
-				log.error("Exception :  {}",e);
+				log.error("Exception :  {}", e);
 				rm.addFlashAttribute("error", "Error while sending email");
 			}
 		} else {
@@ -301,7 +398,7 @@ public class CustomerController {
 
 		if (userDetailsDTO != null && userDetailsDTO.getResetPasswordTokenTime() != null) {
 			LocalDateTime now = LocalDateTime.now();
-			long minutes = ChronoUnit.MINUTES.between(userDetailsDTO.getResetPasswordTokenTime(),now );
+			long minutes = ChronoUnit.MINUTES.between(userDetailsDTO.getResetPasswordTokenTime(), now);
 			if (minutes >= 5) {
 				model.addObject("error", "Please try forgot password again because link is expired.");
 			} else {
@@ -337,7 +434,7 @@ public class CustomerController {
 
 		return model;
 	}
-	
+
 	@GetMapping("change-password")
 	public ModelAndView showChangePasswordPage() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -351,7 +448,7 @@ public class CustomerController {
 				return new ModelAndView("admin/changePassword");
 			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_SERVICEPROVIDER")) {
 				return new ModelAndView("serviceprovider/changePassword");
-			}else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
+			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
 				return new ModelAndView("eventorganizer/changePassword");
 			} else {
 				return new ModelAndView("employee/changePassword");
@@ -365,7 +462,8 @@ public class CustomerController {
 		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
 			return new ModelAndView("redirect:/login");
 		} else {
-			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+					.getAuthentication().getPrincipal();
 			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 			if (!passwordEncoder.matches(request.getParameter("oldPassword"), userDetails.getPassword())) {
 				rm.addFlashAttribute("error", "Please enter valid old password");

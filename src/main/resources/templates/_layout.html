@@ -1,7 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
-
-<!-- Mirrored from coderthemes.com/hyper_2/saas/layouts-horizontal.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 04 Jan 2022 06:46:53 GMT -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
 
 <head>
 	<meta charset="utf-8" />
@@ -10,16 +9,16 @@
 	<meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
 	<meta content="Coderthemes" name="author" />
 	<!-- App favicon -->
-	<link rel="shortcut icon" href="assets/images/logoFavicon.png">
+	<link rel="shortcut icon" th:href="@{/assets/images/logoFavicon.png}">
 
 	<!-- third party css -->
-	<link href="assets/css/vendor/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
+	<link th:href="@{/assets/css/vendor/jquery-jvectormap-1.2.2.css}" rel="stylesheet" type="text/css" />
 	<!-- third party css end -->
 
 	<!-- App css -->
-	<link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
-	<link href="assets/css/app.min.css" rel="stylesheet" type="text/css" id="light-style" />
-	<link href="assets/css/app-dark.min.css" rel="stylesheet" type="text/css" id="dark-style" />
+	<link th:href="@{/assets/css/icons.min.css}" rel="stylesheet" type="text/css" />
+	<link th:href="@{/assets/css/app.min.css}" rel="stylesheet" type="text/css" id="light-style" />
+	<link th:href="@{/assets/css/app-dark.min.css}" rel="stylesheet" type="text/css" id="dark-style" />
 
 	<style>
 		.topnav {
@@ -147,17 +146,17 @@
 									<li class="nav-item">
 										<a href="#" class="nav-link topnav-logo">
 											<span class="topnav-logo-lg">
-												<img src="assets/images/logoUnico.png" alt="" height="25">
+												<img th:src="@{/assets/images/logoUnico.png}" alt="" height="25">
 											</span>
 											<span class="topnav-logo-sm">
-												<img src="assets/images/logoUnico.png" alt="" height="25">
+												<img th:src="@{assets/images/logoUnico.png}" alt="" height="25">
 											</span>
 										</a>
 									</li>
 
 									<li class="nav-item"
-										th:classappend="${#request.getRequestURI() == '/' ? 'active' : '' }">
-										<a class="nav-link" th:href="@{/}">
+										th:classappend="${#request.getRequestURI() == '/home' ? 'active' : '' }">
+										<a class="nav-link" th:href="@{/home}">
 											<i class="uil-home-alt"></i>
 											<span> Home </span>
 										</a>
@@ -180,7 +179,7 @@
 									<li class="nav-item"
 										th:classappend="${#request.getRequestURI().startsWith('/gallery') ? 'active' : '' }">
 										<a class="nav-link" href="/gallery">
-											<i class="dripicons-photo-group"></i><span> Event Gallery</span>
+											<i class="uil-map-pin-alt"></i><span> Venues</span>
 										</a>
 									</li>
 
@@ -192,7 +191,7 @@
 									</li>
 
 									<li class="nav-item">
-										<a class="nav-link" href="#">
+										<a class="nav-link" th:href="@{/login}">
 											<i class="mdi mdi-login"></i><span> Log In</span>
 										</a>
 									</li>
@@ -205,8 +204,8 @@
 											<div class="arrow-down"></div>
 										</a>
 										<div class="dropdown-menu" aria-labelledby="topnav-signup">
-											<a href="#" class="dropdown-item">Sign up as customer</a>
-											<a href="#" class="dropdown-item">Sign up as service provider</a>
+											<a th:href="@{/customer-registration}" class="dropdown-item">Sign up as customer</a>
+											<a th:href="@{/serviceprovider/serviceprovider-registration}" class="dropdown-item">Sign up as service provider</a>
 										</div>
 									</li>
 
@@ -221,9 +220,9 @@
 				<!-- Start Content-->
 
 				<!-- container -->
-				<div layout:fragment="content">
+				<th:block layout:fragment="content">
 					<p>Changing contents</p>
-				</div>
+				</th:block>
 			</div>
 			<!-- content -->
 
@@ -264,18 +263,20 @@
 		});
 	</script>
 
-	<script src="assets/js/vendor.min.js"></script>
-	<script src="assets/js/app.min.js"></script>
-
+	<!-- bundle -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	<script th:src="@{/assets/js/app.min.js}"></script>
 	<!-- third party js -->
-	<script src="assets/js/vendor/apexcharts.min.js"></script>
-	<script src="assets/js/vendor/jquery-jvectormap-1.2.2.min.js"></script>
-	<script src="assets/js/vendor/jquery-jvectormap-world-mill-en.js"></script>
+	<script th:src="@{/assets/js/vendor/apexcharts.min.js}"></script>
+	<script th:src="@{/assets/js/vendor/jquery-jvectormap-1.2.2.min.js}"></script>
+	<script th:src="@{/assets/js/vendor/jquery-jvectormap-world-mill-en.js}"></script>
 	<!-- third party js ends -->
 
 	<!-- demo app -->
-	<script src="assets/js/pages/demo.dashboard.js"></script>
+	<script th:src="@{/assets/js/pages/demo.dashboard.js}"></script>
 	<!-- end demo js-->
+
+	<th:block layout:fragment="script"></th:block>
 </body>
 
 <!-- Mirrored from coderthemes.com/hyper_2/saas/layouts-horizontal.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 04 Jan 2022 06:46:53 GMT -->
