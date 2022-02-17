@@ -16,7 +16,6 @@ public class EnquiryDTO {
 	private String mobileNumber;
 	private String email;
 	private Integer eventTypeId;
-	private Integer eventSubTypeId;
 	private Date startDate;
 	private Time startTime;
 	private Date endDate;
@@ -25,7 +24,8 @@ public class EnquiryDTO {
 	private Boolean isPublic;
 	private Boolean isFree;
 	private Integer estimatedGuest;
-	private Double budget;
+	private Double minBudget;
+	private Double maxBudget;
 	private Integer enquiryStatusId;
 	private String response;
 	private Date responseDate;

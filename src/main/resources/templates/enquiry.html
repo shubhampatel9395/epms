@@ -1,11 +1,146 @@
 <html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/_layout}">
-<head>
-	<title>Enquiry</title>
-</head>
-<body>
-	<div layout:fragment="content">
-		<p>Enquiry Page</p>
-	</div>
-</body>
-
+   <head>
+      <title>Enquiry</title>
+   </head>
+   <body>
+      <th:block layout:fragment="content">
+         <!-- form -->
+         <form th:action="@{/enquiry}" method="post">
+            <div class="row g-2">
+               <div class="mb-3 col-md-6">
+                  <label for="name" class="form-label">Name</label>
+                  <input class="form-control" type="text" th:field="*{enquiry.personName}"
+                     id="name" placeholder="Enter your name" required>
+               </div>
+               <div class="mb-3 col-md-6">
+                  <label for="email" class="form-label">Email address</label>
+                  <input class="form-control" type="email" th:field="*{enquiry.email}"
+                     id="email" required placeholder="Enter your email">
+               </div>
+            </div>
+            <div class="row g-2">
+               <div class="mb-3 col-md-6">
+                  <label for="mobileNumber" class="form-label">Mobile Number</label>
+                  <input type="text" class="form-control" th:field="*{enquiry.mobileNumber}"
+                     id="mobileNumber" required placeholder="Enter your mobile number"
+                     data-toggle="input-mask" data-mask-format="0000000000">
+               </div>
+               <div class="mb-3 col-md-6">
+                  <label for="eventType" class="form-label">Event Type</label>
+                  <select id="eventType" class="form-select">
+                     <option value="" readonly>--Select Event Type--</option>
+                     <option th:each="eventType : ${eventTypes}"
+                        th:value="${eventType.eventTypeId}" th:text="${eventType.eventType}">
+                     </option>
+                  </select>
+               </div>
+            </div>
+            <div class="row g-2">
+               <div>
+                  <i class="mdi mdi-calendar"
+                     style="font-size: 24px;padding-right: 0.5rem;"></i>
+                  <h6 class="font-15 mt-3 mb-3"
+                     style="display: inline-block;">Date</h6>
+               </div>
+               <div class="mb-3 col-md-6">
+                  <div class="mb-3 position-relative" id="datepicker4">
+                     <label class="form-label">Event Start Date</label>
+                     <div class="input-group">
+                        <span class="input-group-addon"
+                           style="background: #727cf5;"><i
+                           class="mdi mdi-calendar"
+                           style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
+                        <input th:field="*{enquiry.startDate}" type="text"
+                           class="form-control"
+                           data-provide="datepicker"
+                           data-date-autoclose="true"
+                           data-date-container="#datepicker4">
+                     </div>
+                  </div>
+               </div>
+               <div class="mb-3 col-md-6">
+                  <div class="mb-3 position-relative" id="datepicker4">
+                     <label class="form-label">Event End Date</label>
+                     <div class="input-group">
+                        <span class="input-group-addon"
+                           style="background: #727cf5;"><i
+                           class="mdi mdi-calendar"
+                           style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
+                        <input th:field="*{enquiry.endDate}" type="text"
+                           class="form-control"
+                           data-provide="datepicker"
+                           data-date-autoclose="true"
+                           data-date-container="#datepicker4">
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="row g-2">
+               <div>
+                  <i class="mdi mdi-clock-outline"
+                     style="font-size: 24px;padding-right: 0.5rem;"></i>
+                  <h6 class="font-15 mt-3 mb-3"
+                     style="display: inline-block;">Time</h6>
+               </div>
+               <div class="mb-3 col-md-6">
+                  <label class="form-label">Event Start Time</label>
+                  <div class="input-group" id="timepicker-input-group2">
+                     <span class="input-group-addon"
+                        style="background: #727cf5;"><i
+                        class="mdi mdi-clock-outline"
+                        style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
+                     <input th:field="*{enquiry.startTime}" id="timepicker2"
+                        type="text" class="form-control"
+                        data-provide='timepicker' data-minute-step="5"
+                        data-show-meridian="false">
+                  </div>
+               </div>
+               <div class="mb-3 col-md-6">
+                  <label class="form-label">Event End Time</label>
+                  <div class="input-group" id="timepicker-input-group4">
+                     <span class="input-group-addon"
+                        style="background: #727cf5;"><i
+                        class="mdi mdi-clock-outline"
+                        style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
+                     <input th:field="*{enquiry.endTime}" id="timepicker4"
+                        type="text" class="form-control"
+                        data-provide='timepicker' data-minute-step="5"
+                        data-show-meridian="false">
+                  </div>
+               </div>
+            </div>
+            <div class="row g-2">
+               <div class="mb-3 col-md-6">
+                  <label for="inputGuest" class="form-label">Maximum Guest Allowed</label>
+                  <input type="number" th:field="*{enquiry.estimatedGuest}" id="estimatedGuest"
+                     class="form-control" required
+                     placeholder="Enter maximum guest allowed for the event">
+               </div>
+               <div class="mb-3 col-md-6">
+                  <label for="inputMinBudget" class="form-label">Minimum Budget</label>
+                  <input type="number" th:field="*{enquiry.minBudget}" id="minBudget"
+                     class="form-control" required
+                     placeholder="Enter minimum budget for event">
+               </div>
+            </div>
+            <div class="row g-4">
+               <div class="mb-3 col-md-6">
+                  <label for="inputMaxBudget" class="form-label">Maximum Budget</label>
+                  <input type="number" th:field="*{enquiry.maxBudget}" id="maxBudget"
+                     class="form-control" required
+                     placeholder="Enter maximum budget for event">
+               </div>
+               <div class="mb-3 col-md-2">
+                  <input type="checkbox" th:field="*{enquiry.isPublic}"  class="form-check-input" id="isPublic" checked>
+                  <label class="form-check-label" for="isPublic">Is Public Event</label>
+               </div>
+               <div class="mb-3 col-md-2">
+                  <input type="checkbox"  th:field="*{enquiry.isFree}" class="form-check-input" id="isFree" checked>
+                  <label class="form-check-label" for="isPublic">Is Free Event</label>
+               </div>
+            </div>
+         </form>
+         <!-- end form-->
+      </th:block>
+   </body>
 </html>

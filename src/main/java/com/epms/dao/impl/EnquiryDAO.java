@@ -1,5 +1,7 @@
 package com.epms.dao.impl;
 
+import java.sql.Time;
+import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -9,6 +11,8 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IEnquiryDAO;
@@ -66,8 +70,29 @@ public class EnquiryDAO implements IEnquiryDAO {
 
 	@Override
 	public EnquiryDTO insert(EnquiryDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("personName", entity.getPersonName());
+		sc.addValue("mobileNumber", entity.getMobileNumber());
+		sc.addValue("email", entity.getEmail());
+		sc.addValue("eventTypeId", entity.getEventTypeId());
+		sc.addValue("startDate", entity.getStartDate());
+		sc.addValue("startTime", entity.getStartTime());
+		sc.addValue("endDate", entity.getEndDate());
+		sc.addValue("endTime", entity.getEndTime());
+		sc.addValue("description", entity.getDescription());
+		sc.addValue("isPublic", entity.getIsPublic());
+		sc.addValue("isFree", entity.getIsFree());
+		sc.addValue("estimatedGuest", entity.getEstimatedGuest());
+		sc.addValue("minBudget", entity.getMinBudget());
+		sc.addValue("maxBudget", entity.getMaxBudget());
+
+		int i = jdbcTemplate.update(
+				"insert into enquiry(personName,mobileNumber,email,eventTypeId,startDate,startTime,endDate,endTime,description,isPublic,isFree,estimatedGuest,minBudget,maxBudget) "
+				+ "values(:personName,:mobileNumber,:email,:eventTypeId,:startDate,:startTime,:endDate,:endTime,:description,:isPublic,:isFree,:estimatedGuest,:minBudget,:maxBudget)",
+				sc, keyHolder, new String[] { "enquiryId" });
+
+		return findById(keyHolder.getKey().longValue());
 	}
 
 	@Override

@@ -33,12 +33,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.epms.authentication.CustomUserDetailsDTO;
 import com.epms.dto.AddressDTO;
+import com.epms.dto.EnquiryDTO;
 import com.epms.dto.EnuCityDTO;
 import com.epms.dto.EnuStateDTO;
 import com.epms.dto.UserDetailsDTO;
 import com.epms.email.configuration.IMailService;
 import com.epms.email.configuration.Mail;
 import com.epms.service.IAddressService;
+import com.epms.service.IEnquiryService;
 import com.epms.service.IEnuCityService;
 import com.epms.service.IEnuCountryService;
 import com.epms.service.IEnuStateService;
@@ -54,6 +56,9 @@ import lombok.extern.slf4j.Slf4j;
 public class CustomerController {
 	@Autowired
 	IEnuCityService enuCityService;
+	
+	@Autowired
+	IEnquiryService enquiryService;
 
 	@Autowired
 	IEnuStateService enuStateService;
@@ -213,9 +218,16 @@ public class CustomerController {
 	@GetMapping("enquiry")
 	public ModelAndView enquiry() {
 		final ModelAndView modelandmap = new ModelAndView("enquiry");
+		modelandmap.addObject("enquiry",new EnquiryDTO());
 		return modelandmap;
 	}
 
+	@PostMapping("enquiry")
+	public ModelAndView addEnquiry(@Valid @ModelAttribute("enquiry") EnquiryDTO enquiry) {
+		enquiryService.insert(enquiry);
+		return new ModelAndView("redirect:/home");
+	}
+	
 	@GetMapping("gallery")
 	public ModelAndView gallery() {
 		final ModelAndView modelandmap = new ModelAndView("gallery");
