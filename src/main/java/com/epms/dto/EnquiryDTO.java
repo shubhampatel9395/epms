@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class EnquiryDTO {
 	private Integer enquiryId;
-	private Integer personName;
+	private String personName;
 	private String mobileNumber;
 	private String email;
 	private Integer eventTypeId;

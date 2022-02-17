@@ -43,6 +43,8 @@ import com.epms.dto.PackageDetailsDTO;
 import com.epms.dto.PackageServiceProviderMappingDTO;
 import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.UserDetailsDTO;
+import com.epms.dto.VenueDTO;
+import com.epms.dto.VenueImageMappingDTO;
 import com.epms.email.configuration.IMailService;
 import com.epms.email.configuration.Mail;
 import com.epms.service.IAddressService;
@@ -248,19 +250,27 @@ public class CustomerController {
 	@GetMapping("enquiry")
 	public ModelAndView enquiry() {
 		final ModelAndView modelandmap = new ModelAndView("enquiry");
+		modelandmap.addObject("eventTypes",enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		modelandmap.addObject("enquiry",new EnquiryDTO());
 		return modelandmap;
 	}
 
 	@PostMapping("enquiry")
 	public ModelAndView addEnquiry(@Valid @ModelAttribute("enquiry") EnquiryDTO enquiry) {
-		enquiryService.insert(enquiry);
+		EnquiryDTO enquiryDTO = enquiryService.insert(enquiry);
+		Mail mail = new Mail();
+		mail.setMailTo(enquiryDTO.getEmail());
+		mail.setMailSubject("Enquiry Submitted");
+		mail.setContentType("text/html");
+		mail.setMailContent("Ok");
+		mailService.sendEmail(mail);
 		return new ModelAndView("redirect:/home");
 	}
 	
-	@GetMapping("gallery")
+	@GetMapping("venue")
 	public ModelAndView gallery() {
-		final ModelAndView modelandmap = new ModelAndView("gallery");
+		final ModelAndView modelandmap = new ModelAndView("venue");
+		
 		return modelandmap;
 	}
 
@@ -404,7 +414,6 @@ public class CustomerController {
 			} else {
 				model.addObject("token", token);
 			}
-
 		} else {
 			model.addObject("error", "Invalid Token");
 		}

@@ -171,21 +171,21 @@
 
 									<li class="nav-item"
 										th:classappend="${#request.getRequestURI().startsWith('/packages') ? 'active' : '' }">
-										<a class="nav-link" href="/packages">
+										<a class="nav-link" th:href="@{/packages}">
 											<i class="mdi mdi-package-variant"></i><span> Packages</span>
 										</a>
 									</li>
 
 									<li class="nav-item"
 										th:classappend="${#request.getRequestURI().startsWith('/gallery') ? 'active' : '' }">
-										<a class="nav-link" href="/gallery">
+										<a class="nav-link" th:href="@{/venue}">
 											<i class="uil-map-pin-alt"></i><span> Venues</span>
 										</a>
 									</li>
 
 									<li class="nav-item"
 										th:classappend="${#request.getRequestURI().startsWith('/enquiry') ? 'active' : '' }">
-										<a class="nav-link" href="/enquiry">
+										<a class="nav-link" th:href="@{/enquiry}">
 											<i class="mdi mdi-account-question"></i><span> Inquire</span>
 										</a>
 									</li>

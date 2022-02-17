@@ -42,8 +42,7 @@ public class EnquiryService implements IEnquiryService {
 
 	@Override
 	public EnquiryDTO insert(EnquiryDTO EnquiryDTO) {
-		// TODO Auto-generated method stub
-		return null;
+		return enquiryDAO.insert(EnquiryDTO);
 	}
 
 	@Override
