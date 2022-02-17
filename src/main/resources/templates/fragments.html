@@ -6,12 +6,11 @@
 </head>
 
 <body>
-	// Title, Address, Venue Type, Mobile number, Emial , Guest Capacity , Images, Event Types
 
 	<!-- Packages -->
 	<th:block th:fragment="resultsList1" th:if="${#lists.isEmpty(packageDetailsDTOs)}">
 		<div class="row" id="main">
-			<p> No packages available for event type.</p>
+			<p> No packages available for selected event type.</p>
 		</div>
 	</th:block>
 
@@ -54,48 +53,100 @@
 			</div> <!-- end col -->
 		</div>
 	</th:block>
-	
+
+
 	<!-- Venues -->
 	<th:block th:fragment="resultsListVenue1" th:if="${#lists.isEmpty(venueDTOs)}">
 		<div class="row" id="main">
-			<p> No venues available for event type.</p>
+			<p> No venues available for selected event type.</p>
 		</div>
 	</th:block>
 
-	<th:block th:fragment="resultsList" th:unless="${#lists.isEmpty(packageDetailsDTOs)}" id="results-block">
+	<th:block th:fragment="resultsListVenue" th:unless="${#lists.isEmpty(venueDTOs)}" id="results-block">
 		<div class="row" id="main">
-			<div class="col-md-6 col-xxl-3" th:each="package: ${packageDetailsDTOs}">
+			<div class="col-md-6 col-xxl-3" th:each="venue: ${venueDTOs}">
 				<!-- project card -->
 				<div class="card d-block">
 					<div class="card-body">
 						<!-- project title-->
 						<h4 class="mt-0">
-							<span class="text-title" style="cursor: pointer;" th:text="${package.title}"></span>
-							<span class="float-end" th:text="${package.totalCost}"></span>
-							<i class="mdi mdi-currency-inr float-end" style="margin-right: 0.25rem;"></i>
+							<span class="text-title" style="cursor: pointer;" th:text="${venue.venueName}"></span>
 						</h4>
-						<div class="badge bg-success mb-3" th:text="${eventTypes[packageStat.index]}"></div>
-						<p th:if="${package.description != ''}" class="font-13 mb-3" th:text="${package.description}">
-						</p>
+						<div class="badge bg-success mb-3" th:text="${venueTypes[venueStat.index]}"></div>
+
+						<!-- Images -->
+						<div th:each="venueImage : ${venueImages}" th:if="${venueImage != null}"
+							th:id="|with-controls-preview${venueStat.index}|"
+							style="width: fit-content; margin: 1.2rem 0rem;">
+							<!-- START carousel-->
+							<div th:id="|carouselExampleControls${venueStat.index}|" class="carousel slide"
+								data-bs-ride="carousel">
+								<div class="carousel-inner" role="listbox">
+									<div th:each="image : ${venueImage}" th:if="${image.venueId == venue.venueId}"
+										th:class="${imageStat.index} == 0 ? 'carousel-item active' : 'carousel-item'">
+										<img class="d-block img-fluid"
+											th:src="@{'/admin/image/' + ${image.venueImageMappingId}}" />
+									</div>
+								</div>
+								<a class="carousel-control-prev" th:href="|#carouselExampleControls${venueStat.index}|"
+									role="button" data-bs-slide="prev">
+									<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+									<span class="visually-hidden">Previous</span>
+								</a>
+								<a class="carousel-control-next" th:href="|#carouselExampleControls${venueStat.index}|"
+									role="button" data-bs-slide="next">
+									<span class="carousel-control-next-icon" aria-hidden="true"></span>
+									<span class="visually-hidden">Next</span>
+								</a>
+							</div>
+						</div> <!-- end preview-->
 
 						<!-- project detail-->
 						<p class="mb-1">
 							<span class="pe-2 text-nowrap mb-1 d-inline-block">
-								<i class="uil-map-pin-alt text-muted"></i>
-								<b>Venue Details</b>
+								<i class="mdi mdi-calendar-check text-muted"></i>
+								<b>Events Organized</b>
 							</span>
-						<p th:text="${venueDetails[packageStat.index]}"></p>
+							<span th:each="eventType : ${venueEventTypes[venueStat.index]}">
+								<span style="display: block;" th:each="eventName : ${eventNames}"
+									th:if="${eventName.eventTypeId == eventType.eventTypeId}"
+									th:text="|- ${eventName.eventType}|">
+								</span>
+							</span>
 						</p>
 
 						<p class="mb-1">
 							<span class="pe-2 text-nowrap mb-1 d-inline-block">
 								<i class="uil-map-pin-alt text-muted"></i>
-								<b>Service Details</b>
+								<b>Address</b>
 							</span>
-						<p class="mb-0" th:each="entry : ${serviceWithProviders[packageStat.index]}">
-							<span th:text="${entry.key} + ' - ' + ${entry.value}"></span>
+						<p th:text="${addresses[venueStat.index]}"></p>
 						</p>
+
+						<p class="mb-1">
+							<span class="pe-2 text-nowrap mb-1 d-inline-block">
+								<i class="mdi mdi-account-group text-muted"></i>
+								<b>Guest Capacity</b>
+							</span>
+						<p th:text="${venue.guestCapacity}"></p>
 						</p>
+
+						<p class="mb-1">
+							<span class="pe-2 text-nowrap mb-1 d-inline-block">
+								<i class="uil-phone text-muted"></i>
+								<b>Contact Number</b>
+								<p th:text="${venue.contactNumber}"></p>
+							</span>
+						</p>
+
+						<p class="mb-1">
+							<span class="pe-2 text-nowrap mb-1 d-inline-block">
+								<i class="uil-envelopes text-muted"></i>
+								<b>Email</b>
+								<p th:text="${venue.email}"></p>
+							</span>
+						</p>
+
 					</div> <!-- end card-body-->
 				</div> <!-- end card-->
 			</div> <!-- end col -->

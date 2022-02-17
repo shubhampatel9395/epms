@@ -44,6 +44,8 @@ import com.epms.dto.PackageServiceProviderMappingDTO;
 import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.UserDetailsDTO;
 import com.epms.dto.VenueDTO;
+import com.epms.dto.VenueEventTypeMappingDTO;
+import com.epms.dto.VenueFacilityMappingDTO;
 import com.epms.dto.VenueImageMappingDTO;
 import com.epms.email.configuration.IMailService;
 import com.epms.email.configuration.Mail;
@@ -54,10 +56,15 @@ import com.epms.service.IEnuCountryService;
 import com.epms.service.IEnuEventTypeService;
 import com.epms.service.IEnuServiceTypeService;
 import com.epms.service.IEnuStateService;
+import com.epms.service.IEnuVenueFacilityService;
+import com.epms.service.IEnuVenueTypeService;
 import com.epms.service.IPackageDetailsService;
 import com.epms.service.IPackageServiceProviderMappingService;
 import com.epms.service.IServiceProviderService;
 import com.epms.service.IUserDetailsService;
+import com.epms.service.IVenueEventTypeMappingService;
+import com.epms.service.IVenueFacilityMappingService;
+import com.epms.service.IVenueImageMappingService;
 import com.epms.service.IVenueService;
 
 import groovyjarjarantlr4.v4.runtime.misc.NotNull;
@@ -70,7 +77,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CustomerController {
 	@Autowired
 	IEnuCityService enuCityService;
-	
+
 	@Autowired
 	IEnquiryService enquiryService;
 
@@ -106,6 +113,21 @@ public class CustomerController {
 
 	@Autowired
 	IEnuEventTypeService enuEventTypeService;
+
+	@Autowired
+	IEnuVenueFacilityService enuVenueFacilityService;
+
+	@Autowired
+	IEnuVenueTypeService enuVenueTypeService;
+
+	@Autowired
+	IVenueFacilityMappingService venueFacilityMappingService;
+
+	@Autowired
+	IVenueEventTypeMappingService venueEventTypeMappingService;
+
+	@Autowired
+	IVenueImageMappingService venueImageMappingService;
 
 	@GetMapping("home")
 	public ModelAndView homePage() {
@@ -250,8 +272,9 @@ public class CustomerController {
 	@GetMapping("enquiry")
 	public ModelAndView enquiry() {
 		final ModelAndView modelandmap = new ModelAndView("enquiry");
-		modelandmap.addObject("eventTypes",enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
-		modelandmap.addObject("enquiry",new EnquiryDTO());
+		modelandmap.addObject("eventTypes",
+				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		modelandmap.addObject("enquiry", new EnquiryDTO());
 		return modelandmap;
 	}
 
@@ -267,10 +290,64 @@ public class CustomerController {
 		return new ModelAndView("redirect:/home");
 	}
 	
+	@GetMapping("getVenuesOnEventType/{venueId}")
+	public ModelAndView getVenuesOnEventType(ModelAndView modelandmap, @PathVariable long venueId) {
+		List<VenueDTO> venueDTOs;
+		if (venueId == -1) {
+			venueDTOs = venueService
+					.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true));
+			modelandmap.setViewName("fragments :: resultsList");
+		} else {
+			venueDTOs = venueService
+					.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true).addValue("venueTypeId", venueId));
+		}
+		
+		if (venueDTOs.size() == 0) {
+			modelandmap.setViewName("fragments :: resultsListVenue1");
+		} else {
+			modelandmap.setViewName("fragments :: resultsListVenue");
+		}
+		
+		List<String> addresses = venueDTOs.stream().map(venueDTO -> {
+			return getAddress(addressService.findById(venueDTO.getAddressId().longValue()));
+		}).collect(Collectors.toList());
+
+		List<String> venueTypes = venueDTOs.stream().map(venueDTO -> {
+			return enuVenueTypeService.findById(venueDTO.getVenueTypeId().longValue()).getVenueType();
+		}).collect(Collectors.toList());
+
+		List<List<VenueFacilityMappingDTO>> venueFacilities = venueDTOs.stream().map(venueDTO -> {
+			return venueFacilityMappingService
+					.findByNamedParameters(new MapSqlParameterSource().addValue("venueId", venueDTO.getVenueId().longValue()));
+		}).collect(Collectors.toList());
+		
+		List<List<VenueEventTypeMappingDTO>> venueEventTypes = venueDTOs.stream().map(venueDTO -> {
+			return venueEventTypeMappingService
+					.findByNamedParameters(new MapSqlParameterSource().addValue("venueId", venueDTO.getVenueId().longValue()));
+		}).collect(Collectors.toList());
+		
+		List<List<VenueImageMappingDTO>> venueImages = venueDTOs.stream().map(venueDTO -> {
+			return venueImageMappingService
+					.findByNamedParameters(new MapSqlParameterSource().addValue("venueId", venueDTO.getVenueId().longValue()));
+		}).collect(Collectors.toList());
+		
+		System.out.println(venueImages);
+		modelandmap.addObject("venueDTOs", venueDTOs);
+		modelandmap.addObject("addresses", addresses);
+		modelandmap.addObject("venueTypes", venueTypes);
+		modelandmap.addObject("venueFacilities", venueFacilities);
+		modelandmap.addObject("venueEventTypes", venueEventTypes);
+		modelandmap.addObject("eventNames",
+				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		modelandmap.addObject("venueImages", venueImages);
+		return modelandmap;
+	}
+
 	@GetMapping("venue")
 	public ModelAndView gallery() {
 		final ModelAndView modelandmap = new ModelAndView("venue");
-		
+		modelandmap.addObject("venueTypes",
+				enuVenueTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		return modelandmap;
 	}
 
