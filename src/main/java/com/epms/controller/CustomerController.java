@@ -262,7 +262,12 @@ public class CustomerController {
 		mail.setMailTo(enquiryDTO.getEmail());
 		mail.setMailSubject("Enquiry Submitted");
 		mail.setContentType("text/html");
-		mail.setMailContent("Ok");
+		String content = "<b>Thanks for being awesome! Your Inquiry number: Inquiry#"+enquiryDTO.getEnquiryId()+"</b> <br/><br/>" + 
+				"We have received your message and would like to thank you for writing to us. If your inquiry is urgent, "
+				+ "please use the telephone number listed in website to talk to one of our staff members. "
+				+ "<br/><br/> Otherwise, we will reply by email as soon as possible."
+				+"Talk to you soon, Unico";
+		mail.setMailContent(content);
 		mailService.sendEmail(mail);
 		return new ModelAndView("redirect:/home");
 	}
