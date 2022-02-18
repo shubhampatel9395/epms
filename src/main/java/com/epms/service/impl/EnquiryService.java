@@ -57,4 +57,9 @@ public class EnquiryService implements IEnquiryService {
 		return null;
 	}
 
+	@Override
+	public List<EnquiryDTO> findAllEnquiryWithStatus() {
+		return enquiryDAO.findAllEnquiryWithStatus();
+	}
+
 }

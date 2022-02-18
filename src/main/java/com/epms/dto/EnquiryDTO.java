@@ -35,4 +35,5 @@ public class EnquiryDTO {
 	private Boolean isActive;
 	private Integer createdBy;
 	private Integer updatedBy;
+	private String enquiryStatus;
 }

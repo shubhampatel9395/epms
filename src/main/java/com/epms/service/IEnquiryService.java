@@ -14,4 +14,6 @@ public interface IEnquiryService {
 	public EnquiryDTO insert(EnquiryDTO EnquiryDTO);
 	public void delete(Long id);
 	public EnquiryDTO update(EnquiryDTO entity);
+	List<EnquiryDTO> findAllEnquiryWithStatus();
+
 }

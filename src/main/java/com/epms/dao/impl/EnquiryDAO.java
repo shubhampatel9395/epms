@@ -106,5 +106,13 @@ public class EnquiryDAO implements IEnquiryDAO {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public List<EnquiryDTO> findAllEnquiryWithStatus() {
+		StringBuilder sql = new StringBuilder();
+		sql.append("select e.*,es.status as enquiryStatus from enquiry e join enuenquirystatus es on e.enquiryStatusId = es.statusId");
+		return jdbcTemplate.query(sql.toString(), new MapSqlParameterSource(),
+				new BeanPropertyRowMapper<EnquiryDTO>(EnquiryDTO.class));
+	}
 
 }
