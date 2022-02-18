@@ -1,9 +1,7 @@
 package com.epms.controller;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +41,6 @@ import com.epms.dto.PackageDetailsDTO;
 import com.epms.dto.PackageServiceProviderMappingDTO;
 import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.UserDetailsDTO;
-import com.epms.dto.VenueDTO;
-import com.epms.dto.VenueImageMappingDTO;
 import com.epms.email.configuration.IMailService;
 import com.epms.email.configuration.Mail;
 import com.epms.service.IAddressService;
@@ -61,7 +57,6 @@ import com.epms.service.IUserDetailsService;
 import com.epms.service.IVenueService;
 
 import groovyjarjarantlr4.v4.runtime.misc.NotNull;
-import groovyjarjarpicocli.CommandLine.Parameters;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
