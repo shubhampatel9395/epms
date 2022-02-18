@@ -110,9 +110,22 @@ public class EnquiryDAO implements IEnquiryDAO {
 	@Override
 	public List<EnquiryDTO> findAllEnquiryWithStatus() {
 		StringBuilder sql = new StringBuilder();
-		sql.append("select e.*,es.status as enquiryStatus from enquiry e join enuenquirystatus es on e.enquiryStatusId = es.statusId");
+		sql.append("select e.*,es.status as enquiryStatus,et.eventType as eventType from enquiry e join enuenquirystatus es on e.enquiryStatusId = es.statusId left join enueventtype et on e.eventTypeId = et.eventTypeId ");
 		return jdbcTemplate.query(sql.toString(), new MapSqlParameterSource(),
 				new BeanPropertyRowMapper<EnquiryDTO>(EnquiryDTO.class));
 	}
 
+	@Override
+	public EnquiryDTO findEnquiryById(Long id) {
+		String sql = "select e.*,es.status as enquiryStatus,et.eventType as eventType from enquiry e join enuenquirystatus es on e.enquiryStatusId = es.statusId left join enueventtype et on e.eventTypeId = et.eventTypeId where e.enquiryId = :enquiryId";
+
+		SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("enquiryId", id);
+
+		try {
+			return jdbcTemplate.queryForObject(sql, namedParameters,
+					new BeanPropertyRowMapper<EnquiryDTO>(EnquiryDTO.class));
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+	}
 }

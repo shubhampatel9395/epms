@@ -1,0 +1,107 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/_layout}">
+
+<head>
+<title>Inquiry Details</title>
+<style>
+.page-title-box .page-title-right {
+	display: block;
+}
+</style>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<div class="page-title-right">
+							<a th:href="@{/admin//list-inquiry}"
+								class="btn btn-secondary mb-2">Back</a>
+						</div>
+						<h4 class="page-title">Inquiry Details</h4>
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<dl class="row mb-0">
+
+								<dt class="col-sm-3">Name</dt>
+								<dd class="col-sm-9" th:text="${inquiry.personName}"></dd>
+
+								<dt class="col-sm-3">Mobile Number</dt>
+								<dd class="col-sm-9" th:text="${inquiry.mobileNumber}"></dd>
+
+								<dt class="col-sm-3">Email Address</dt>
+								<dd class="col-sm-9" th:utext="${inquiry.email}"></dd>
+
+								<dt class="col-sm-3">Event Type</dt>
+								<dd class="col-sm-9" th:utext="${inquiry.eventType}"></dd>
+
+								<dt class="col-sm-3">Start Date</dt>
+								<dd class="col-sm-9" th:utext="${inquiry.startDate}"></dd>
+
+								<dt class="col-sm-3">Start Time</dt>
+								<dd class="col-sm-9" th:utext="${inquiry.startTime}"></dd>
+
+								<dt class="col-sm-3">End Date</dt>
+								<dd class="col-sm-9" th:utext="${inquiry.endDate}"></dd>
+
+								<dt class="col-sm-3">End Time</dt>
+								<dd class="col-sm-9" th:utext="${inquiry.endTime}"></dd>
+
+								<dt class="col-sm-3">Description</dt>
+								<dd class="col-sm-9" th:utext="${inquiry.description}"></dd>
+
+								<dt class="col-sm-3">Estimated Guest</dt>
+								<dd class="col-sm-9" th:utext="${inquiry.estimatedGuest}"></dd>
+
+								<dt class="col-sm-3">Minimum Budget</dt>
+								<dd class="col-sm-9" th:utext="${inquiry.minBudget}"></dd>
+
+								<dt class="col-sm-3">Maximum Budget</dt>
+								<dd class="col-sm-9" th:utext="${inquiry.maxBudget}"></dd>
+
+								<dt class="col-sm-3">Is Private Event?</dt>
+								<dd class="col-sm-9"
+									th:utext="${inquiry.isPublic == true ? 'Yes' : 'No'}"></dd>
+
+								<dt class="col-sm-3">Is Free Event?</dt>
+								<dd class="col-sm-9"
+									th:utext="${inquiry.isFree == true ? 'Yes' : 'No'}"></dd>
+
+								<dt class="col-sm-3">Inquiry Status</dt>
+								<dd class="col-sm-9" th:utext="${inquiry.enquiryStatus}"></dd>
+
+							</dl>
+							<div th:if="${inquiry.response !=null}">
+								<dl>
+									<dt class="col-sm-3">Response</dt>
+									<dd class="col-sm-9" th:utext="${inquiry.response}"></dd>
+
+									<dt class="col-sm-3">Response Date</dt>
+									<dd class="col-sm-9" th:utext="${inquiry.responseDate}"></dd>
+
+									<dt class="col-sm-3">Response Time</dt>
+									<dd class="col-sm-9" th:utext="${inquiry.responseTime}"></dd>
+
+								</dl>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+		<!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+	</th:block>
+</body>
+
+</html>

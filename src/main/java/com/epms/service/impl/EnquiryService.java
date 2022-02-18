@@ -62,4 +62,9 @@ public class EnquiryService implements IEnquiryService {
 		return enquiryDAO.findAllEnquiryWithStatus();
 	}
 
+	@Override
+	public EnquiryDTO findEnquiryById(Long id) {
+		return enquiryDAO.findEnquiryById(id);
+	}
+
 }

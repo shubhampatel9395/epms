@@ -41,6 +41,7 @@ import com.epms.dto.AdminDashboardDTO;
 import com.epms.dto.AdminLatestActivityDTO;
 import com.epms.dto.DonutDTO;
 import com.epms.dto.EmployeeDTO;
+import com.epms.dto.EnquiryDTO;
 import com.epms.dto.EnuEventTypeDTO;
 import com.epms.dto.EnuServiceTypeDTO;
 import com.epms.dto.EnuVenueFacilityDTO;
@@ -59,6 +60,7 @@ import com.epms.dto.VenueTempDTO;
 import com.epms.email.configuration.IMailService;
 import com.epms.service.IAddressService;
 import com.epms.service.IEmployeeService;
+import com.epms.service.IEnquiryService;
 import com.epms.service.IEnuCityService;
 import com.epms.service.IEnuCountryService;
 import com.epms.service.IEnuEmployeeRoleService;
@@ -85,6 +87,9 @@ import lombok.extern.slf4j.Slf4j;
 public class AdminController {
 	@Autowired
 	IEnuCityService enuCityService;
+	
+	@Autowired
+	IEnquiryService enquiryService;
 
 	@Autowired
 	IEnuStateService enuStateService;
@@ -1346,4 +1351,22 @@ public class AdminController {
 		}
 		return donutDTO;
 	}
+	
+	@GetMapping("/list-inquiry")
+	public ModelAndView listInquire() {
+		ModelAndView modelandmap = new ModelAndView("admin/inquiry");
+		List<EnquiryDTO> inquiries = enquiryService.findAllEnquiryWithStatus();
+		modelandmap.addObject("inquiries", inquiries);
+		return modelandmap;
+	}
+	
+	@GetMapping("/view_inquiry/{enquiryId}")
+	public ModelAndView viewInquire(@PathVariable("enquiryId") long enquiryId) {
+		ModelAndView modelandmap = new ModelAndView("admin/view_inquiry");
+		EnquiryDTO inquiry = enquiryService.findEnquiryById(enquiryId);
+		modelandmap.addObject("inquiry", inquiry);
+		return modelandmap;
+	}
+	
+	
 }

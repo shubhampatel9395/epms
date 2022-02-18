@@ -36,4 +36,5 @@ public class EnquiryDTO {
 	private Integer createdBy;
 	private Integer updatedBy;
 	private String enquiryStatus;
+	private String eventType;
 }
