@@ -1,0 +1,51 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+   layout:decorate="~{admin/_layout}">
+   <head>
+      <title>Inquiry Response</title>
+      <!-- third party css -->
+      <link th:href="@{/assets/css/vendor/responsive.bootstrap5.css}" rel="stylesheet" type="text/css" />
+      <link href="@{/assets/css/vendor/quill.core.css}" rel="stylesheet" type="text/css" />
+      <link href="@{/assets/css/vendor/quill.snow.css}" rel="stylesheet" type="text/css" />
+   </head>
+   <body>
+      <th:block layout:fragment="content">
+         <!-- Start Content-->
+         <div class="container-fluid">
+            <!-- start page title -->
+            <div class="row">
+               <div class="col-12">
+                  <div class="page-title-box">
+                     <h4 class="page-title">Inquiry Response</h4>
+                  </div>
+               </div>
+            </div>
+            <!-- end page title -->
+            <div class="row">
+               <div class="col-12">
+                  <div class="card">
+                     <div class="card-body">
+							<form th:action="@{/admin/response_inquiry}" method="post">
+							<input type="hidden" th:field="*{inquiry.enquiryId}" />
+								<textarea id="snow-editor" style="height: 300px;" th:field="*{inquiry.response}"></textarea>
+							</form>
+						</div>
+                     <!-- end card-body-->
+                  </div>
+                  <!-- end card-->
+               </div>
+               <!-- end col -->
+            </div>
+            <!-- end row -->
+         </div>
+         <!-- container -->
+      </th:block>
+      <th:block layout:fragment="script">
+         <!-- third party js -->
+         <script th:src="@{/assets/js/vendor/responsive.bootstrap5.min.js}"></script>
+         <!-- quill js -->
+         <script src="@{/assets/js/vendor/quill.min.js}"></script>
+         <!-- quill Init js-->
+         <script src="@{/assets/js/pages/demo.quilljs.js}"></script>
+      </th:block>
+   </body>
+</html>

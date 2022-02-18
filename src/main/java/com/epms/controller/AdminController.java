@@ -1368,5 +1368,18 @@ public class AdminController {
 		return modelandmap;
 	}
 	
+	@GetMapping("/response_inquiry/{enquiryId}")
+	public ModelAndView showResponseInquiry(@PathVariable("enquiryId") long enquiryId) {
+		ModelAndView modelandmap = new ModelAndView("admin/response_inquiry");
+		EnquiryDTO inquiry = enquiryService.findEnquiryById(enquiryId);
+		modelandmap.addObject("inquiry", inquiry);
+		return modelandmap;
+	}
+	
+	@PostMapping("/response_inquiry")
+	public ModelAndView inquiryResponse(@Valid @ModelAttribute("inquiry") EnquiryDTO inquiry) {
+		return null;
+	}
+	
 	
 }
