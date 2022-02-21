@@ -1459,7 +1459,7 @@ public class AdminController {
 	@PostMapping("/response_inquiry")
 	public ModelAndView inquiryResponse(@Valid @ModelAttribute("inquiry") EnquiryDTO inquiry) {
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
-		parameterSource.addValue("status", "");
+		parameterSource.addValue("status", "Responded");
 		EnuEnquiryStatusDTO enquiryStatusDTO=DataAccessUtils.singleResult(enquiryStatusService.findByNamedParameters(parameterSource));
 		inquiry.setEnquiryStatusId(enquiryStatusDTO.getStatusId());
 		enquiryService.updateResponse(inquiry);
