@@ -138,4 +138,16 @@ public class EnquiryDAO implements IEnquiryDAO {
 				"update enquiry set response=:response,enquiryStatusId=:enquiryStatusId,responseDate=CURRENT_DATE(),responseTime=CURRENT_TIME() where enquiryId=:enquiryId",
 				namedParameters);
 	}
+
+	@Override
+	public void updateInreviewStatus(long enquiryId, Integer statusId) {
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("enquiryStatusId", statusId);
+		namedParameters.addValue("enquiryId", enquiryId);
+		
+		jdbcTemplate.update(
+				"update enquiry set enquiryStatusId=:enquiryStatusId where enquiryId=:enquiryId",
+				namedParameters);
+		
+	}
 }

@@ -4,8 +4,8 @@
       <title>Inquiry Response</title>
       <!-- third party css -->
       <link th:href="@{/assets/css/vendor/responsive.bootstrap5.css}" rel="stylesheet" type="text/css" />
-      <link href="@{/assets/css/vendor/quill.core.css}" rel="stylesheet" type="text/css" />
-      <link href="@{/assets/css/vendor/quill.snow.css}" rel="stylesheet" type="text/css" />
+      <link th:href="@{/assets/css/vendor/quill.core.css}" rel="stylesheet" type="text/css" />
+      <link th:href="@{/assets/css/vendor/quill.snow.css}" rel="stylesheet" type="text/css" />
    </head>
    <body>
       <th:block layout:fragment="content">
@@ -15,6 +15,10 @@
             <div class="row">
                <div class="col-12">
                   <div class="page-title-box">
+                  <div class="page-title-right">
+							<a th:href="@{/admin/list-inquiry}"
+								class="btn btn-secondary mb-2">Back</a>
+						</div>
                      <h4 class="page-title">Inquiry Response</h4>
                   </div>
                </div>
@@ -28,7 +32,18 @@
 							<input type="hidden" th:field="*{inquiry.enquiryId}" />
 							<input type="hidden" th:field="*{inquiry.email}" />
 							<input type="hidden" th:field="*{inquiry.personName}" />
-								<textarea id="snow-editor" style="height: 300px;" th:field="*{inquiry.response}"></textarea>
+								<div class="tab-content">
+                                                    <div class="tab-pane show active" id="hint-emoji-preview">
+                                                        <div id="snow-editor" style="height: 300px;">
+                                                        </div><!-- end Snow-editor-->
+                                                    </div> <!-- end preview-->
+								</div>
+                                        <div class="mb-0 d-grid text-center">
+									<button class="btn btn-primary mt-3" type="submit"><i
+											class="mdi mdi-plus-circle me-2"></i>
+										Send Email
+									</button>
+								</div>        
 							</form>
 						</div>
                      <!-- end card-body-->
@@ -45,9 +60,9 @@
          <!-- third party js -->
          <script th:src="@{/assets/js/vendor/responsive.bootstrap5.min.js}"></script>
          <!-- quill js -->
-         <script src="@{/assets/js/vendor/quill.min.js}"></script>
-         <!-- quill Init js-->
-         <script src="@{/assets/js/pages/demo.quilljs.js}"></script>
+         <script th:src="@{/assets/js/vendor/quill.min.js}"></script>
+         <!-- Init js-->
+        <script th:src="@{/assets/js/pages/demo.quilljs.js}"></script>
       </th:block>
    </body>
 </html>

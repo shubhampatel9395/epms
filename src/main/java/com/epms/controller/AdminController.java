@@ -91,7 +91,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AdminController {
 	@Autowired
 	IEnuCityService enuCityService;
-	
+
 	@Autowired
 	IEnquiryService enquiryService;
 
@@ -154,7 +154,7 @@ public class AdminController {
 
 	@Autowired
 	IEventService eventService;
-	
+
 	@Autowired
 	IEnuEnquiryStatusService enquiryStatusService;
 
@@ -170,24 +170,28 @@ public class AdminController {
 				+ addressDTO.getPostalCode();
 		return address;
 	}
-	
-	public List<AdminLatestActivityDTO> getLatestActivities()
-	{
+
+	public List<AdminLatestActivityDTO> getLatestActivities() {
 		List<AdminLatestActivityDTO> activityDTOs = new ArrayList<>();
-		List<UserDetailsDTO> customerDTOs = userDetailsService.getLastDayData(new MapSqlParameterSource().addValue("isCustomer", true));
-		List<UserDetailsDTO> serviceProviderDTOs = userDetailsService.getLastDayData(new MapSqlParameterSource().addValue("isServiceProvider", true));
+		List<UserDetailsDTO> customerDTOs = userDetailsService
+				.getLastDayData(new MapSqlParameterSource().addValue("isCustomer", true));
+		List<UserDetailsDTO> serviceProviderDTOs = userDetailsService
+				.getLastDayData(new MapSqlParameterSource().addValue("isServiceProvider", true));
 		List<EventDTO> eventDTOs = eventService.getLastDayData();
-		
+
 		activityDTOs.addAll(customerDTOs.stream().map(customerDTO -> {
-			return new AdminLatestActivityDTO("CUSTOMER", customerDTO.getFirstName() + " " + customerDTO.getLastName(), " registered in the system.", customerDTO.getCreatedAt());
+			return new AdminLatestActivityDTO("CUSTOMER", customerDTO.getFirstName() + " " + customerDTO.getLastName(),
+					" registered in the system.", customerDTO.getCreatedAt());
 		}).collect(Collectors.toList()));
-		
+
 		activityDTOs.addAll(serviceProviderDTOs.stream().map(serviceproviderDTO -> {
-			return new AdminLatestActivityDTO("SERVICEPROVIDER", serviceproviderDTO.getServiceProviderName() , " registered in the system. Verify to give access.", serviceproviderDTO.getCreatedAt());
+			return new AdminLatestActivityDTO("SERVICEPROVIDER", serviceproviderDTO.getServiceProviderName(),
+					" registered in the system. Verify to give access.", serviceproviderDTO.getCreatedAt());
 		}).collect(Collectors.toList()));
-		
+
 		activityDTOs.addAll(eventDTOs.stream().map(eventDTO -> {
-			return new AdminLatestActivityDTO("EVENT", eventDTO.getEventTitle() , " registered in the system. Review it.", eventDTO.getCreatedAt());
+			return new AdminLatestActivityDTO("EVENT", eventDTO.getEventTitle(),
+					" registered in the system. Review it.", eventDTO.getCreatedAt());
 		}).collect(Collectors.toList()));
 		activityDTOs.sort(Collections.reverseOrder(Comparator.comparing(AdminLatestActivityDTO::getCreatedAt)));
 		return activityDTOs;
@@ -200,14 +204,14 @@ public class AdminController {
 			return new ModelAndView("redirect:/login");
 		} else {
 			ModelAndView modelandmap = new ModelAndView("admin/index");
-			
+
 			AdminDashboardDTO adminDashboardDTO = new AdminDashboardDTO();
 			List<AdminLatestActivityDTO> activityDTOs = getLatestActivities();
 			adminDashboardDTO.customerCount = userDetailsService.getCustomerCount();
 			adminDashboardDTO.serviceproviderCount = userDetailsService.getServiceproviderCount();
 			adminDashboardDTO.eventCount = eventService.getCount();
 			adminDashboardDTO.venueCount = venueService.getCount();
-			
+
 			modelandmap.addObject("activityDTOs", activityDTOs);
 			modelandmap.addObject("adminDashboardDTO", adminDashboardDTO);
 			return modelandmap;
@@ -622,7 +626,7 @@ public class AdminController {
 		}
 		return modelandmap;
 	}
-	
+
 	@GetMapping("getPackagesOfEvent/{eventTypeId}")
 	public ModelAndView packagesByEventType(ModelAndView modelandmap, @PathVariable long eventTypeId) {
 		List<PackageDetailsDTO> packageDetailsDTO;
@@ -674,16 +678,18 @@ public class AdminController {
 		// modelandmap.setViewName("fragments :: resultsList");
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/add_event")
 	public ModelAndView addEvent() {
 		ModelAndView modelandmap = new ModelAndView("admin/add_event");
 		modelandmap.addObject("eventDTO", new EventDTO());
-		modelandmap.addObject("customers",
-				userDetailsService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true).addValue("isCustomer", true)));
+		modelandmap.addObject("customers", userDetailsService.findByNamedParameters(
+				new MapSqlParameterSource().addValue("isActive", true).addValue("isCustomer", true)));
 		modelandmap.addObject("employees",
 				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)
-						.addValue("employeeRoleId", enuEmployeeRoleService.findByNamedParameters(new MapSqlParameterSource().addValue("role", "Event Organizer")).get(0).getEmployeeRoleId())));
+						.addValue("employeeRoleId", enuEmployeeRoleService
+								.findByNamedParameters(new MapSqlParameterSource().addValue("role", "Event Organizer"))
+								.get(0).getEmployeeRoleId())));
 		modelandmap.addObject("eventTypes",
 				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		return modelandmap;
@@ -1295,7 +1301,6 @@ public class AdminController {
 	@PostMapping("upload/files")
 	public String handleFilesUpload(@RequestParam("files") MultipartFile[] files,
 			@RequestParam("venueId") Integer venueId, ModelAndView map) {
-		StringBuilder sb = new StringBuilder();
 
 		for (MultipartFile file : files) {
 
@@ -1309,28 +1314,6 @@ public class AdminController {
 				}
 				venueImageMappingService.insert(obj);
 
-//				try {
-//					if (!Files.exists(Paths.get(UPLOAD_FOLDER))) {
-//						try {
-//							Files.createDirectories(Paths.get(UPLOAD_FOLDER));
-//						} catch (IOException ioe) {
-//							ioe.printStackTrace();
-//						}
-//					}
-//
-//					Files.copy(file.getInputStream(), Paths.get(UPLOAD_FOLDER, file.getOriginalFilename()));
-//					sb.append("You successfully uploaded " + file.getOriginalFilename() + "!\n");
-//
-//					map.addAttribute("msg", sb.toString());
-//				} catch (IOException | RuntimeException e) {
-//					sb.append("Failued to upload " + (file != null ? file.getOriginalFilename() : "") + " => "
-//							+ e.getMessage() + String.valueOf(e) + "\n");
-//
-//					map.addAttribute("msg", sb.toString());
-//				}
-//			} else {
-//				sb.append("Failed to upload file\n");
-//				map.addAttribute("msg", sb.toString());
 			}
 		}
 
@@ -1431,7 +1414,7 @@ public class AdminController {
 		}
 		return donutDTO;
 	}
-	
+
 	@GetMapping("/list-inquiry")
 	public ModelAndView listInquire() {
 		ModelAndView modelandmap = new ModelAndView("admin/inquiry");
@@ -1439,7 +1422,7 @@ public class AdminController {
 		modelandmap.addObject("inquiries", inquiries);
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/view_inquiry/{enquiryId}")
 	public ModelAndView viewInquire(@PathVariable("enquiryId") long enquiryId) {
 		ModelAndView modelandmap = new ModelAndView("admin/view_inquiry");
@@ -1447,7 +1430,7 @@ public class AdminController {
 		modelandmap.addObject("inquiry", inquiry);
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/response_inquiry/{enquiryId}")
 	public ModelAndView showResponseInquiry(@PathVariable("enquiryId") long enquiryId) {
 		ModelAndView modelandmap = new ModelAndView("admin/response_inquiry");
@@ -1455,23 +1438,33 @@ public class AdminController {
 		modelandmap.addObject("inquiry", inquiry);
 		return modelandmap;
 	}
-	
+
 	@PostMapping("/response_inquiry")
 	public ModelAndView inquiryResponse(@Valid @ModelAttribute("inquiry") EnquiryDTO inquiry) {
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		parameterSource.addValue("status", "Responded");
-		EnuEnquiryStatusDTO enquiryStatusDTO=DataAccessUtils.singleResult(enquiryStatusService.findByNamedParameters(parameterSource));
+		EnuEnquiryStatusDTO enquiryStatusDTO = DataAccessUtils
+				.singleResult(enquiryStatusService.findByNamedParameters(parameterSource));
 		inquiry.setEnquiryStatusId(enquiryStatusDTO.getStatusId());
 		enquiryService.updateResponse(inquiry);
 		Mail mail = new Mail();
 		mail.setMailTo(inquiry.getEmail());
 		mail.setMailSubject("Enquiry Response");
 		mail.setContentType("text/html");
-		mail.setMailContent("<p>Hi " + inquiry.getPersonName() + ",</p><br/>"+inquiry.getResponse());
+		mail.setMailContent("<p>Hi " + inquiry.getPersonName() + ",</p><br/>" + inquiry.getResponse());
 		mailService.sendEmail(mail);
-		return new ModelAndView("redirect:/list-inquiry");
+		return new ModelAndView("redirect:/admin/list-inquiry");
 
 	}
-	
-	
+
+	@GetMapping("/review_inquiry/{enquiryId}")
+	public ModelAndView reviewInquiry(@PathVariable("enquiryId") long enquiryId) {
+		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+		parameterSource.addValue("status", "In-Review");
+		EnuEnquiryStatusDTO enquiryStatusDTO = DataAccessUtils
+				.singleResult(enquiryStatusService.findByNamedParameters(parameterSource));
+		enquiryService.updateInreviewStatus(enquiryId, enquiryStatusDTO.getStatusId());
+		return new ModelAndView("redirect:/admin/list-inquiry");
+	}
+
 }

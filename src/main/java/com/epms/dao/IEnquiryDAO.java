@@ -11,5 +11,6 @@ public interface IEnquiryDAO extends ICRUDRepository<EnquiryDTO, Long> {
 
 	EnquiryDTO findEnquiryById(Long id);
 	public void updateResponse(EnquiryDTO inquiry);
+	public void updateInreviewStatus(long enquiryId, Integer statusId);
 
 }

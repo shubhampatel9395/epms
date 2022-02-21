@@ -73,4 +73,9 @@ public class EnquiryService implements IEnquiryService {
 		
 	}
 
+	@Override
+	public void updateInreviewStatus(long enquiryId, Integer statusId) {
+		enquiryDAO.updateInreviewStatus(enquiryId, statusId);
+	}
+
 }
