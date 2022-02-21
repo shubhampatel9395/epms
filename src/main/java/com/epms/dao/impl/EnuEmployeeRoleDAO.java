@@ -43,7 +43,7 @@ public class EnuEmployeeRoleDAO implements IEnuEmployeeRoleDAO {
 
 	@Override
 	public List<EnuEmployeeRoleDTO> findByNamedParameters(MapSqlParameterSource paramSource) {
-		String sql = "select * from enuemployeerole where 1=1 ";
+		String sql = "select * from enuemployeerole where 1=1";
 		for (Entry<String, Object> param : paramSource.getValues().entrySet()) {
 			sql += " and " + param.getKey() + " = :" + param.getKey();
 		}

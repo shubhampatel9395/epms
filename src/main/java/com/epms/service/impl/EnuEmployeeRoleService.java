@@ -37,7 +37,7 @@ public class EnuEmployeeRoleService implements IEnuEmployeeRoleService {
 
 	@Override
 	public List<EnuEmployeeRoleDTO> findByNamedParameters(MapSqlParameterSource paramSource) {
-		return enuEmployeeRoleDAO.findByFieldValue(null, paramSource);
+		return enuEmployeeRoleDAO.findByNamedParameters(paramSource);
 	}
 
 	@Override

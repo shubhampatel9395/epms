@@ -43,13 +43,13 @@
 								<dd class="col-sm-9" th:utext="${inquiry.eventType}"></dd>
 
 								<dt class="col-sm-3">Start Date</dt>
-								<dd class="col-sm-9" th:utext="${inquiry.startDate}"></dd>
+								<dd class="col-sm-9" th:utext="${#dates.format(inquiry.startDate, 'yyyy-MM-dd')}"></dd>
 
 								<dt class="col-sm-3">Start Time</dt>
 								<dd class="col-sm-9" th:utext="${inquiry.startTime}"></dd>
 
 								<dt class="col-sm-3">End Date</dt>
-								<dd class="col-sm-9" th:utext="${inquiry.endDate}"></dd>
+								<dd class="col-sm-9" th:utext="${#dates.format(inquiry.endDate, 'yyyy-MM-dd')}"></dd>
 
 								<dt class="col-sm-3">End Time</dt>
 								<dd class="col-sm-9" th:utext="${inquiry.endTime}"></dd>
@@ -79,12 +79,12 @@
 
 							</dl>
 							<div th:if="${inquiry.response !=null}">
-								<dl>
+								<dl class="row mb-0">
 									<dt class="col-sm-3">Response</dt>
 									<dd class="col-sm-9" th:utext="${inquiry.response}"></dd>
 
 									<dt class="col-sm-3">Response Date</dt>
-									<dd class="col-sm-9" th:utext="${inquiry.responseDate}"></dd>
+									<dd class="col-sm-9" th:utext="${#dates.format(inquiry.responseDate, 'yyyy-MM-dd')}"></dd>
 
 									<dt class="col-sm-3">Response Time</dt>
 									<dd class="col-sm-9" th:utext="${inquiry.responseTime}"></dd>

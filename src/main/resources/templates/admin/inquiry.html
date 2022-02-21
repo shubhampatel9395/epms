@@ -49,14 +49,21 @@
 											<td th:text="${inquiry.mobileNumber}"></td>
 											<td th:utext="${inquiry.email}"></td>
 											<td th:text="${inquiry.eventType}"></td>
-											<td><span class="badge bg-success" th:text="${inquiry.enquiryStatus}"></span></td>
+											<td><span class="badge bg-success"
+													th:text="${inquiry.enquiryStatus}"></span></td>
 											<td class="table-action">
 												<a th:href="@{'/admin/view_inquiry/' + ${inquiry.enquiryId}}"
 													class="action-icon"> <i class="mdi mdi-eye"></i></a>
-												<a th:href="@{'/admin/response_inquiry/' + ${inquiry.enquiryId}}"
+												<a th:if="${inquiry.enquiryStatus != 'Responded'}"
+													th:href="@{'/admin/response_inquiry/' + ${inquiry.enquiryId}}"
 													class="action-icon"> <i class="mdi mdi-email"></i></a>
-												<a th:if="${inquiry.enquiryStatus == 'Submitted'}" th:href="@{'/admin/review_inquiry/' + ${inquiry.enquiryId}}"
-													class="action-icon" data-bs-container="#tooltip-container2" data-bs-toggle="tooltip" data-bs-placement="top" title="Change status to In-Review"> <i class="mdi mdi-book-search"></i></a>
+												<div id="tooltip-container2" style="display: inline-block;">
+													<a th:if="${inquiry.enquiryStatus == 'Submitted'}"
+														th:href="@{'/admin/review_inquiry/' + ${inquiry.enquiryId}}"
+														class="action-icon" data-bs-container="#tooltip-container2"
+														data-bs-toggle="tooltip" data-bs-placement="left" title="Change status to In-Review"><i
+															class="mdi mdi-book-search"></i></a>
+												</div>
 											</td>
 										</tr>
 									</tbody>

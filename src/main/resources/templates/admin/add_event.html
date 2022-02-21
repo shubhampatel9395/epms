@@ -100,23 +100,28 @@
 											required="" accept="image/png, image/jpg, image/jpeg" capture>
 									</div>
 								</div>
-								
-								<div class="form-floating mb-3 col-md-6">
-										<select id="inputEventOrganizer" class="form-select"
-											th:field="*{eventDTO.eventOrganizerId}">
-											<option value="-1" selected hidden readonly>--Select Event Organizer --
-											</option>
-											<option th:each="employee : ${employees}"
-												th:value="${employee.employeeId}" th:text="|${employee.firstName} ${employee.lastName}|">
-											</option>
-										</select>
-										<label for="floatingSelect">Event Organizer</label>
-									</div>
-								
+
+								<div class="form-floating mb-3">
+									<select id="inputEventOrganizer" class="form-select"
+										th:field="*{eventDTO.eventOrganizerId}">
+										<option value="-1" selected hidden readonly>--Select Event Organizer --
+										</option>
+										<option th:each="employee : ${employees}" th:value="${employee.employeeId}"
+											th:text="|${employee.firstName} ${employee.lastName}|">
+										</option>
+									</select>
+									<label for="floatingSelect">Event Organizer</label>
+								</div>
+
 								<div>
-									<input type="checkbox" class="form-check-input" id="isStaticPackage" checked>
+									<input type="radio" class="form-check-input" id="isStaticPackage" name="customRadio" checked th:field="*{packageDetailsDTO.isStatic}" value="true">
 									<label class="form-check-label" for="isPublic">Packages</label>
 									<div id="main"></div>
+								</div>
+								
+								<div>
+									<input type="radio" class="form-check-input" id="isDynamicPackage" name="customRadio" th:field="*{packageDetailsDTO.isStatic}" value="false">
+									<label class="form-check-label" for="isPublic">Select Individual Services</label>
 								</div>
 
 								<div class="mb-0 d-grid text-center">

@@ -682,14 +682,22 @@ public class AdminController {
 	@GetMapping("/add_event")
 	public ModelAndView addEvent() {
 		ModelAndView modelandmap = new ModelAndView("admin/add_event");
+		List<EmployeeDTO> employees = employeeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)
+				.addValue("employeeRoleId", enuEmployeeRoleService
+						.findByNamedParameters(new MapSqlParameterSource().addValue("role", "Event Organizer"))
+						.get(0).getEmployeeRoleId()));
+		
+		employees.forEach(employee -> {
+			UserDetailsDTO user = userDetailsService.findById(employee.getUserDetailsId().longValue());
+			employee.setFirstName(user.getFirstName());
+			employee.setLastName(user.getLastName());
+		});
+		
 		modelandmap.addObject("eventDTO", new EventDTO());
+		modelandmap.addObject("packageDetailsDTO", new PackageDetailsDTO());
 		modelandmap.addObject("customers", userDetailsService.findByNamedParameters(
 				new MapSqlParameterSource().addValue("isActive", true).addValue("isCustomer", true)));
-		modelandmap.addObject("employees",
-				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)
-						.addValue("employeeRoleId", enuEmployeeRoleService
-								.findByNamedParameters(new MapSqlParameterSource().addValue("role", "Event Organizer"))
-								.get(0).getEmployeeRoleId())));
+		modelandmap.addObject("employees", employees);
 		modelandmap.addObject("eventTypes",
 				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		return modelandmap;
