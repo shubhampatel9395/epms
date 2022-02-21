@@ -1,7 +1,5 @@
 package com.epms.dao.impl;
 
-import java.sql.Time;
-import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -127,5 +125,17 @@ public class EnquiryDAO implements IEnquiryDAO {
 		} catch (EmptyResultDataAccessException e) {
 			return null;
 		}
+	}
+
+	@Override
+	public void updateResponse(EnquiryDTO inquiry) {
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("response", inquiry.getResponse());
+		namedParameters.addValue("enquiryStatusId", inquiry.getEnquiryStatusId());
+		namedParameters.addValue("enquiryId", inquiry.getEnquiryId());
+		
+		jdbcTemplate.update(
+				"update enquiry set response=:response,enquiryStatusId=:enquiryStatusId,responseDate=CURRENT_DATE(),responseTime=CURRENT_TIME() where enquiryId=:enquiryId",
+				namedParameters);
 	}
 }

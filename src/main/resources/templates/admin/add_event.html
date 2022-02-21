@@ -1,0 +1,175 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/_layout}">
+
+<head>
+	<title>Add Event</title>
+	<style>
+		.page-title-box .page-title-right {
+			display: block;
+		}
+
+		#imageUpload {
+			display: none;
+		}
+
+		#profileImage {
+			cursor: pointer;
+		}
+
+		#profile-container {
+			width: 400px;
+			height: 300px;
+			overflow: hidden;
+		}
+
+		#profile-container img {
+			width: 400px;
+			height: 300px;
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<div class="page-title-right">
+							<a th:href="@{/admin/list-event}" class="btn btn-secondary mb-2">Back</a>
+						</div>
+						<h4 class="page-title">Add event</h4>
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<form th:action="@{/admin/add_event}" method="post">
+								<div class="row g-2">
+									<div class="form-floating mb-3 col-md-6">
+										<select id="inputCustomer" class="form-select"
+											th:field="*{eventDTO.userDetailsId}">
+											<option value="" hidden readonly>--Select Customer --
+											</option>
+											<option th:each="customer : ${customers}"
+												th:value="${customer.userDetailsId}"
+												th:text="|${customer.firstName} ${customer.lastName}|">
+											</option>
+										</select>
+										<label for="floatingSelect">Customer</label>
+									</div>
+
+									<div class="form-floating mb-3 col-md-6">
+										<select id="inputEventType" class="form-select"
+											th:field="*{eventDTO.eventTypeId}">
+											<option value="-1" selected hidden readonly>--Select Event Type --
+											</option>
+											<option th:each="eventType : ${eventTypes}"
+												th:value="${eventType.eventTypeId}" th:text="${eventType.eventType}">
+											</option>
+										</select>
+										<label for="floatingSelect">Event Type</label>
+									</div>
+								</div>
+
+								<div class="form-floating mb-3">
+									<input th:field="*{eventDTO.eventTitle}" type="text" id="example-helping"
+										class="form-control" placeholder="Helping text">
+									<label for="floatingInput">Event
+										Title</label>
+								</div>
+
+								<div class="form-floating mb-3">
+									<textarea th:field="*{eventDTO.objective}" class="form-control" rows="5"
+										placeholder="Leave a comment here" id="floatingTextarea"
+										style="height: 150px;"></textarea>
+									<label for="floatingTextarea">Event Objective</label>
+								</div>
+
+								<div class="mb-3">
+									<div>
+										<i class="dripicons-photo" style="font-size: 24px;padding-right: 0.5rem;"></i>
+										<h6 class="font-15 mt-3 mb-3" style="display: inline-block;">Event Banner</h6>
+									</div>
+									<div class="mb-3" id="profile-container">
+										<img id="profileImage" th:src="@{/assets/images/img-placeholder.png}"
+											class="img-fluid img-thumbnail" />
+										<input id="imageUpload" type="file" name="profile_photo" placeholder="Photo"
+											required="" accept="image/png, image/jpg, image/jpeg" capture>
+									</div>
+								</div>
+								
+								<div class="form-floating mb-3 col-md-6">
+										<select id="inputEventOrganizer" class="form-select"
+											th:field="*{eventDTO.eventOrganizerId}">
+											<option value="-1" selected hidden readonly>--Select Event Organizer --
+											</option>
+											<option th:each="employee : ${employees}"
+												th:value="${employee.employeeId}" th:text="|${employee.firstName} ${employee.lastName}|">
+											</option>
+										</select>
+										<label for="floatingSelect">Event Organizer</label>
+									</div>
+								
+								<div>
+									<input type="checkbox" class="form-check-input" id="isStaticPackage" checked>
+									<label class="form-check-label" for="isPublic">Packages</label>
+									<div id="main"></div>
+								</div>
+
+								<div class="mb-0 d-grid text-center">
+									<button class="btn btn-primary" type="submit"><i
+											class="mdi mdi-plus-circle me-2"></i>
+										Create Event
+									</button>
+								</div>
+								<!-- social-->
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+		<script type="text/javascript">
+			$("#profileImage").click(function (e) {
+				$("#imageUpload").click();
+			});
+
+			function fasterPreview(uploader) {
+				if (uploader.files && uploader.files[0]) {
+					$('#profileImage').attr('src',
+						window.URL.createObjectURL(uploader.files[0]));
+				}
+			}
+
+			$("#imageUpload").change(function () {
+				fasterPreview(this);
+			});
+
+			$(document).ready(function () {
+				var value = $("#inputEventType").find(":selected").val();
+				var urlToCall = "getPackagesOfEvent/" + value + '';
+				$.get(urlToCall).done(function (result) {
+					$("#main").replaceWith(result);
+				});
+			});
+
+			$("#inputEventType").change(function () {
+				var value = $(this).find(":selected").val();
+				var urlToCall = "getPackagesOfEvent/" + value + '';
+				// console.log(value);
+				$.get(urlToCall).done(function (result) { // get from controller
+					$("#main").replaceWith(result); // update snippet of page
+				});
+			});
+		</script>
+	</th:block>
+</body>
+
+</html>

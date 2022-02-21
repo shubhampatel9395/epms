@@ -66,4 +66,9 @@ public class CustomUserDetailsDTO implements UserDetails {
 	public String getFullName() {
 		return userDetailsDTO.getFirstName() + " " + userDetailsDTO.getLastName();
 	}
+	
+	public String getServiceProviderName()
+	{
+		return userDetailsDTO.getServiceProviderName();
+	}
 }

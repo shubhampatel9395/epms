@@ -254,7 +254,7 @@ public class CustomerController {
 
 	@GetMapping("logout")
 	public ModelAndView logoutPage() {
-		return new ModelAndView("login");
+		return new ModelAndView("redirect:/login");
 	}
 
 	@GetMapping("events")
@@ -328,12 +328,14 @@ public class CustomerController {
 					.findByNamedParameters(new MapSqlParameterSource().addValue("venueId", venueDTO.getVenueId().longValue()));
 		}).collect(Collectors.toList());
 		
-		List<List<VenueImageMappingDTO>> venueImages = venueDTOs.stream().map(venueDTO -> {
-			return venueImageMappingService
-					.findByNamedParameters(new MapSqlParameterSource().addValue("venueId", venueDTO.getVenueId().longValue()));
+		List<Map<Integer,List<VenueImageMappingDTO>>> venueImages = venueDTOs.stream().map(venueDTO -> {
+			Map<Integer,List<VenueImageMappingDTO>> temp = new HashMap<>();
+			temp.put(venueDTO.getVenueId(), venueImageMappingService
+					.findByNamedParameters(new MapSqlParameterSource().addValue("venueId", venueDTO.getVenueId().longValue())));
+			return temp;
 		}).collect(Collectors.toList());
 		
-		System.out.println(venueImages);
+		// System.out.println(venueImages);
 		modelandmap.addObject("venueDTOs", venueDTOs);
 		modelandmap.addObject("addresses", addresses);
 		modelandmap.addObject("venueTypes", venueTypes);

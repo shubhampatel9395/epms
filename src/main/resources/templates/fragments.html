@@ -1,13 +1,69 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
-
 <head>
 </head>
 
 <body>
+	<!-- Admin Create Event Packages -->
+	<th:block th:fragment="resultsPackageEvent1" th:if="${#lists.isEmpty(packageDetailsDTOs)}">
+		<div class="row" id="main">
+			<p> No packages available for selected event type.</p>
+		</div>
+	</th:block>
 
-	<!-- Packages -->
+	<th:block th:fragment="resultsPackageEvent" th:unless="${#lists.isEmpty(packageDetailsDTOs)}" id="results-block">
+		<div class="row" id="main">
+			<div class="form-floating mt-3">
+				<select id="inputPackage" class="form-select" th:field="*{eventDTO.packageDetailsId}">
+					<option value="" hidden readonly>--Select Package --
+					</option>
+					<option th:each="package: ${packageDetailsDTOs}" th:text="${package.title}"
+						th:value="${package.packageDetailsId}">
+					</option>
+				</select>
+				<label for="floatingSelect" style="margin-left: 0.75rem;">Package</label>
+			</div>
+			
+			<div class="col-md-6 col-xxl-3" th:each="package: ${packageDetailsDTOs}">
+				<!-- project card -->
+				<div class="card d-block">
+					<div class="card-body">
+						<!-- project title-->
+						<h4 class="mt-0">
+							<span class="text-title" style="cursor: pointer;" th:text="${package.title}"></span>
+							<span class="float-end" th:text="${package.totalCost}"></span>
+							<i class="mdi mdi-currency-inr float-end" style="margin-right: 0.25rem;"></i>
+						</h4>
+						<div class="badge bg-success mb-3" th:text="${eventTypes[packageStat.index]}"></div>
+						<p th:if="${package.description != ''}" class="font-13 mb-3" th:text="${package.description}">
+						</p>
+
+						<!-- project detail-->
+						<p class="mb-1">
+							<span class="pe-2 text-nowrap mb-1 d-inline-block">
+								<i class="uil-map-pin-alt text-muted"></i>
+								<b>Venue Details</b>
+							</span>
+						<p th:text="${venueDetails[packageStat.index]}"></p>
+						</p>
+
+						<p class="mb-1">
+							<span class="pe-2 text-nowrap mb-1 d-inline-block">
+								<i class="uil-map-pin-alt text-muted"></i>
+								<b>Service Details</b>
+							</span>
+						<p class="mb-0" th:each="entry : ${serviceWithProviders[packageStat.index]}">
+							<span th:text="${entry.key} + ' - ' + ${entry.value}"></span>
+						</p>
+						</p>
+					</div> <!-- end card-body-->
+				</div> <!-- end card-->
+			</div> <!-- end col -->
+		</div>
+	</th:block>
+
+	<!-- Customer Packages -->
 	<th:block th:fragment="resultsList1" th:if="${#lists.isEmpty(packageDetailsDTOs)}">
 		<div class="row" id="main">
 			<p> No packages available for selected event type.</p>
@@ -75,31 +131,37 @@
 						<div class="badge bg-success mb-3" th:text="${venueTypes[venueStat.index]}"></div>
 
 						<!-- Images -->
-						<div th:each="venueImage : ${venueImages}" th:if="${venueImage != null}"
-							th:id="|with-controls-preview${venueStat.index}|"
-							style="width: fit-content; margin: 1.2rem 0rem;">
-							<!-- START carousel-->
-							<div th:id="|carouselExampleControls${venueStat.index}|" class="carousel slide"
-								data-bs-ride="carousel">
-								<div class="carousel-inner" role="listbox">
-									<div th:each="image : ${venueImage}" th:if="${image.venueId == venue.venueId}"
-										th:class="${imageStat.index} == 0 ? 'carousel-item active' : 'carousel-item'">
-										<img class="d-block img-fluid"
-											th:src="@{'/admin/image/' + ${image.venueImageMappingId}}" />
+						<span th:each="venueImage : ${venueImages}">
+							<div th:each="entry : ${venueImage}"
+								th:if="${(venue.venueId == entry.key)} and ${not (#lists.isEmpty(entry.value))}"
+								th:id="|with-controls-preview${venueStat.index}|"
+								style="width: fit-content; margin: 1.2rem 0rem;">
+								<!-- START carousel-->
+								<div th:id="|carouselExampleControls${venueStat.index}|" class="carousel slide"
+									data-bs-ride="carousel">
+									<div class="carousel-inner" role="listbox">
+										<div th:each="image : ${entry.value}" id="cont"
+											th:class="${imageStat.index} == 0 ? 'carousel-item active' : 'carousel-item'">
+											<img style="width: 100%;height: 100%;display:block;"
+												class="d-block img-fluid"
+												th:src="@{'/admin/image/' + ${image.venueImageMappingId}}" />
+										</div>
 									</div>
+									<a class="carousel-control-prev"
+										th:href="|#carouselExampleControls${venueStat.index}|" role="button"
+										data-bs-slide="prev">
+										<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+										<span class="visually-hidden">Previous</span>
+									</a>
+									<a class="carousel-control-next"
+										th:href="|#carouselExampleControls${venueStat.index}|" role="button"
+										data-bs-slide="next">
+										<span class="carousel-control-next-icon" aria-hidden="true"></span>
+										<span class="visually-hidden">Next</span>
+									</a>
 								</div>
-								<a class="carousel-control-prev" th:href="|#carouselExampleControls${venueStat.index}|"
-									role="button" data-bs-slide="prev">
-									<span class="carousel-control-prev-icon" aria-hidden="true"></span>
-									<span class="visually-hidden">Previous</span>
-								</a>
-								<a class="carousel-control-next" th:href="|#carouselExampleControls${venueStat.index}|"
-									role="button" data-bs-slide="next">
-									<span class="carousel-control-next-icon" aria-hidden="true"></span>
-									<span class="visually-hidden">Next</span>
-								</a>
 							</div>
-						</div> <!-- end preview-->
+						</span> <!-- end preview-->
 
 						<!-- project detail-->
 						<p class="mb-1">

@@ -26,6 +26,7 @@
                      <div class="card-body">
 							<form th:action="@{/admin/response_inquiry}" method="post">
 							<input type="hidden" th:field="*{inquiry.enquiryId}" />
+							<input type="hidden" th:field="*{inquiry.email}" />
 								<textarea id="snow-editor" style="height: 300px;" th:field="*{inquiry.response}"></textarea>
 							</form>
 						</div>

@@ -16,6 +16,7 @@ import javax.sql.rowset.serial.SerialException;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,6 +43,7 @@ import com.epms.dto.AdminLatestActivityDTO;
 import com.epms.dto.DonutDTO;
 import com.epms.dto.EmployeeDTO;
 import com.epms.dto.EnquiryDTO;
+import com.epms.dto.EnuEnquiryStatusDTO;
 import com.epms.dto.EnuEventTypeDTO;
 import com.epms.dto.EnuServiceTypeDTO;
 import com.epms.dto.EnuVenueFacilityDTO;
@@ -58,12 +60,14 @@ import com.epms.dto.VenueFacilityMappingDTO;
 import com.epms.dto.VenueImageMappingDTO;
 import com.epms.dto.VenueTempDTO;
 import com.epms.email.configuration.IMailService;
+import com.epms.email.configuration.Mail;
 import com.epms.service.IAddressService;
 import com.epms.service.IEmployeeService;
 import com.epms.service.IEnquiryService;
 import com.epms.service.IEnuCityService;
 import com.epms.service.IEnuCountryService;
 import com.epms.service.IEnuEmployeeRoleService;
+import com.epms.service.IEnuEnquiryStatusService;
 import com.epms.service.IEnuEventTypeService;
 import com.epms.service.IEnuServiceTypeService;
 import com.epms.service.IEnuStateService;
@@ -150,6 +154,9 @@ public class AdminController {
 
 	@Autowired
 	IEventService eventService;
+	
+	@Autowired
+	IEnuEnquiryStatusService enquiryStatusService;
 
 	public String getAddress(AddressDTO addressDTO) {
 		String address;
@@ -613,6 +620,79 @@ public class AdminController {
 		if (packageTempDTO.getServiceProviderIdList() != null) {
 			packageServiceProviderMappingService.insert(packageId, packageTempDTO.getServiceProviderIdList());
 		}
+		return modelandmap;
+	}
+	
+	@GetMapping("getPackagesOfEvent/{eventTypeId}")
+	public ModelAndView packagesByEventType(ModelAndView modelandmap, @PathVariable long eventTypeId) {
+		List<PackageDetailsDTO> packageDetailsDTO;
+		if (eventTypeId == -1) {
+			packageDetailsDTO = packageDetailsService
+					.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true));
+			modelandmap.setViewName("fragments :: resultsPackageEvent");
+		} else {
+			packageDetailsDTO = packageDetailsService.findByNamedParameters(
+					new MapSqlParameterSource().addValue("isActive", true).addValue("eventTypeId", eventTypeId));
+		}
+
+		if (packageDetailsDTO.size() == 0) {
+			modelandmap.setViewName("fragments :: resultsPackageEvent1");
+		} else {
+			modelandmap.setViewName("fragments :: resultsPackageEvent");
+		}
+
+		List<PackageServiceProviderMappingDTO> packageServiceProviderMappings = packageServiceProviderMappingService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true));
+
+		List<String> venueDetails = packageDetailsDTO.stream().map(packageDTO -> {
+			return venueService.findById(packageDTO.getVenueId().longValue()).getVenueName() + ", "
+					+ getAddress(addressService.findById(
+							venueService.findById(packageDTO.getVenueId().longValue()).getAddressId().longValue()));
+		}).collect(Collectors.toList());
+
+		List<String> eventType = packageDetailsDTO.stream().map(packageDTO -> {
+			return enuEventTypeService.findById(packageDTO.getEventTypeId().longValue()).getEventType();
+		}).collect(Collectors.toList());
+
+		List<Map<String, String>> serviceWithProviders = packageDetailsDTO.stream().map(item -> {
+			Map<String, String> t = new HashMap<String, String>();
+			packageServiceProviderMappings.stream().map(item2 -> {
+				ServiceProviderDTO temp = serviceProviderService.findById(item2.getServiceProviderId().longValue());
+				return t.put(enuServiceTypeService.findById(temp.getServiceTypeId().longValue()).getService(),
+						userDetailsService.findById(temp.getUserDetailsId().longValue()).getServiceProviderName());
+			}).collect(Collectors.toList());
+			return t;
+		}).collect(Collectors.toList());
+
+		modelandmap.addObject("eventDTO", new EventDTO());
+		modelandmap.addObject("venueDetails", venueDetails);
+		modelandmap.addObject("eventNames",
+				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		modelandmap.addObject("eventTypes", eventType);
+		modelandmap.addObject("packageDetailsDTOs", packageDetailsDTO);
+		modelandmap.addObject("serviceWithProviders", serviceWithProviders);
+		// modelandmap.setViewName("fragments :: resultsList");
+		return modelandmap;
+	}
+	
+	@GetMapping("/add_event")
+	public ModelAndView addEvent() {
+		ModelAndView modelandmap = new ModelAndView("admin/add_event");
+		modelandmap.addObject("eventDTO", new EventDTO());
+		modelandmap.addObject("customers",
+				userDetailsService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true).addValue("isCustomer", true)));
+		modelandmap.addObject("employees",
+				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)
+						.addValue("employeeRoleId", enuEmployeeRoleService.findByNamedParameters(new MapSqlParameterSource().addValue("role", "Event Organizer")).get(0).getEmployeeRoleId())));
+		modelandmap.addObject("eventTypes",
+				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		return modelandmap;
+	}
+
+	@PostMapping("/add_event")
+	public ModelAndView saveEvent(@Valid @ModelAttribute("eventDTO") EventDTO eventDTO) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/dashboard");
+		System.out.println(eventDTO);
 		return modelandmap;
 	}
 
@@ -1378,7 +1458,19 @@ public class AdminController {
 	
 	@PostMapping("/response_inquiry")
 	public ModelAndView inquiryResponse(@Valid @ModelAttribute("inquiry") EnquiryDTO inquiry) {
-		return null;
+		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+		parameterSource.addValue("status", "");
+		EnuEnquiryStatusDTO enquiryStatusDTO=DataAccessUtils.singleResult(enquiryStatusService.findByNamedParameters(parameterSource));
+		inquiry.setEnquiryStatusId(enquiryStatusDTO.getStatusId());
+		enquiryService.updateResponse(inquiry);
+		Mail mail = new Mail();
+		mail.setMailTo(inquiry.getEmail());
+		mail.setMailSubject("Enquiry Response");
+		mail.setContentType("text/html");
+		mail.setMailContent("<p>Hi " + inquiry.getPersonName() + ",</p><br/>"+inquiry.getResponse());
+		mailService.sendEmail(mail);
+		return new ModelAndView("redirect:/list-inquiry");
+
 	}
 	
 	

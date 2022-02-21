@@ -67,4 +67,10 @@ public class EnquiryService implements IEnquiryService {
 		return enquiryDAO.findEnquiryById(id);
 	}
 
+	@Override
+	public void updateResponse(EnquiryDTO inquiry) {
+		 enquiryDAO.updateResponse(inquiry);
+		
+	}
+
 }
