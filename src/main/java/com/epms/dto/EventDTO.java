@@ -30,6 +30,7 @@ public class EventDTO {
 	private Integer estimatedGuest;
 	private Double registrationFee;
 	private Integer registrationAvailable;
+	private Double totalCost;
 	private Date createdAt;
 	private Date updatedAt;
 	private Boolean isActive;

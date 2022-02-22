@@ -3,6 +3,7 @@
 
 <head>
 	<title>Add Event</title>
+	<meta th:name="${_csrf.parameterName}" th:content="${_csrf.token}" />
 	<style>
 		.page-title-box .page-title-right {
 			display: block;
@@ -276,7 +277,9 @@
 									</div>
 									<div id="regDiv">
 										<div class="mb-3 col-md-6">
-											<label for="inputRegFee" class="form-label">Registration Fee</label>
+											<label for="inputRegFee" class="form-label">Registration Fee<small
+													style="font-size: 0.75rem; color:  #808080; margin-left: 0.5rem;">(Extra
+													charges applied)</small></label>
 											<input type="number" id="inputRegFee" th:field="*{eventDTO.registrationFee}"
 												class="form-control" placeholder="Enter registration fee for event">
 										</div>
@@ -422,7 +425,7 @@
 					url: "getVenues/" + $(this).find(":selected").val() + '',
 					success: function (result) {
 						$("#inputVenue").empty();
-						$("#inputVenue").append($("<option></option>").val("").html("--Select Available Venue--"));
+						$("#inputVenue").append($("<option></option>").val("").html("--Select Venue--"));
 						$.each(result, function () {
 							$("#inputVenue").append($("<option></option>").val(this['venueId']).html(this['venueName']));
 						});
@@ -459,10 +462,51 @@
 						return false;
 					}
 				}
-
 				$("#errorDiv").css('display', 'none');
 
-				return false;
+				var messageConfirm = "";
+				var token = $("meta[name='_csrf']").attr("content");
+				var forCost = [];
+				var isDone = false;
+
+				if ($('input[type="radio"][name="isStatic"]:checked').val() === "true") {
+					forCost.push("Static");
+					forCost.push($("#inputPackage").find(":selected").val());
+				}
+				else {
+					forCost.push("Dynamic");
+					forCost.push($("#inputVenue :selected").val());
+					$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+						if ($(this).find(":selected").val() != "") {
+							forCost.push($(this).find(":selected").val());
+						}
+					});
+				}
+				forCost.push($("input[type=radio][name=isPublic]:checked").val());
+				// console.log($("#isFree").is(":checked"));
+				forCost.push($("#isFree").is(":checked"));
+
+				$.ajax({
+					async: false,
+					type: "POST",
+					contentType: "application/json",
+					datatype: 'json',
+					traditional: true,
+					url: "/getEventCost/",
+					headers: {"X-CSRF-TOKEN": token}, //send CSRF token in header
+					data: JSON.stringify(forCost),
+					success: function (result) {
+						messageConfirm = "Total event cost will be " + result + "." + "\nYou have to pay 10% advance to confirm the event.\nDo you want to continue?"
+						if (confirm(messageConfirm) == true) {
+							isDone = true;
+						}
+						else {
+							isDone = false;
+						}
+					}
+				});
+
+				return isDone;
 			});
 		</script>
 

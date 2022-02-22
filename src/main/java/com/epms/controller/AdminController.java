@@ -48,6 +48,7 @@ import com.epms.dto.EnuEventTypeDTO;
 import com.epms.dto.EnuServiceTypeDTO;
 import com.epms.dto.EnuVenueFacilityDTO;
 import com.epms.dto.EnuVenueTypeDTO;
+import com.epms.dto.EventBannerDTO;
 import com.epms.dto.EventDTO;
 import com.epms.dto.PackageDetailsDTO;
 import com.epms.dto.PackageServiceProviderMappingDTO;
@@ -561,7 +562,7 @@ public class AdminController {
 
 	@PostMapping("/getPackageCost")
 	public double getPackageCost(@RequestBody List<String> packageCost) {
-		System.out.println(packageCost);
+		// System.out.println(packageCost);
 		double cost = 0;
 		cost += venueService.findById(Long.parseLong(packageCost.get(0))).getCost();
 		// System.out.println(cost);
@@ -682,24 +683,25 @@ public class AdminController {
 	@GetMapping("/add_event")
 	public ModelAndView addEvent() {
 		ModelAndView modelandmap = new ModelAndView("admin/add_event");
-		List<EmployeeDTO> employees = employeeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)
-				.addValue("employeeRoleId", enuEmployeeRoleService
-						.findByNamedParameters(new MapSqlParameterSource().addValue("role", "Event Organizer"))
-						.get(0).getEmployeeRoleId()));
-		
+		List<EmployeeDTO> employees = employeeService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true).addValue("employeeRoleId",
+						enuEmployeeRoleService
+								.findByNamedParameters(new MapSqlParameterSource().addValue("role", "Event Organizer"))
+								.get(0).getEmployeeRoleId()));
+
 		employees.forEach(employee -> {
 			UserDetailsDTO user = userDetailsService.findById(employee.getUserDetailsId().longValue());
 			employee.setFirstName(user.getFirstName());
 			employee.setLastName(user.getLastName());
 		});
-		
+
 		List<ServiceProviderDTO> serviceProviders = serviceProviderService.findAllActive();
 		PackageDetailsDTO packageDetailsDTO = new PackageDetailsDTO();
 		packageDetailsDTO.setIsStatic(true);
 		EventDTO eventDTO = new EventDTO();
 		eventDTO.setIsFree(true);
 		eventDTO.setIsPublic(true);
-		
+
 		for (int i = 0; i < serviceProviders.size(); i++) {
 			serviceProviders.get(i)
 					.setServiceProviderName(
@@ -715,21 +717,24 @@ public class AdminController {
 		modelandmap.addObject("serviceTypes",
 				enuServiceTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		modelandmap.addObject("packageTempDTO", new PackageTempDTO());
-		
+
 		modelandmap.addObject("eventDTO", eventDTO);
-		modelandmap.addObject("packageDetailsDTO",packageDetailsDTO);
+		modelandmap.addObject("packageDetailsDTO", packageDetailsDTO);
 		modelandmap.addObject("customers", userDetailsService.findByNamedParameters(
 				new MapSqlParameterSource().addValue("isActive", true).addValue("isCustomer", true)));
 		modelandmap.addObject("employees", employees);
+		modelandmap.addObject("bannerDTO", new EventBannerDTO());
 		modelandmap.addObject("eventTypes",
 				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		return modelandmap;
 	}
 
 	@PostMapping("/add_event")
-	public ModelAndView saveEvent(@Valid @ModelAttribute("eventDTO") EventDTO eventDTO) {
+	public ModelAndView saveEvent(@Valid @ModelAttribute("eventDTO") EventDTO eventDTO,
+			@Valid @ModelAttribute("bannerDTO") EventBannerDTO bannerDTO,
+			@Valid @ModelAttribute("packageDetailsDTO") PackageDetailsDTO packageDetailsDTO,
+			@Valid @ModelAttribute("packageTempDTO") PackageTempDTO packageTempDTO) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/admin/dashboard");
-		System.out.println(eventDTO);
 		return modelandmap;
 	}
 
