@@ -102,8 +102,8 @@
 
 								<div class="form-floating mb-3">
 									<textarea th:field="*{eventDTO.objective}" class="form-control" rows="5"
-										placeholder="Leave a comment here" id="floatingTextarea"
-										style="height: 150px;" required></textarea>
+										placeholder="Leave a comment here" id="floatingTextarea" style="height: 150px;"
+										required></textarea>
 									<label for="floatingTextarea">Event Objective</label>
 								</div>
 
@@ -167,6 +167,11 @@
 									</div>
 								</div>
 
+								<div id="errorDiv"
+									class="alert alert-danger alert-dismissible bg-danger text-white border-0 fade show"
+									role="alert">
+									<span id="errorTxt"></span>
+								</div>
 								<div>
 									<div>
 										<i class="mdi mdi-currency-inr"
@@ -192,14 +197,14 @@
 											<label for="inputVenue" class="form-label">Venue</label>
 											<select id="inputVenue" th:field="*{packageDetailsDTO.venueId}"
 												class="form-select">
-												<option value="" hidden readonly>--Select Available Venue--</option>
+												<option value="" hidden readonly>--Select Venue--</option>
 												<option th:each="venueName : ${venueNames}"
 													th:value="${venueName.venueId}" th:text="${venueName.venueName}">
 												</option>
 											</select>
 										</div>
 										<div class="mb-3">
-											<label class="form-label">Services available in package</label>
+											<label class="form-label">Services available</label>
 										</div>
 										<div class="row g-2" th:each="serviceType : ${serviceTypes}">
 											<div class="mb-3 col-md-6">
@@ -235,16 +240,18 @@
 										</h6>
 									</div>
 									<div class="form-check">
-										<input checked th:field="*{eventDTO.isPublic}" th:checked="${eventDTO.isPublic}" value="true" type="radio"
-											id="customRadio1" name="customRadio" class="form-check-input">
+										<input checked th:field="*{eventDTO.isPublic}" th:checked="${eventDTO.isPublic}"
+											value="true" type="radio" id="customRadio1" name="customRadio"
+											class="form-check-input">
 										<label class="form-check-label" for="customRadio1">Public<small
 												style="display: block; font-size: 0.75rem; color:  #808080;">Anyone
 												visiting the website</small></label>
 
 									</div>
 									<div class="form-check">
-										<input th:field="*{eventDTO.isPublic}" th:checked="${eventDTO.isPublic}" value="false" type="radio"
-											id="customRadio2" name="customRadio" class="form-check-input">
+										<input th:field="*{eventDTO.isPublic}" th:checked="${eventDTO.isPublic}"
+											value="false" type="radio" id="customRadio2" name="customRadio"
+											class="form-check-input">
 										<label class="form-check-label" for="customRadio2">Private<small
 												style="display: block; font-size: 0.75rem; color:  #808080;">Only
 												available to a selected
@@ -260,8 +267,9 @@
 									</div>
 
 									<div class="mb-3">
-										<input type="checkbox" th:field="*{eventDTO.isFree}" th:checked="${eventDTO.isFree}" id="isFree"
-											class="form-check-input" checked>
+										<input type="checkbox" th:field="*{eventDTO.isFree}"
+											th:checked="${eventDTO.isFree}" id="isFree" class="form-check-input"
+											checked>
 										<label class="form-check-label" for="isPublic">Free Event<small
 												style="font-size: 0.75rem; color:  #808080; margin-left: 0.5rem;">(No
 												registration required)</small></label>
@@ -270,8 +278,7 @@
 										<div class="mb-3 col-md-6">
 											<label for="inputRegFee" class="form-label">Registration Fee</label>
 											<input type="number" id="inputRegFee" th:field="*{eventDTO.registrationFee}"
-												class="form-control"
-												placeholder="Enter registration fee for event">
+												class="form-control" placeholder="Enter registration fee for event">
 										</div>
 										<div class="mb-3 col-md-6">
 											<label for="inputRegAvailable" class="form-label">Maximum Registration
@@ -339,9 +346,8 @@
 					dataType: 'json',
 					url: "getVenues/" + $(this).find(":selected").val() + '',
 					success: function (result) {
-						$("#inputVenue").prop('disabled', false);
 						$("#inputVenue").empty();
-						$("#inputVenue").append($("<option></option>").val("").html("--Select Available Venue--"));
+						$("#inputVenue").append($("<option></option>").val("").html("--Select Venue--"));
 						$.each(result, function () {
 							$("#inputVenue").append($("<option></option>").val(this['venueId']).html(this['venueName']));
 						});
@@ -350,8 +356,10 @@
 			});
 
 			$(document).ready(function () {
-				$("#individual *").prop('disabled', true);
+				$("#individual").find("input[type='checkbox']").prop('disabled', true);
+				$("#inputVenue").prop('disabled', true);
 				$("#regDiv *").prop('disabled', true);
+				$("#errorDiv").css('display', 'none');
 
 				var value = $("#inputEventType").find(":selected").val();
 				var urlToCall = "getPackagesOfEvent/" + value + '';
@@ -388,12 +396,14 @@
 					// console.log($(this).val() === "true");
 					if ($(this).val() === "true") {
 						$("#main *").prop('disabled', false);
-						$("#individual *").prop('disabled', true);
+						$("#individual").find("input[type='checkbox']").prop('disabled', true);
+						$("#inputVenue").prop('disabled', true);
 						// console.log("Ok");
 					}
 					else {
 						$("#main *").prop('disabled', true);
-						$("#individual *").prop('disabled', false);
+						$("#individual").find("input[type='checkbox']").prop('disabled', false);
+						$("#inputVenue").prop('disabled', false);
 					}
 				});
 			});
@@ -411,7 +421,6 @@
 					dataType: 'json',
 					url: "getVenues/" + $(this).find(":selected").val() + '',
 					success: function (result) {
-						$("#inputVenue").prop('disabled', false);
 						$("#inputVenue").empty();
 						$("#inputVenue").append($("<option></option>").val("").html("--Select Available Venue--"));
 						$.each(result, function () {
@@ -420,9 +429,40 @@
 					}
 				});
 			});
-			
-			$("form").submit(function() {
-				
+
+			$("form").submit(function () {
+				if ($('input[type="radio"][name="isStatic"]:checked').val() === "true") {
+					if ($("#inputPackage").find(":selected").val() === "") {
+						$("#errorTxt").text("Please select package.");
+						$("#errorDiv").css('display', 'block');
+						return false;
+					}
+				}
+
+				if ($('input[type="radio"][name="isStatic"]:checked').val() === "false") {
+					if ($("#inputVenue :selected").val() === "") {
+						$("#errorTxt").text("Please select venue.");
+						$("#errorDiv").css('display', 'block');
+						return false;
+					}
+
+					var isError = false;
+					$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+						if ($(this).prop('disabled') === false && $(this).find(":selected").val() === "") {
+							isError = true;
+						}
+					});
+
+					if (isError == true) {
+						$("#errorTxt").text("Please select service provider for the selected service.");
+						$("#errorDiv").css('display', 'block');
+						return false;
+					}
+				}
+
+				$("#errorDiv").css('display', 'none');
+
+				return false;
 			});
 		</script>
 
