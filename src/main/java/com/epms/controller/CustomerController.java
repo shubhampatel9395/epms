@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -34,6 +35,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.epms.authentication.CustomUserDetailsDTO;
 import com.epms.dto.AddressDTO;
+import com.epms.dto.ContactUsDTO;
 import com.epms.dto.EnquiryDTO;
 import com.epms.dto.EnuCityDTO;
 import com.epms.dto.EnuStateDTO;
@@ -125,6 +127,9 @@ public class CustomerController {
 
 	@Autowired
 	IVenueImageMappingService venueImageMappingService;
+	
+	@Autowired
+	Environment env;
 
 	@GetMapping("home")
 	public ModelAndView homePage() {
@@ -266,8 +271,8 @@ public class CustomerController {
 		return modelandmap;
 	}
 
-	@GetMapping("enquiry")
-	public ModelAndView enquiry() {
+	@GetMapping("inquiry")
+	public ModelAndView inquiry() {
 		final ModelAndView modelandmap = new ModelAndView("enquiry");
 		modelandmap.addObject("eventTypes",
 				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
@@ -282,34 +287,33 @@ public class CustomerController {
 		mail.setMailTo(enquiryDTO.getEmail());
 		mail.setMailSubject("Enquiry Submitted");
 		mail.setContentType("text/html");
-		String content = "<b>Thanks for being awesome! Your Inquiry number: Inquiry#"+enquiryDTO.getEnquiryId()+"</b> <br/><br/>" + 
-				"We have received your message and would like to thank you for writing to us. If your inquiry is urgent, "
+		String content = "<b>Thanks for being awesome! Your Inquiry number: Inquiry#" + enquiryDTO.getEnquiryId()
+				+ "</b> <br/><br/>"
+				+ "We have received your message and would like to thank you for writing to us. If your inquiry is urgent, "
 				+ "please use the telephone number listed in website to talk to one of our staff members. "
-				+ "<br/><br/> Otherwise, we will reply by email as soon as possible."
-				+"Talk to you soon, Unico";
+				+ "<br/><br/> Otherwise, we will reply by email as soon as possible." + "Talk to you soon, Unico";
 		mail.setMailContent(content);
 		mailService.sendEmail(mail);
 		return new ModelAndView("redirect:/home");
 	}
-	
+
 	@GetMapping("getVenuesOnEventType/{venueId}")
 	public ModelAndView getVenuesOnEventType(ModelAndView modelandmap, @PathVariable long venueId) {
 		List<VenueDTO> venueDTOs;
 		if (venueId == -1) {
-			venueDTOs = venueService
-					.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true));
+			venueDTOs = venueService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true));
 			modelandmap.setViewName("fragments :: resultsList");
 		} else {
-			venueDTOs = venueService
-					.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true).addValue("venueTypeId", venueId));
+			venueDTOs = venueService.findByNamedParameters(
+					new MapSqlParameterSource().addValue("isActive", true).addValue("venueTypeId", venueId));
 		}
-		
+
 		if (venueDTOs.size() == 0) {
 			modelandmap.setViewName("fragments :: resultsListVenue1");
 		} else {
 			modelandmap.setViewName("fragments :: resultsListVenue");
 		}
-		
+
 		List<String> addresses = venueDTOs.stream().map(venueDTO -> {
 			return getAddress(addressService.findById(venueDTO.getAddressId().longValue()));
 		}).collect(Collectors.toList());
@@ -319,22 +323,22 @@ public class CustomerController {
 		}).collect(Collectors.toList());
 
 		List<List<VenueFacilityMappingDTO>> venueFacilities = venueDTOs.stream().map(venueDTO -> {
-			return venueFacilityMappingService
-					.findByNamedParameters(new MapSqlParameterSource().addValue("venueId", venueDTO.getVenueId().longValue()));
+			return venueFacilityMappingService.findByNamedParameters(
+					new MapSqlParameterSource().addValue("venueId", venueDTO.getVenueId().longValue()));
 		}).collect(Collectors.toList());
-		
+
 		List<List<VenueEventTypeMappingDTO>> venueEventTypes = venueDTOs.stream().map(venueDTO -> {
-			return venueEventTypeMappingService
-					.findByNamedParameters(new MapSqlParameterSource().addValue("venueId", venueDTO.getVenueId().longValue()));
+			return venueEventTypeMappingService.findByNamedParameters(
+					new MapSqlParameterSource().addValue("venueId", venueDTO.getVenueId().longValue()));
 		}).collect(Collectors.toList());
-		
-		List<Map<Integer,List<VenueImageMappingDTO>>> venueImages = venueDTOs.stream().map(venueDTO -> {
-			Map<Integer,List<VenueImageMappingDTO>> temp = new HashMap<>();
-			temp.put(venueDTO.getVenueId(), venueImageMappingService
-					.findByNamedParameters(new MapSqlParameterSource().addValue("venueId", venueDTO.getVenueId().longValue())));
+
+		List<Map<Integer, List<VenueImageMappingDTO>>> venueImages = venueDTOs.stream().map(venueDTO -> {
+			Map<Integer, List<VenueImageMappingDTO>> temp = new HashMap<>();
+			temp.put(venueDTO.getVenueId(), venueImageMappingService.findByNamedParameters(
+					new MapSqlParameterSource().addValue("venueId", venueDTO.getVenueId().longValue())));
 			return temp;
 		}).collect(Collectors.toList());
-		
+
 		// System.out.println(venueImages);
 		modelandmap.addObject("venueDTOs", venueDTOs);
 		modelandmap.addObject("addresses", addresses);
@@ -566,5 +570,32 @@ public class CustomerController {
 			}
 		}
 		return model;
+	}
+
+	@GetMapping("about-us")
+	public ModelAndView showAboutUSPage() {
+		return new ModelAndView("aboutus");
+	}
+
+	@GetMapping("contact-us")
+	public ModelAndView showContactUSPage() {
+		ModelAndView model = new ModelAndView("contactUs");
+		model.addObject("contactUs", new ContactUsDTO());
+		return model;
+	}
+
+	@PostMapping("contact-us")
+	public ModelAndView submitContactDetails(@Valid @ModelAttribute("contactUs") ContactUsDTO contactUsDTO) {
+		Mail mail = new Mail();
+		mail.setMailTo(env.getProperty("spring.mail.username"));
+		mail.setMailSubject("Contact Us");
+		mail.setContentType("text/html");
+		String content = "<p><strong>Contact Us By: </strong>" + contactUsDTO.getEmail() + "</p>"
+				+ "<p><strong>Subject: </strong>" + contactUsDTO.getSubject() + "</p>"
+				+ "<p><strong>Message: </strong></p>"
+				+ "<p>" + contactUsDTO.getMessage() + "</p>";
+		mail.setMailContent(content);
+		mailService.sendEmail(mail);
+		return new ModelAndView("redirect:/contact-us");
 	}
 }

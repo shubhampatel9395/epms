@@ -17531,6 +17531,11 @@ body.authentication-bg .account-pages {
     width: 100%
 }
 
+.imgBanner {
+		   background: url('../images/img15.jpg') center;
+		    background-size: cover
+	}
+
 .auth-fluid .auth-fluid-left, .auth-fluid .auth-fluid-right {
     padding: 6rem 3rem;
     -webkit-box-flex: 1;

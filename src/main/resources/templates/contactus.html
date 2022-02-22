@@ -1,0 +1,88 @@
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/_layout}">
+
+<head>
+	<title>Contact Us</title>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+
+		<!-- START FEATURES 2 -->
+		<section class="py-3">
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="text-center">
+							<h1 class="mt-0"><i class="mdi mdi-contacts-outline"></i></h1>
+							<h2> Contact <span class="text-danger">Us</span></h2>
+							<p class="text-muted mt-3">We are the EVENT planner who creates the MOMENTS.
+							</p>
+						</div>
+					</div>
+				</div>
+				<div class="row mt-2 py-3 align-items-center">
+					<div class="col-lg-5 col-md-5">
+						<p class="mb-1">
+							<span class="pe-2 text-nowrap mb-1 d-inline-block">
+								<i class="uil-map-pin-alt text-muted"></i>
+								<strong>Address :</strong>
+								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+									incididunt ut labore et dolore magna aliqua.</p>
+							</span>
+						</p>
+
+						<p class="mb-1">
+							<span class="pe-2 text-nowrap mb-1 d-inline-block">
+								<i class="uil-phone text-muted"></i>
+								<strong>Contact Number : </strong>
+								<p>+91 8735889977</p>
+							</span>
+						</p>
+
+						<p class="mb-1">
+							<span class="pe-2 text-nowrap mb-1 d-inline-block">
+								<i class="uil-envelopes text-muted"></i>
+								<strong>Email : </strong>
+								<p>epmsevent@gmail.com</p>
+							</span>
+						</p>
+					</div>
+					<div class="col-lg-6 offset-md-1 col-md-6">
+						<form method="POST" th:action="@{/contact-us}">
+							<div class="form-floating mb-3">
+								<input th:field="*{contactUs.email}" type="text" id="example-helping"
+									class="form-control" placeholder="Helping text">
+								<label for="floatingInput">Email</label>
+							</div>
+							
+							<div class="form-floating mb-3">
+								<input th:field="*{contactUs.subject}" type="text" id="example-helping"
+									class="form-control" placeholder="Helping text">
+								<label for="floatingInput">Subject</label>
+							</div>
+
+							<div class="form-floating mb-3">
+								<textarea th:field="*{contactUs.message}" class="form-control" rows="5"
+									placeholder="Leave a comment here" id="floatingTextarea"
+									style="height: 150px;"></textarea>
+								<label for="floatingTextarea">Message</label>
+							</div>
+							
+							<div class="mb-0 d-grid text-center">
+									<button class="btn btn-primary" type="submit">
+										Send
+									</button>
+								</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+		</section>
+		<!-- END FEATURES 2 -->
+	</th:block>
+	<th:block layout:fragment="script">
+	</th:block>
+</body>
+
+</html>

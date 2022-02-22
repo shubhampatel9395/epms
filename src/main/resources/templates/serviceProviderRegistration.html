@@ -6,7 +6,7 @@
 
 <head>
 	<meta charset="utf-8" />
-	<title>Register | Hyper - Responsive Bootstrap 5 Admin Dashboard</title>
+	<title>Register | UNICO - Event Planning and Management System</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
 	<meta content="Coderthemes" name="author" />
@@ -30,10 +30,10 @@
 
 					<!-- Logo -->
 					<div class="auth-brand text-center text-lg-start">
-						<a href="index.html" class="logo-dark">
+						<a th:href="@{/home}" class="logo-dark">
 							<span><img th:src="@{/assets/images/logoUnico.png}" alt="" height="40"></span>
 						</a>
-						<a href="index.html" class="logo-light">
+						<a th:href="@{/home}" class="logo-light">
 							<span><img th:src="@{/assets/images/logoFavicon.png}" alt="" height="20"></span>
 						</a>
 					</div>
@@ -127,7 +127,7 @@
 						</div>
 						<div class="mb-3">
 							<div class="form-check">
-								<input type="checkbox" class="form-check-input" id="checkbox-signup">
+								<input type="checkbox" class="form-check-input" id="checkbox-signup" required>
 								<label class="form-check-label" for="checkbox-signup">I accept <a
 										href="javascript: void(0);" class="text-muted">Terms and Conditions</a></label>
 							</div>
@@ -143,7 +143,7 @@
 
 					<!-- Footer-->
 					<footer class="footer footer-alt">
-						<p class="text-muted">Already have account? <a href="pages-login-2.html"
+						<p class="text-muted">Already have account? <a th:href="@{/login}"
 								class="text-muted ms-1"><b>Log In</b></a></p>
 					</footer>
 
@@ -153,15 +153,12 @@
 		<!-- end auth-fluid-form-box-->
 
 		<!-- Auth fluid right content -->
-		<div class="auth-fluid-right text-center">
+	<div class="auth-fluid-right text-center imgBanner">
 			<div class="auth-user-testimonial">
-				<h2 class="mb-3">I love the color!</h2>
-				<p class="lead"><i class="mdi mdi-format-quote-open"></i> It's a elegent templete. I love it very much!
-					. <i class="mdi mdi-format-quote-close"></i>
+				<p class="lead"><i class="mdi mdi-format-quote-open"></i> Be a guest at your own event!
+					<i class="mdi mdi-format-quote-close"></i>
 				</p>
-				<p>
-					- Hyper Admin User
-				</p>
+				<h2 class="mb-3">- Unico</h2>
 			</div> <!-- end auth-user-testimonial-->
 		</div>
 		<!-- end Auth fluid right content -->

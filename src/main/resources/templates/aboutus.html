@@ -1,0 +1,50 @@
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/_layout}">
+
+<head>
+	<title>About Us</title>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+	
+	 <!-- START FEATURES 2 -->
+        <section class="py-1">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="text-center">
+                            <h1 class="mt-0"><i class="mdi mdi-heart-multiple-outline"></i></h1>
+                            <h2> About <span class="text-danger">Us</span></h2>
+                            <p class="text-muted mt-3">We are the EVENT planner who creates the MOMENTS.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-2 py-3 align-items-center">
+                    <div class="col-lg-5 col-md-6">
+                        <img th:src="@{/assets/images/aboutus.jpg}" class="img-fluid" alt="">
+                    </div>
+                    <div class="col-lg-6 offset-md-1 col-md-5">
+                        <h3 class="fw-normal">Bringing Imagination to Reality</h3>
+                        <p class="text-muted mt-4">We endeavor to define an efficient plan of action that would achieve the goals and
+								objectives set by its client in developing and producing successful events. We are
+								committed to provide excellent quality service and generate the most creative and
+								innovative ideas, with commitment and dedication to provide our clients with the finest
+								personalized events they have aspired for. </p>
+						<p class="text-muted mt-4">With years of experience in the event industry, Unico Event Planner stands on a stronger
+								base with the most creative, enthusiastic and committed team members, who have developed
+								their expertise in the Event Planning industry. </p>
+                        
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+        <!-- END FEATURES 2 -->
+	</th:block>
+	<th:block layout:fragment="script">
+	</th:block>
+</body>
+
+</html>

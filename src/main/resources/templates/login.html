@@ -1,22 +1,19 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-
-<!-- Mirrored from coderthemes.com/hyper_2/saas/pages-login-2.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 04 Jan 2022 06:46:49 GMT -->
-
 <head>
 	<meta charset="utf-8" />
-	<title>Log In | Hyper - Responsive Bootstrap 5 Admin Dashboard</title>
+	<title>Log In - Unico</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
 	<meta content="Coderthemes" name="author" />
 	<!-- App favicon -->
-	<link rel="shortcut icon" href="assets/images/logoFavicon.png">
+	<link rel="shortcut icon" th:href="@{/assets/images/logoFavicon.png}">
 
 	<!-- App css -->
-	<link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
-	<link href="assets/css/app.min.css" rel="stylesheet" type="text/css" id="light-style" />
-	<link href="assets/css/app-dark.min.css" rel="stylesheet" type="text/css" id="dark-style" />
+	<link th:href="@{/assets/css/icons.min.css}" rel="stylesheet" type="text/css" />
+	<link th:href="@{/assets/css/app.min.css}" rel="stylesheet" type="text/css" id="light-style" />
+	<link th:href="@{/assets/css/app-dark.min.css}" rel="stylesheet" type="text/css" id="dark-style" />
 
 </head>
 
@@ -30,11 +27,11 @@
 
 					<!-- Logo -->
 					<div class="auth-brand text-center text-lg-start">
-						<a href="index.html" class="logo-dark">
-							<span><img src="assets/images/logoUnico.png" alt="" height="40"></span>
+						<a th:href="@{/home}" class="logo-dark">
+							<span><img th:src="@{assets/images/logoUnico.png}" alt="" height="40"></span>
 						</a>
-						<a href="index.html" class="logo-light">
-							<span><img src="assets/images/logoFavicon.png" alt="" height="20"></span>
+						<a th:href="@{/home}" class="logo-light">
+							<span><img th:src="@{assets/images/logoFavicon.png}" alt="" height="20"></span>
 						</a>
 					</div>
 
@@ -64,12 +61,6 @@
 								</div>
 							</div>
 						</div>
-						<div class="mb-3">
-							<div class="form-check">
-								<input type="checkbox" class="form-check-input" id="checkbox-signin">
-								<label class="form-check-label" for="checkbox-signin">Remember me</label>
-							</div>
-						</div>
 						<div class="d-grid mb-0 text-center">
 							<button class="btn btn-primary" type="submit"><i class="mdi mdi-login"></i> Log In </button>
 						</div>
@@ -79,7 +70,7 @@
 
 					<!-- Footer-->
 					<footer class="footer footer-alt">
-						<p class="text-muted">Don't have an account? <a href="pages-register-2.html"
+						<p class="text-muted">Don't have an account? <a th:href="@{/customer-registration}"
 								class="text-muted ms-1"><b>Sign Up</b></a></p>
 					</footer>
 
@@ -89,15 +80,12 @@
 		<!-- end auth-fluid-form-box-->
 
 		<!-- Auth fluid right content -->
-		<div class="auth-fluid-right text-center">
+		<div class="auth-fluid-right text-center imgBanner">
 			<div class="auth-user-testimonial">
-				<h2 class="mb-3">I love the color!</h2>
-				<p class="lead"><i class="mdi mdi-format-quote-open"></i> It's a elegent templete. I love it very much!
-					. <i class="mdi mdi-format-quote-close"></i>
+				<p class="lead"><i class="mdi mdi-format-quote-open"></i> Be a guest at your own event!
+					<i class="mdi mdi-format-quote-close"></i>
 				</p>
-				<p>
-					- Hyper Admin User
-				</p>
+				<h2 class="mb-3">- Unico</h2>
 			</div> <!-- end auth-user-testimonial-->
 		</div>
 		<!-- end Auth fluid right content -->
@@ -105,12 +93,9 @@
 	<!-- end auth-fluid-->
 
 	<!-- bundle -->
-	<script src="assets/js/vendor.min.js"></script>
-	<script src="assets/js/app.min.js"></script>
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	<script th:src="@{/assets/js/app.min.js}"></script>
 
 </body>
-
-
-<!-- Mirrored from coderthemes.com/hyper_2/saas/pages-login-2.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 04 Jan 2022 06:46:49 GMT -->
 
 </html>

@@ -157,7 +157,7 @@
 								<ul class="navbar-nav">
 
 									<li class="nav-item">
-										<a href="#" class="nav-link topnav-logo">
+										<a th:href="@{/home}" class="nav-link topnav-logo">
 											<span class="topnav-logo-lg">
 												<img th:src="@{/assets/images/logoUnico.png}" alt="" height="25">
 											</span>
@@ -198,7 +198,7 @@
 
 									<li class="nav-item"
 										th:classappend="${#request.getRequestURI().startsWith('/enquiry') ? 'active' : '' }">
-										<a class="nav-link" th:href="@{/enquiry}">
+										<a class="nav-link" th:href="@{/inquiry}">
 											<i class="mdi mdi-account-question"></i><span> Inquire</span>
 										</a>
 									</li>
@@ -250,8 +250,8 @@
 						</div>
 						<div class="col-md-6">
 							<div class="text-md-end footer-links d-none d-md-block">
-								<a href="javascript: void(0);">About Us</a>
-								<a href="javascript: void(0);">Contact Us</a>
+								<a th:href="@{/about-us}">About Us</a>
+								<a th:href="@{/contact-us}">Contact Us</a>
 							</div>
 						</div>
 					</div>
