@@ -64,14 +64,6 @@
 
 								<div class="row g-2">
 									<div class="mb-3 col-md-6">
-										<label for="cost" class="form-label">Cost
-											<small
-												style="display: inline-block; font-size: 0.75rem; color:  #808080;">(Inluding
-												all facilities and charges)</small></label>
-										<input type="number" id="cost" class="form-control" required
-											th:field="*{venueDTO.cost}" placeholder="Enter cost">
-									</div>
-									<div class="mb-3 col-md-6">
 										<label for="venueType" class="form-label">Venue Type</label>
 										<select id="venueType" th:field=*{venueDTO.venueTypeId} class="form-select">
 											<option value="" readonly>--Select Venue Type--</option>
@@ -79,6 +71,14 @@
 												th:value="${venueType.enuVenueTypeId}" th:text="${venueType.venueType}">
 											</option>
 										</select>
+									</div>
+									<div class="mb-3 col-md-6">
+										<label for="cost" class="form-label">Cost
+											<small
+												style="display: inline-block; font-size: 0.75rem; color:  #808080;">(Inluding
+												all facilities and charges)</small></label>
+										<input type="number" id="cost" class="form-control" required
+											th:field="*{venueDTO.cost}" placeholder="Enter cost">
 									</div>
 								</div>
 								<div class="row g-2">

@@ -693,8 +693,31 @@ public class AdminController {
 			employee.setLastName(user.getLastName());
 		});
 		
-		modelandmap.addObject("eventDTO", new EventDTO());
-		modelandmap.addObject("packageDetailsDTO", new PackageDetailsDTO());
+		List<ServiceProviderDTO> serviceProviders = serviceProviderService.findAllActive();
+		PackageDetailsDTO packageDetailsDTO = new PackageDetailsDTO();
+		packageDetailsDTO.setIsStatic(true);
+		EventDTO eventDTO = new EventDTO();
+		eventDTO.setIsFree(true);
+		eventDTO.setIsPublic(true);
+		
+		for (int i = 0; i < serviceProviders.size(); i++) {
+			serviceProviders.get(i)
+					.setServiceProviderName(
+							userDetailsService
+									.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId",
+											serviceProviders.get(i).getUserDetailsId()))
+									.get(0).getServiceProviderName());
+		}
+
+		modelandmap.addObject("serviceProviders", serviceProviders);
+		modelandmap.addObject("venueNames",
+				venueService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		modelandmap.addObject("serviceTypes",
+				enuServiceTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		modelandmap.addObject("packageTempDTO", new PackageTempDTO());
+		
+		modelandmap.addObject("eventDTO", eventDTO);
+		modelandmap.addObject("packageDetailsDTO",packageDetailsDTO);
 		modelandmap.addObject("customers", userDetailsService.findByNamedParameters(
 				new MapSqlParameterSource().addValue("isActive", true).addValue("isCustomer", true)));
 		modelandmap.addObject("employees", employees);
