@@ -1,0 +1,141 @@
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{customer/_layout}">
+
+<head>
+	<title>Event Planning and Management System</title>
+	<style>
+		.card {
+			min-height: 370px;
+		}
+		
+		.topImg {
+			position: absolute;
+			height: 50%;
+		}
+		
+		.contentImg {
+			position: absolute;
+			top: 50%;
+			height: 50%;
+		}
+		
+		.imgSlideshow {
+			min-width: 100%;
+			height: 730px;
+		}
+	</style>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-lg-12 py-3">
+
+					<div id="with-captions-preview">
+						<div id="carouselExampleCaption" class="carousel slide" data-bs-ride="carousel">
+							<div class="carousel-inner" role="listbox">
+							<div class="carousel-item active">
+									<img th:src="@{/assets/images/slideshow/final3.png}" alt="..." class="d-block img-fluid imgSlideshow">
+									<div class="carousel-caption d-none d-md-block">
+										<h3 class="text-white"><i class="mdi mdi-format-quote-open"></i>We Create. You Celebrate.<i class="mdi mdi-format-quote-close"></i></h3>
+									</div>
+								</div>
+								<div class="carousel-item">
+									<img th:src="@{/assets/images/slideshow/final1.jpeg}" alt="..." class="d-block img-fluid imgSlideshow">
+									<div class="carousel-caption d-none d-md-block">
+										<h3 class="text-white"><i class="mdi mdi-format-quote-open"></i>Life is an Event. Make it Memorable.<i class="mdi mdi-format-quote-close"></i></h3>
+									</div>
+								</div>
+								<div class="carousel-item">
+									<img th:src="@{/assets/images/slideshow/final2.jpeg}" alt="..." class="d-block img-fluid imgSlideshow">
+									<div class="carousel-caption d-none d-md-block">
+										<h3 class="text-white"><i class="mdi mdi-format-quote-open"></i>We build your dream around you.<i class="mdi mdi-format-quote-close"></i></h3>
+									</div>
+								</div>
+								
+									<div class="carousel-item">
+									<img th:src="@{/assets/images/slideshow/final4.jpg}" alt="..." class="d-block img-fluid imgSlideshow">
+									<div class="carousel-caption d-none d-md-block">
+										<h3 class="text-white"><i class="mdi mdi-format-quote-open"></i>Precise coordination, extraordinary results.<i class="mdi mdi-format-quote-close"></i></h3>
+									</div>
+								</div>
+									<div class="carousel-item">
+									<img th:src="@{/assets/images/slideshow/final5.jpg}" alt="..." class="d-block img-fluid imgSlideshow">
+									<div class="carousel-caption d-none d-md-block">
+										<h3 class="text-white"><i class="mdi mdi-format-quote-open"></i>Every love story is beautiful, but yours should be unique.<i class="mdi mdi-format-quote-close"></i></h3>
+									</div>
+								</div>
+							</div>
+							<a class="carousel-control-prev" href="#carouselExampleCaption" role="button"
+								data-bs-slide="prev">
+								<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+								<span class="visually-hidden">Previous</span>
+							</a>
+							<a class="carousel-control-next" href="#carouselExampleCaption" role="button"
+								data-bs-slide="next">
+								<span class="carousel-control-next-icon" aria-hidden="true"></span>
+								<span class="visually-hidden">Next</span>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-12">
+					<div class="row row-cols-1 row-cols-md-4 g-4">
+						<div class="col">
+							<div class="card">
+								<img th:src="@{/assets/images/birthday-party.jpg}" class="card-img-top topImg"
+										alt="Card image cap">
+								<div class="card-body contentImg">
+									<h3 class="card-title">Birthday Events</h3>
+									<p class="card-text">We arrange birthday events with the creative theme of the
+										birthday. We provide all the birthday party needs.</p>
+								</div>
+							</div>
+						</div>
+						<div class="col">
+							<div class="card">
+							<div>
+								<img th:src="@{/assets/images/wedding.jpg}" class="card-img-top topImg" alt="Card image cap">
+							</div>
+								<div class="card-body contentImg">
+									<h3 class="card-title">Wedding Event</h3>
+									<p class="card-text">A wedding is a very crucial time in someone's life and we give
+										our best to make this movement memorable for everyone.</p>
+								</div>
+							</div>
+						</div>
+						<div class="col">
+							<div class="card">
+								<img th:src="@{/assets/images/business-conferences.jpg}" class="card-img-top topImg"
+									alt="Card image cap">
+								<div class="card-body contentImg">
+									<h3 class="card-title">Business Events</h3>
+									<p class="card-text">We provide the best Business event. Our event planner companies
+										which conceive, create, develop or manage business conference and meetings
+										events too. </p>
+								</div>
+							</div>
+						</div>
+						<div class="col">
+							<div class="card">
+								<img th:src="@{/assets/images/Every_Festival.jpg}" class="card-img-top topImg"
+									alt="Card image cap">
+								<div class="card-body contentImg">
+									<h3 class="card-title">Festival Gatherings</h3>
+									<p class="card-text">The greatness of the culture can be found in it's festival. We
+										make the festival events memorable and enjoyable for everyone. </p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div> <!-- end col-->
+			</div>
+			<!-- end row -->
+
+		</div>
+	</th:block>
+</body>
+
+</html>

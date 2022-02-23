@@ -71,4 +71,9 @@ public class CustomUserDetailsDTO implements UserDetails {
 	{
 		return userDetailsDTO.getServiceProviderName();
 	}
+	
+	public Boolean getIsCustomer()
+	{
+		return userDetailsDTO.getIsCustomer();
+	}
 }

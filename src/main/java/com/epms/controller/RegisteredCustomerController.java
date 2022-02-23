@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.epms.dto.EnquiryDTO;
 import com.epms.dto.EnuEventSubTypeDTO;
 import com.epms.dto.EnuStateDTO;
 import com.epms.dto.form.CreateEventBasicInfoForm;
@@ -40,11 +41,11 @@ public class RegisteredCustomerController {
 	@Autowired
 	IEnuEventSubTypeService enuEventSubTypeService;
 
-	@GetMapping
+	@GetMapping("/index")
 	public ModelAndView homePage() {
 		return new ModelAndView("customer/index");
 	}
-
+	
 	// @GetMapping("/events/create")
 	@RequestMapping(value = "/events/create", method = RequestMethod.GET)
 	public ModelAndView createEvent() {

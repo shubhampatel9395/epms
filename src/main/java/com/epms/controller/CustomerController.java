@@ -230,7 +230,7 @@ public class CustomerController {
 		userDetailsDTO.setPassword(encodedPassword);
 		UserDetailsDTO insertUserDetailsDTO = userDetailsService.insert(userDetailsDTO);
 
-		modelandmap = new ModelAndView("index");
+		modelandmap = new ModelAndView("redirect:/customer/index");
 		modelandmap.addObject("userDetailsDTO", insertUserDetailsDTO);
 		return modelandmap;
 	}
@@ -243,7 +243,7 @@ public class CustomerController {
 		} else {
 			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) authentication.getPrincipal();
 			if (userDetails.getRoleName().equalsIgnoreCase("ROLE_CUSTOMER")) {
-				return new ModelAndView("index"); // customer index
+				return new ModelAndView("redirect:/customer/index"); // customer index
 			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_ADMIN")) {
 				return new ModelAndView("redirect:/admin/dashboard");
 			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_SERVICEPROVIDER")) {
@@ -274,6 +274,18 @@ public class CustomerController {
 	@GetMapping("inquiry")
 	public ModelAndView inquiry() {
 		final ModelAndView modelandmap = new ModelAndView("enquiry");
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+			modelandmap.addObject("layoutPage", "_layout");
+		} else {
+			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) authentication.getPrincipal();
+			if (userDetails.getIsCustomer() == true) {
+				modelandmap.addObject("layoutPage", "customer/_layout");
+			} else {
+				modelandmap.addObject("layoutPage", "_layout");
+			}
+		}
+		
 		modelandmap.addObject("eventTypes",
 				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		modelandmap.addObject("enquiry", new EnquiryDTO());
@@ -354,6 +366,17 @@ public class CustomerController {
 	@GetMapping("venue")
 	public ModelAndView gallery() {
 		final ModelAndView modelandmap = new ModelAndView("venue");
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+			modelandmap.addObject("layoutPage", "_layout");
+		} else {
+			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) authentication.getPrincipal();
+			if (userDetails.getIsCustomer() == true) {
+				modelandmap.addObject("layoutPage", "customer/_layout");
+			} else {
+				modelandmap.addObject("layoutPage", "_layout");
+			}
+		}
 		modelandmap.addObject("venueTypes",
 				enuVenueTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		return modelandmap;
@@ -426,6 +449,17 @@ public class CustomerController {
 	@GetMapping("packages")
 	public ModelAndView packages() {
 		final ModelAndView modelandmap = new ModelAndView("packages");
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+			modelandmap.addObject("layoutPage", "_layout");
+		} else {
+			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) authentication.getPrincipal();
+			if (userDetails.getIsCustomer() == true) {
+				modelandmap.addObject("layoutPage", "customer/_layout");
+			} else {
+				modelandmap.addObject("layoutPage", "_layout");
+			}
+		}
 		modelandmap.addObject("eventNames",
 				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		return modelandmap;
@@ -574,14 +608,37 @@ public class CustomerController {
 
 	@GetMapping("about-us")
 	public ModelAndView showAboutUSPage() {
-		return new ModelAndView("aboutus");
+		ModelAndView modelandmap = new ModelAndView("aboutus");
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+			modelandmap.addObject("layoutPage", "_layout");
+		} else {
+			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) authentication.getPrincipal();
+			if (userDetails.getIsCustomer() == true) {
+				modelandmap.addObject("layoutPage", "customer/_layout");
+			} else {
+				modelandmap.addObject("layoutPage", "_layout");
+			}
+		}
+		return modelandmap;
 	}
 
 	@GetMapping("contact-us")
 	public ModelAndView showContactUSPage() {
-		ModelAndView model = new ModelAndView("contactUs");
-		model.addObject("contactUs", new ContactUsDTO());
-		return model;
+		ModelAndView modelandmap = new ModelAndView("contactus");
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+			modelandmap.addObject("layoutPage", "_layout");
+		} else {
+			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) authentication.getPrincipal();
+			if (userDetails.getIsCustomer() == true) {
+				modelandmap.addObject("layoutPage", "customer/_layout");
+			} else {
+				modelandmap.addObject("layoutPage", "_layout");
+			}
+		}
+		modelandmap.addObject("contactUs", new ContactUsDTO());
+		return modelandmap;
 	}
 
 	@PostMapping("contact-us")
