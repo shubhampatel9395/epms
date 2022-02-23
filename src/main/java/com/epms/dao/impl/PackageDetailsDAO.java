@@ -78,9 +78,9 @@ public class PackageDetailsDAO implements IPackageDetailsDAO {
 		namedParameters.addValue("totalCost", entity.getTotalCost());
 		namedParameters.addValue("eventTypeId", entity.getEventTypeId());
 		namedParameters.addValue("venueId", entity.getVenueId());
-
+			namedParameters.addValue("isStatic", entity.getIsStatic());
 		jdbcTemplate.update(
-				"insert into packagedetails(title,description,guestAmount,totalCost,eventTypeId,venueId) values(:title,:description,:guestAmount,:totalCost,:eventTypeId,:venueId)",
+				"insert into packagedetails(title,description,guestAmount,totalCost,eventTypeId,venueId,isStatic) values(:title,:description,:guestAmount,:totalCost,:eventTypeId,:venueId,:isStatic)",
 				namedParameters, keyHolder, new String[] { "packageDetailsId" });
 		return findById(keyHolder.getKey().longValue());
 	}

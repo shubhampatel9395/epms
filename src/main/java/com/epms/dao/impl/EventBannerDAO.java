@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IEventBannerDAO;
@@ -67,8 +69,16 @@ public class EventBannerDAO implements IEventBannerDAO {
 
 	@Override
 	public EventBannerDTO insert(EventBannerDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("eventId", entity.getEventId());
+		sc.addValue("banner", entity.getBanner());
+
+		int i = jdbcTemplate.update("insert into eventbanner(eventId,banner) values(:eventId,:banner)", sc,
+				keyHolder, new String[] { "bannerId" });
+
+		return findById(keyHolder.getKey().longValue());
 	}
 
 	@Override

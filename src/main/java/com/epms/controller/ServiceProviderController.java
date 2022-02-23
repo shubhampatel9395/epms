@@ -68,6 +68,36 @@ public class ServiceProviderController {
 		}
 	}
 	
+	@GetMapping("/service-settings")
+	public ModelAndView serviceSettings() {
+		ModelAndView modelandmap = new ModelAndView("/serviceprovider/service-settings");
+		return modelandmap;
+	}
+	
+	@GetMapping("/assigned-events")
+	public ModelAndView assignedEvents() {
+		ModelAndView modelandmap = new ModelAndView("/serviceprovider/assigned-events");
+		return modelandmap;
+	}
+	
+	@GetMapping("/event-history")
+	public ModelAndView eventHistory() {
+		ModelAndView modelandmap = new ModelAndView("/serviceprovider/event-history");
+		return modelandmap;
+	}
+	
+	@GetMapping("/payment-history")
+	public ModelAndView paymentHistory() {
+		ModelAndView modelandmap = new ModelAndView("/serviceprovider/payment-history");
+		return modelandmap;
+	}
+	
+	@GetMapping("/feedbacks")
+	public ModelAndView feedback() {
+		ModelAndView modelandmap = new ModelAndView("/serviceprovider/feedbacks");
+		return modelandmap;
+	}
+	
 	@GetMapping("logout")
 	public ModelAndView logoutPage() {
 		return new ModelAndView("redirect:/login");

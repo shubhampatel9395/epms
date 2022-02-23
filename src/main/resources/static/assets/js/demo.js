@@ -20,6 +20,11 @@ $.ajax({
 		"#ffbc00",
 		"#39afd1",
 		"#e3eaef",
+		"#E99EEE",
+		"#ff679b",
+		"#000000",
+		"#FFFB00",
+		"#FF0000"
 	];
 
 	(e.createDonutChart = function(e, t) {

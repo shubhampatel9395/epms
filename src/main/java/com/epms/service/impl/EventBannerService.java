@@ -42,8 +42,7 @@ public class EventBannerService implements IEventBannerService {
 
 	@Override
 	public EventBannerDTO insert(EventBannerDTO EventBannerDTO) {
-		// TODO Auto-generated method stub
-		return null;
+		return eventBannerDAO.insert(EventBannerDTO);
 	}
 
 	@Override

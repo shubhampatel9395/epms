@@ -127,7 +127,7 @@ public class CustomerController {
 
 	@Autowired
 	IVenueImageMappingService venueImageMappingService;
-	
+
 	@Autowired
 	Environment env;
 
@@ -285,7 +285,7 @@ public class CustomerController {
 				modelandmap.addObject("layoutPage", "_layout");
 			}
 		}
-		
+
 		modelandmap.addObject("eventTypes",
 				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		modelandmap.addObject("enquiry", new EnquiryDTO());
@@ -399,12 +399,12 @@ public class CustomerController {
 	public ModelAndView packagesByEventType(ModelAndView modelandmap, @PathVariable long eventTypeId) {
 		List<PackageDetailsDTO> packageDetailsDTO;
 		if (eventTypeId == -1) {
-			packageDetailsDTO = packageDetailsService
-					.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true));
+			packageDetailsDTO = packageDetailsService.findByNamedParameters(
+					new MapSqlParameterSource().addValue("isActive", true).addValue("isStatic", true));
 			modelandmap.setViewName("fragments :: resultsList");
 		} else {
-			packageDetailsDTO = packageDetailsService.findByNamedParameters(
-					new MapSqlParameterSource().addValue("isActive", true).addValue("eventTypeId", eventTypeId));
+			packageDetailsDTO = packageDetailsService.findByNamedParameters(new MapSqlParameterSource()
+					.addValue("isActive", true).addValue("eventTypeId", eventTypeId).addValue("isStatic", true));
 		}
 
 		if (packageDetailsDTO.size() == 0) {
@@ -616,6 +616,12 @@ public class CustomerController {
 			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) authentication.getPrincipal();
 			if (userDetails.getIsCustomer() == true) {
 				modelandmap.addObject("layoutPage", "customer/_layout");
+			} else if (userDetails.getIsServiceProvider() == true) {
+				modelandmap.addObject("layoutPage", "serviceprovider/_layout");
+			} else if (userDetails.getRole().equals("ROLE_EVENTORGANIZER")) {
+				modelandmap.addObject("layoutPage", "eventorganizer/_layout");
+			} else if (userDetails.getIsEmployee() == true) {
+				modelandmap.addObject("layoutPage", "employee/_layout");
 			} else {
 				modelandmap.addObject("layoutPage", "_layout");
 			}
@@ -633,6 +639,12 @@ public class CustomerController {
 			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) authentication.getPrincipal();
 			if (userDetails.getIsCustomer() == true) {
 				modelandmap.addObject("layoutPage", "customer/_layout");
+			} else if (userDetails.getIsServiceProvider() == true) {
+				modelandmap.addObject("layoutPage", "serviceprovider/_layout");
+			} else if (userDetails.getRole().equals("ROLE_EVENTORGANIZER")) {
+				modelandmap.addObject("layoutPage", "eventorganizer/_layout");
+			} else if (userDetails.getIsEmployee() == true) {
+				modelandmap.addObject("layoutPage", "employee/_layout");
 			} else {
 				modelandmap.addObject("layoutPage", "_layout");
 			}
@@ -649,8 +661,7 @@ public class CustomerController {
 		mail.setContentType("text/html");
 		String content = "<p><strong>Contact Us By: </strong>" + contactUsDTO.getEmail() + "</p>"
 				+ "<p><strong>Subject: </strong>" + contactUsDTO.getSubject() + "</p>"
-				+ "<p><strong>Message: </strong></p>"
-				+ "<p>" + contactUsDTO.getMessage() + "</p>";
+				+ "<p><strong>Message: </strong></p>" + "<p>" + contactUsDTO.getMessage() + "</p>";
 		mail.setMailContent(content);
 		mailService.sendEmail(mail);
 		return new ModelAndView("redirect:/contact-us");

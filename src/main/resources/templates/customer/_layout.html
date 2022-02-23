@@ -155,14 +155,13 @@
 						<nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 							<div class="collapse navbar-collapse" id="topnav-menu-content">
 								<ul class="navbar-nav">
-
 									<li class="nav-item">
 										<a th:href="@{/customer/index}" class="nav-link topnav-logo">
 											<span class="topnav-logo-lg">
 												<img th:src="@{/assets/images/logoUnico.png}" alt="" height="25">
 											</span>
 											<span class="topnav-logo-sm">
-												<img th:src="@{assets/images/logoUnico.png}" alt="" height="25">
+												<img th:src="@{/assets/images/logoUnico.png}" alt="" height="25">
 											</span>
 										</a>
 									</li>
@@ -177,7 +176,7 @@
 
 									<li class="nav-item"
 										th:classappend="${#request.getRequestURI().startsWith('/events') ? 'active' : '' }">
-										<a class="nav-link" th:href="@{/logout}">
+										<a class="nav-link" th:href="@{/events}">
 											<i class="mdi mdi-calendar-multiple-check"></i><span> Events </span>
 										</a>
 									</li>
@@ -203,8 +202,13 @@
 										</a>
 									</li>
 
-								</ul>
-								<ul class="list-unstyled topbar-menu float-end mb-0">
+									<li class="nav-item"
+										th:classappend="${#request.getRequestURI().contains('/create') ? 'active' : '' }">
+										<a class="nav-link" th:href="@{/inquiry}">
+											<i class="mdi mdi-calendar-plus"></i><span> Create an event</span>
+										</a>
+									</li>
+
 									<li class="dropdown notification-list">
 										<a class="nav-link dropdown-toggle nav-user arrow-none me-0"
 											data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false"
@@ -223,6 +227,18 @@
 											</div>
 
 											<!-- item-->
+											<a href="#" class="dropdown-item notify-item">
+												<i class="mdi mdi-account-edit"></i>
+												<span>Account Settings</span>
+											</a>
+
+											<!-- item-->
+											<a href="#" class="dropdown-item notify-item">
+												<i class="mdi mdi-calendar-edit"></i>
+												<span>Manage My Events</span>
+											</a>
+
+											<!-- item-->
 											<a th:href="@{/change-password}" class="dropdown-item notify-item">
 												<i class="mdi mdi-key"></i>
 												<span>Change Password</span>
@@ -235,7 +251,6 @@
 											</a>
 										</div>
 									</li>
-
 								</ul>
 							</div>
 						</nav>

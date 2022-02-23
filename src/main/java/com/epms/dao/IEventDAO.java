@@ -13,4 +13,5 @@ public interface IEventDAO extends ICRUDRepository<EventDTO, Long> {
 
 	public List<EventDTO> getLastDayData();
 
+	public EventDTO insertByAdmin(EventDTO eventDTO);
 }

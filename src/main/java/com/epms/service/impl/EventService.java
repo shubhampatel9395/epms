@@ -73,4 +73,9 @@ public class EventService implements IEventService {
 		return eventDAO.getLastDayData();
 	}
 
+	@Override
+	public EventDTO insertByAdmin(EventDTO eventDTO) {
+		return eventDAO.insertByAdmin(eventDTO);
+	}
+
 }

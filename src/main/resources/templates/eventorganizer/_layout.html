@@ -29,7 +29,7 @@
         <div class="leftside-menu">
 
             <!-- LOGO -->
-			<a href="index" class="logo text-center logo-light">
+			<a th:href="@{/eventorganizer/dashboard}" class="logo text-center logo-light">
 				<span class="logo-lg">
 					<img th:src="@{/assets/images/logoUnico.png}" alt="" height="30">
 				</span>
@@ -39,7 +39,7 @@
 			</a>
 
 			<!-- LOGO -->
-			<a href="index" class="logo text-center logo-dark">
+			<a th:href="@{/eventorganizer/dashboard}" class="logo text-center logo-dark">
 				<span class="logo-lg">
 					<img th:src="@{/assets/images/logoUnico.png}" alt="" height="30">
 				</span>
@@ -48,55 +48,52 @@
 				</span>
 			</a>
 
-            <div class="h-100" id="leftside-menu-container" data-simplebar>
+         <div class="h-100" id="leftside-menu-container" data-simplebar>
 
-                <!--- Sidemenu -->
-                <ul class="side-nav">
+				<!--- Sidemenu -->
+				<ul class="side-nav">
 
-                    <li class="side-nav-title side-nav-item">Navigation</li>
+					<li class="side-nav-title side-nav-item">Navigation</li>
 
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#sidebarDashboards" aria-expanded="false"
-                            aria-controls="sidebarDashboards" class="side-nav-link">
-                            <i class="uil-home-alt"></i>
-                            <span> Dashboard </span>
-                        </a>
-                    </li>
+					<li class="side-nav-item" th:classappend="${#request.getRequestURI().contains('/dashboard') ? 'active' : '' }">
+						<a th:href="@{/eventorganizer/dashboard}" class="side-nav-link">
+							<i class="uil-home-alt"></i>
+							<span> Dashboard </span>
+						</a>
+					</li>
 
-                    <li class="side-nav-item">
-                        <a href="apps-file-manager.html" class="side-nav-link">
-                            <i class="mdi mdi-clipboard-list-outline"></i>
-                            <span> Assigned Events </span>
-                            <!-- Can perform assignment of employee -->
-                        </a>
-                    </li>
+                   <li class="side-nav-item" th:classappend="${#request.getRequestURI().contains('/assigned-events') ? 'active' : '' }">
+						<a th:href="@{/eventorganizer/assigned-events}" class="side-nav-link">
+							<i class="mdi mdi-clipboard-list-outline"></i>
+							<span> Assigned Events </span>
+						</a>
+					</li>
+					
+                   <li class="side-nav-item" th:classappend="${#request.getRequestURI().contains('event-history') || #request.getRequestURI().contains('payment-history') ? 'menuitem-active' : '' }">
+						<a data-bs-toggle="collapse" href="#sidebarHistory" aria-expanded="false"
+							aria-controls="sidebarHistory" class="side-nav-link">
+							<i class="mdi mdi-history"></i>
+							<span> History </span>
+							<span class="menu-arrow"></span>
+						</a>
+						<div class="collapse" id="sidebarHistory">
+							<ul class="side-nav-second-level">
+								<li th:classappend="${#request.getRequestURI().contains('event-history') ? 'active' : '' }">
+									<a th:href="@{/eventorganizer/event-history}">Events</a>
+								</li>
+								<li th:classappend="${#request.getRequestURI().contains('payment-history') ? 'active' : '' }">
+									<a th:href="@{/eventorganizer/payment-history}">Payments</a>
+								</li>
+							</ul>
+						</div>
+					</li>
 
-                   
-
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#sidebarHistory" aria-expanded="false" aria-controls="sidebarHistory" class="side-nav-link">
-                            <i class="mdi mdi-history"></i>
-                            <span> History </span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse" id="sidebarHistory">
-                            <ul class="side-nav-second-level">
-                                <li>
-                                    <a href="apps-ecommerce-products.html">Events</a>
-                                </li>
-                                <li>
-                                    <a href="apps-ecommerce-products-details.html">Payments</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-
-                    <li class="side-nav-item">
-                        <a href="apps-file-manager.html" class="side-nav-link">
-                            <i class="uil-feedback"></i>
-                            <span> Feedbacks </span>
-                        </a>
-                    </li>                    
+					<li class="side-nav-item" th:classappend="${#request.getRequestURI().contains('feedbacks') ? 'active' : '' }">
+						<a th:href="@{/eventorganizer/feedbacks}" class="side-nav-link">
+							<i class="uil-feedback"></i>
+							<span> Feedbacks </span>
+						</a>
+					</li>                 
                 </ul>
                 <!-- End Sidebar -->
 
@@ -122,8 +119,7 @@
 								href="#" role="button" aria-haspopup="false" aria-expanded="false">
 								<span>
 									<span sec:authentication="principal.fullName"></span>
-									<span class="account-position"
-										sec:authentication="principal.employeeRoleName">Admin</span>
+									<span class="account-position">Event Organizer</span>
 								</span>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end dropdown-menu-animated topbar-dropdown-menu profile-dropdown"
@@ -175,9 +171,9 @@
                         </div>
                         <div class="col-md-6">
                             <div class="text-md-end footer-links d-none d-md-block">
-                                <a href="javascript: void(0);">About Us</a>
-                                <a href="javascript: void(0);">Contact Us</a>
-                            </div>
+								<a th:href="@{/about-us}">About Us</a>
+								<a th:href="@{/contact-us}">Contact Us</a>
+							</div>
                         </div>
                     </div>
                 </div>

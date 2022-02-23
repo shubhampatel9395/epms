@@ -17,4 +17,5 @@ public interface IEventService {
 	public Integer getCountByEventType(String eventType);
 	public Integer getCount();
 	public List<EventDTO> getLastDayData();
+	public EventDTO insertByAdmin(EventDTO eventDTO);
 }

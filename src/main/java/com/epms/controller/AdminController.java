@@ -37,6 +37,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.epms.dao.IEnuEventStatusDAO;
+import com.epms.dao.IEventBannerDAO;
 import com.epms.dto.AddressDTO;
 import com.epms.dto.AdminDashboardDTO;
 import com.epms.dto.AdminLatestActivityDTO;
@@ -69,11 +71,13 @@ import com.epms.service.IEnuCityService;
 import com.epms.service.IEnuCountryService;
 import com.epms.service.IEnuEmployeeRoleService;
 import com.epms.service.IEnuEnquiryStatusService;
+import com.epms.service.IEnuEventStatusService;
 import com.epms.service.IEnuEventTypeService;
 import com.epms.service.IEnuServiceTypeService;
 import com.epms.service.IEnuStateService;
 import com.epms.service.IEnuVenueFacilityService;
 import com.epms.service.IEnuVenueTypeService;
+import com.epms.service.IEventBannerService;
 import com.epms.service.IEventService;
 import com.epms.service.IPackageDetailsService;
 import com.epms.service.IPackageServiceProviderMappingService;
@@ -158,6 +162,12 @@ public class AdminController {
 
 	@Autowired
 	IEnuEnquiryStatusService enquiryStatusService;
+
+	@Autowired
+	IEnuEventStatusService enuEventStatusService;
+
+	@Autowired
+	IEventBannerService eventBannerService;
 
 	public String getAddress(AddressDTO addressDTO) {
 		String address;
@@ -343,6 +353,18 @@ public class AdminController {
 		modelandmap.addObject("packages", packages);
 		modelandmap.addObject("availableForEventType", availableForEventType);
 		modelandmap.addObject("availableInVenue", availableInVenue);
+		return modelandmap;
+	}
+
+	@GetMapping("/list-event")
+	public ModelAndView listEvent() {
+		ModelAndView modelandmap = new ModelAndView("admin/event");
+		return modelandmap;
+	}
+	
+	@GetMapping("/list-payment")
+	public ModelAndView listPayment() {
+		ModelAndView modelandmap = new ModelAndView("admin/payment");
 		return modelandmap;
 	}
 
@@ -592,7 +614,9 @@ public class AdminController {
 	@GetMapping("/add_package")
 	public ModelAndView addPackage() {
 		ModelAndView modelandmap = new ModelAndView("admin/add_package");
-		modelandmap.addObject("packageDetailsDTO", new PackageDetailsDTO());
+		PackageDetailsDTO packageDetailsDTO = new PackageDetailsDTO();
+		packageDetailsDTO.setIsStatic(true);
+		modelandmap.addObject("packageDetailsDTO", packageDetailsDTO);
 		List<EnuServiceTypeDTO> serviceTypes = enuServiceTypeService.findAllActive();
 		List<ServiceProviderDTO> serviceProviders = serviceProviderService.findAllActive();
 
@@ -731,10 +755,35 @@ public class AdminController {
 
 	@PostMapping("/add_event")
 	public ModelAndView saveEvent(@Valid @ModelAttribute("eventDTO") EventDTO eventDTO,
-			@Valid @ModelAttribute("bannerDTO") EventBannerDTO bannerDTO,
 			@Valid @ModelAttribute("packageDetailsDTO") PackageDetailsDTO packageDetailsDTO,
-			@Valid @ModelAttribute("packageTempDTO") PackageTempDTO packageTempDTO) {
-		ModelAndView modelandmap = new ModelAndView("redirect:/admin/dashboard");
+			@Valid @ModelAttribute("packageTempDTO") PackageTempDTO packageTempDTO,
+			@RequestParam("banner") MultipartFile banner) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-event");
+
+		if (packageDetailsDTO.getIsStatic() != true) {
+			eventDTO.setPackageDetailsId(packageDetailsService.insert(packageDetailsDTO).getPackageDetailsId());
+			if (packageTempDTO.getServiceProviderIdList() != null) {
+				packageServiceProviderMappingService.insert(eventDTO.getPackageDetailsId().longValue(),
+						packageTempDTO.getServiceProviderIdList());
+			}
+		}
+		eventDTO.setEventStatusId(DataAccessUtils
+				.singleResult(enuEventStatusService
+						.findByNamedParameters(new MapSqlParameterSource().addValue("status", "Verified")))
+				.getStatusId());
+		EventDTO newEventDTO = eventService.insertByAdmin(eventDTO);
+
+		if (!banner.isEmpty()) {
+			EventBannerDTO obj = new EventBannerDTO();
+			try {
+				obj.setBanner(new SerialBlob(banner.getBytes()));
+				obj.setEventId(newEventDTO.getEventId());
+			} catch (SQLException | IOException e) {
+				log.error(e.toString());
+			}
+			eventBannerService.insert(obj);
+		}
+
 		return modelandmap;
 	}
 
@@ -918,8 +967,6 @@ public class AdminController {
 
 		modelandmap.addObject("userDetailsDTO", userDetailsDTO);
 		modelandmap.addObject("addressDTO", addressDTO);
-
-		modelandmap.addObject("countries", enuCountryService.findAll());
 
 		MapSqlParameterSource paramSource = new MapSqlParameterSource();
 		paramSource.addValue("countryId", addressDTO.getCountryId());
@@ -1437,8 +1484,8 @@ public class AdminController {
 			eventTypeNames.add(eventType.getEventType());
 			return eventService.getCountByEventType(eventType.getEventType());
 		}).collect(Collectors.toList());
-		// Integer totalEvent = eventService.getCount();
-		Integer totalEvent = 10;
+		Integer totalEvent = eventService.getCount();
+		// Integer totalEvent = 10;
 		List<Double> percentage = quantity.stream().map(q -> {
 			return (double) (q / totalEvent) * 100;
 		}).collect(Collectors.toList());

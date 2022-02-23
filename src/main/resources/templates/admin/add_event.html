@@ -3,7 +3,7 @@
 
 <head>
 	<title>Add Event</title>
-	<meta th:name="${_csrf.parameterName}" th:content="${_csrf.token}" />
+	
 	<style>
 		.page-title-box .page-title-right {
 			display: block;
@@ -47,7 +47,7 @@
 				<div class="col-12">
 					<div class="card">
 						<div class="card-body">
-							<form th:action="@{/admin/add_event}" method="post">
+							<form th:action="@{/admin/add_event}" method="post"  enctype="multipart/form-data">
 								<div>
 									<i class="mdi mdi-information-outline"
 										style="font-size: 24px;padding-right: 0.5rem;"></i>
@@ -89,7 +89,7 @@
 									<div class="mb-3" id="profile-container">
 										<img id="profileImage" th:src="@{/assets/images/img-placeholder.png}"
 											class="img-fluid img-thumbnail" />
-										<input id="imageUpload" type="file" name="profile_photo" placeholder="Photo"
+										<input  id="imageUpload" type="file" name="banner" placeholder="Photo"
 											accept="image/png, image/jpg, image/jpeg" capture>
 									</div>
 								</div>
@@ -301,7 +301,7 @@
 								<div class="form-floating mb-3">
 									<select id="inputEventOrganizer" class="form-select"
 										th:field="*{eventDTO.eventOrganizerId}" required>
-										<option value="-1" selected hidden readonly>--Select Event Organizer --
+										<option value="" selected hidden readonly>--Select Event Organizer --
 										</option>
 										<option th:each="employee : ${employees}" th:value="${employee.employeeId}"
 											th:text="|${employee.firstName} ${employee.lastName}|">
@@ -309,6 +309,8 @@
 									</select>
 									<label for="floatingSelect">Event Organizer</label>
 								</div>
+								
+								<input type="hidden" id="eventTotalCost" th:field="*{eventDTO.totalCost}" />
 
 								<div class="mb-0 d-grid text-center">
 									<button class="btn btn-primary" type="submit"><i
@@ -496,6 +498,7 @@
 					headers: {"X-CSRF-TOKEN": token}, //send CSRF token in header
 					data: JSON.stringify(forCost),
 					success: function (result) {
+						$("#eventTotalCost").val(result);
 						messageConfirm = "Total event cost will be " + result + "." + "\nYou have to pay 10% advance to confirm the event.\nDo you want to continue?"
 						if (confirm(messageConfirm) == true) {
 							isDone = true;

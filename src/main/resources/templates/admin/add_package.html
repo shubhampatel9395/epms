@@ -3,7 +3,6 @@
 
 <head>
 	<title>Add Package</title>
-	<meta th:name="${_csrf.parameterName}" th:content="${_csrf.token}" />
 	<style>
 		.page-title-box .page-title-right {
 			display: block;
@@ -153,6 +152,7 @@
 								</div>
 
 								<input type="hidden" id="finalCost" th:field="*{packageDetailsDTO.totalCost}" />
+								<input type="hidden" th:field="*{packageDetailsDTO.isStatic}" />
 
 								<div class="mb-0 d-grid text-center">
 									<a data-bs-toggle="modal" data-bs-target="#staticBackdropConfirm"

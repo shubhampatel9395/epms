@@ -85,13 +85,22 @@
 							<div data-simplebar style="max-height: 525px;">
 								<div class="timeline-alt pb-0">
 									<div class="timeline-item" th:each="activity : ${activityDTOs}">
-										<i th:if="${activity.roleName == 'CUSTOMER'}" class="mdi mdi-account-plus bg-info-lighten text-info timeline-icon"></i>
-										<i th:if="${activity.roleName == 'SERVICEPROVIDER'}" class="mdi mdi-account-plus bg-primary-lighten text-primary timeline-icon"></i>
-										<i th:if="${activity.roleName == 'EVENT'}" class="mdi mdi-calendar-check bg-success-lighten text-success timeline-icon"></i>
+										<i th:if="${activity.roleName == 'CUSTOMER'}"
+											class="mdi mdi-account-plus bg-info-lighten text-info timeline-icon"></i>
+										<i th:if="${activity.roleName == 'SERVICEPROVIDER'}"
+											class="mdi mdi-account-plus bg-primary-lighten text-primary timeline-icon"></i>
+										<i th:if="${activity.roleName == 'EVENT'}"
+											class="mdi mdi-calendar-check bg-success-lighten text-success timeline-icon"></i>
 										<div class="timeline-item-info">
-											<a th:if="${activity.roleName == 'CUSTOMER'}" th:href="@{/admin/list-customer}" class="text-info fw-bold mb-1 d-block">New Customer Registered.</a>
-											<a th:if="${activity.roleName == 'SERVICEPROVIDER'}" th:href="@{/admin/list-serviceprovider}" class="text-primary fw-bold mb-1 d-block">New Serviceprovider Registered.</a>
-											<a th:if="${activity.roleName == 'EVENT'}" th:href="@{/admin/list-event}" class="text-success fw-bold mb-1 d-block">New Event Registered.</a>
+											<a th:if="${activity.roleName == 'CUSTOMER'}"
+												th:href="@{/admin/list-customer}"
+												class="text-info fw-bold mb-1 d-block">New Customer Registered.</a>
+											<a th:if="${activity.roleName == 'SERVICEPROVIDER'}"
+												th:href="@{/admin/list-serviceprovider}"
+												class="text-primary fw-bold mb-1 d-block">New Serviceprovider
+												Registered.</a>
+											<a th:if="${activity.roleName == 'EVENT'}" th:href="@{/admin/list-event}"
+												class="text-success fw-bold mb-1 d-block">New Event Registered.</a>
 											<strong><small th:text="${activity.title}"></small></strong>
 											<small th:text="' - ' + ${activity.subTitle}"></small>
 											<p class="mb-0 pb-2"></p>
@@ -111,6 +120,17 @@
 	</th:block>
 
 	<th:block layout:fragment="script">
+		<script type="text/javascript">
+			$.ajax({
+				type: "GET",
+				dataType: 'json',
+				url: "/admin/getChartData/",
+				success: function (result) {
+					da = JSON.parse(JSON.stringify(result));
+					console.log(da);
+				}
+			});
+		</script>
 		<!-- third party:js -->
 		<script th:src="@{/assets/js/vendor/d3.min.js}"></script>
 		<script th:src="@{/assets/js/vendor/britecharts.min.js}"></script>

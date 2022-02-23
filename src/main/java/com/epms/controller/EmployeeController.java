@@ -24,6 +24,30 @@ public class EmployeeController {
 		}
 	}
 	
+	@GetMapping("/assigned-work")
+	public ModelAndView assignedWork() {
+		ModelAndView modelandmap = new ModelAndView("employee/assigned-work");
+		return modelandmap;
+	}
+	
+	@GetMapping("/event-history")
+	public ModelAndView eventHistory() {
+		ModelAndView modelandmap = new ModelAndView("employee/event-history");
+		return modelandmap;
+	}
+	
+	@GetMapping("/payment-history")
+	public ModelAndView paymentHistory() {
+		ModelAndView modelandmap = new ModelAndView("employee/payment-history");
+		return modelandmap;
+	}
+	
+	@GetMapping("/feedbacks")
+	public ModelAndView feedback() {
+		ModelAndView modelandmap = new ModelAndView("employee/feedbacks");
+		return modelandmap;
+	}
+	
 	@GetMapping("logout")
 	public ModelAndView logoutPage() {
 		return new ModelAndView("redirect:/login");

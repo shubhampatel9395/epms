@@ -31,6 +31,7 @@ public class EventDTO {
 	private Double registrationFee;
 	private Integer registrationAvailable;
 	private Double totalCost;
+	private Integer eventStatusId;
 	private Date createdAt;
 	private Date updatedAt;
 	private Boolean isActive;

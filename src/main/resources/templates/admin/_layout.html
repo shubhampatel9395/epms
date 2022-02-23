@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
 
 <head>
 	<meta charset="utf-8" />
@@ -55,14 +56,16 @@
 
 					<li class="side-nav-title side-nav-item">Navigation</li>
 
-					<li class="side-nav-item" th:classappend="${#request.getRequestURI().contains('/dashboard') ? 'active' : '' }">
+					<li class="side-nav-item"
+						th:classappend="${#request.getRequestURI().contains('/dashboard') ? 'active' : '' }">
 						<a th:href="@{/admin/dashboard}" class="side-nav-link">
 							<i class="uil-home-alt"></i>
 							<span> Dashboard </span>
 						</a>
 					</li>
 
-					<li class="side-nav-item" th:classappend="${#request.getRequestURI().contains('customer') || #request.getRequestURI().contains('serviceprovider') || #request.getRequestURI().contains('venue') || #request.getRequestURI().contains('employee') ? 'menuitem-active' : '' }">
+					<li class="side-nav-item"
+						th:classappend="${#request.getRequestURI().contains('customer') || #request.getRequestURI().contains('serviceprovider') || #request.getRequestURI().contains('venue') || #request.getRequestURI().contains('employee') ? 'menuitem-active' : '' }">
 						<a data-bs-toggle="collapse" href="#sidebarEcommerce" aria-expanded="false"
 							aria-controls="sidebarEcommerce" class="side-nav-link">
 							<i class="uil-users-alt"></i>
@@ -77,7 +80,8 @@
 								<li th:classappend="${#request.getRequestURI().contains('employee')  ? 'active' : '' }">
 									<a th:href="@{/admin/list-employee}">Employees</a>
 								</li>
-								<li th:classappend="${#request.getRequestURI().contains('serviceprovider')  ? 'active' : '' }">
+								<li
+									th:classappend="${#request.getRequestURI().contains('serviceprovider')  ? 'active' : '' }">
 									<a th:href="@{/admin/list-serviceprovider}">Service Providers</a>
 								</li>
 								<li th:classappend="${#request.getRequestURI().contains('venue')  ? 'active' : '' }">
@@ -87,42 +91,46 @@
 						</div>
 					</li>
 
-					<li class="side-nav-item" th:classappend="${#request.getRequestURI().contains('package') ? 'menuitem-active' : ''}">
+					<li class="side-nav-item"
+						th:classappend="${#request.getRequestURI().contains('package') ? 'menuitem-active' : ''}">
 						<a th:href="@{/admin/list-package}" class="side-nav-link">
 							<i class="mdi mdi-package-variant"></i>
 							<span> Packages </span>
 						</a>
 					</li>
 
-					<li class="side-nav-item" th:classappend="${#request.getRequestURI().contains('event') ? 'menuitem-active' : ''}">
-						<a href="apps-social-feed.html" class="side-nav-link">
+					<li class="side-nav-item"
+						th:classappend="${#request.getRequestURI().contains('event') ? 'menuitem-active' : ''}">
+						<a th:href="@{/admin/list-event}" class="side-nav-link">
 							<i class="mdi mdi-calendar-multiple-check"></i>
 							<span>Events</span>
 						</a>
 					</li>
-
+					
+					<!--
 					<li class="side-nav-item">
 						<a href="apps-file-manager.html" class="side-nav-link">
-							<i class="mdi mdi-hand"></i>
+							<i class="mdi mdi-currency-inr"></i>
 							<span> Attendees </span>
 						</a>
 					</li>
-
+-->
 					<li class="side-nav-item">
-						<a href="apps-file-manager.html" class="side-nav-link">
+						<a th:href="@{/admin/list-payment}" class="side-nav-link">
 							<i class="mdi mdi-currency-inr"></i>
 							<span> Payments </span>
 						</a>
 					</li>
 
-					<li class="side-nav-item" th:classappend="${#request.getRequestURI().contains('inquiry') ? 'menuitem-active' : ''}">
+					<li class="side-nav-item"
+						th:classappend="${#request.getRequestURI().contains('inquiry') ? 'menuitem-active' : ''}">
 						<a th:href="@{/admin/list-inquiry}" class="side-nav-link">
 							<i class="mdi mdi-account-question"></i>
 							<span> Inquiries </span>
 						</a>
 					</li>
 
-				<!--	<li class="side-nav-item">
+					<!--	<li class="side-nav-item">
 						<a data-bs-toggle="collapse" href="#sidebarReports" aria-expanded="false"
 							aria-controls="sidebarReports" class="side-nav-link">
 							<i class="dripicons-document-new"></i>
@@ -173,13 +181,14 @@
 									<span class="account-position">Admin</span>
 								</span>
 							</a>
-							<div
-								class="dropdown-menu dropdown-menu-end dropdown-menu-animated topbar-dropdown-menu profile-dropdown" style="min-width: 200px;">
+							<div class="dropdown-menu dropdown-menu-end dropdown-menu-animated topbar-dropdown-menu profile-dropdown"
+								style="min-width: 200px;">
 								<!-- item-->
 								<div class=" dropdown-header noti-title">
-									<h6 class="text-overflow m-0">Welcome <span sec:authentication="principal.fullName"></span>!</h6>
+									<h6 class="text-overflow m-0">Welcome <span
+											sec:authentication="principal.fullName"></span>!</h6>
 								</div>
-								
+
 								<!-- item-->
 								<a th:href="@{/change-password}" class="dropdown-item notify-item">
 									<i class="mdi mdi-key"></i>
@@ -213,12 +222,14 @@
 						<div class="col-md-6">
 							<script>document.write(new Date().getFullYear())</script> © Unico - Unico.com
 						</div>
+						<!--
 						<div class="col-md-6">
 							<div class="text-md-end footer-links d-none d-md-block">
 								<a href="javascript: void(0);">About Us</a>
 								<a href="javascript: void(0);">Contact Us</a>
 							</div>
 						</div>
+						-->
 					</div>
 				</div>
 			</footer>
