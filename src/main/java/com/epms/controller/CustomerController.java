@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -258,8 +260,14 @@ public class CustomerController {
 	}
 
 	@GetMapping("logout")
-	public ModelAndView logoutPage() {
-		return new ModelAndView("redirect:/login");
+	public ModelAndView logoutPage(HttpServletRequest request, HttpServletResponse response) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth != null) {
+			new SecurityContextLogoutHandler().logout(request, response, auth);
+		}
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("redirect:/login");
+		return mv;
 	}
 
 	@GetMapping("events")
