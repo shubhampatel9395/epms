@@ -379,7 +379,7 @@ public class AdminController {
 		serviceProviderService.authenticate(serviceProviderId);
 		
 		Mail mail = new Mail();
-		mail.setMailTo(userDetailsService.findById(serviceProviderId).getEmail());
+		mail.setMailTo(userDetailsService.findById(serviceProviderService.findById(serviceProviderId).getUserDetailsId().longValue()).getEmail());
 		mail.setMailSubject("Authentication");
 		mail.setContentType("text/html");
 		String content = "<p>You have been authorized to use your Unico - Event Planning and Management profile.</p>";
@@ -982,6 +982,7 @@ public class AdminController {
 		modelandmap.addObject("addressDTO", addressDTO);
 
 		MapSqlParameterSource paramSource = new MapSqlParameterSource();
+		modelandmap.addObject("countries", enuCountryService.findAll());
 		paramSource.addValue("countryId", addressDTO.getCountryId());
 		modelandmap.addObject("states", enuStateService.findByNamedParameters(paramSource));
 
