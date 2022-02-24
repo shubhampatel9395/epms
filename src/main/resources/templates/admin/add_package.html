@@ -3,6 +3,8 @@
 
 <head>
 	<title>Add Package</title>
+	<meta id="_csrf" name="_csrf" th:content="${_csrf.token}" />
+	<meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}" />
 	<style>
 		.page-title-box .page-title-right {
 			display: block;
@@ -199,6 +201,7 @@
 
 	<th:block layout:fragment="script">
 		<script th:inline="javascript" type="text/javascript">
+
 			function calculateCost() {
 				if ($("#inputVenue").val() == "") {
 					$("#confirmText").text("Please Select Venue for the package.");
@@ -234,7 +237,7 @@
 
 				$("#btnSubmit").prop("disabled", false);
 				var packageCost = [];
-				var token = $("meta[name='_csrf']").attr("content");
+				// var token = $("meta[name='_csrf']").attr("content");
 
 				if ($("#inputVenue").val() != "") {
 					packageCost.push($("#inputVenue").find(":selected").val());
@@ -254,7 +257,8 @@
 					datatype: 'json',
 					traditional: true,
 					url: "/admin/getPackageCost/",
-					headers: {"X-CSRF-TOKEN": token}, //send CSRF token in header
+					// headers: {"X-CSRF-TOKEN": getCSRFTokenValue()}, //send CSRF token in header
+					// data: { CSRF: getCSRFTokenValue()},
 					data: JSON.stringify(packageCost),
 					success: function (result) {
 						$("#finalCost").val(result);
@@ -265,8 +269,8 @@
 					}
 				});
 			}
-			
-			$("#inputEventType").change(function(){
+
+			$("#inputEventType").change(function () {
 				$.ajax({
 					type: "GET",
 					dataType: 'json',
@@ -294,7 +298,13 @@
 							$('#' + $(this).attr("id").replace("service", "serviceprovider") + '').val("");
 						}
 					});
-				})
+				});
+
+				var token = $("meta[name='_csrf']").attr("content");
+				var header = $("meta[name='_csrf_header']").attr("content");
+				$(document).ajaxSend(function (e, xhr, options) {
+					xhr.setRequestHeader(header, token);
+				});
 			});
 		</script>
 	</th:block>

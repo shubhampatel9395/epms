@@ -3,7 +3,8 @@
 
 <head>
 	<title>Add Event</title>
-	
+	<meta id="_csrf" name="_csrf" th:content="${_csrf.token}" />
+	<meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}" />
 	<style>
 		.page-title-box .page-title-right {
 			display: block;
@@ -370,6 +371,12 @@
 				var urlToCall = "getPackagesOfEvent/" + value + '';
 				$.get(urlToCall).done(function (result) {
 					$("#main").replaceWith(result);
+				});
+				
+				var token = $("meta[name='_csrf']").attr("content");
+				var header = $("meta[name='_csrf_header']").attr("content");
+				$(document).ajaxSend(function (e, xhr, options) {
+					xhr.setRequestHeader(header, token);
 				});
 
 				$("input:checkbox").each(function () {
