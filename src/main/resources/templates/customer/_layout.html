@@ -213,17 +213,25 @@
 										<a class="nav-link dropdown-toggle nav-user arrow-none me-0"
 											data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false"
 											aria-expanded="false">
-											<span>
+											<span th:if ="${userDetailsDTO}==null">
 												<span sec:authentication="principal.fullName"></span>
+												<span class="account-position">Customer</span>
+											</span>
+												<span th:unless ="${userDetailsDTO}==null">
+												<span th:text="${userDetailsDTO.firstName}"></span>
 												<span class="account-position">Customer</span>
 											</span>
 										</a>
 										<div class="dropdown-menu dropdown-menu-end dropdown-menu-animated topbar-dropdown-menu profile-dropdown"
 											style="min-width: 200px;">
 											<!-- item-->
-											<div class=" dropdown-header noti-title">
-												<h6 class="text-overflow m-0">Welcome <span
+											<div class=" dropdown-header noti-title" th:if ="${userDetailsDTO==null}">
+												<h6  class="text-overflow m-0">Welcome <span
 														sec:authentication="principal.fullName"></span>!</h6>
+											</div>
+											<div class=" dropdown-header noti-title" th:unless ="${userDetailsDTO==null}">
+												<h6  class="text-overflow m-0">Welcome <span
+														th:text="|${userDetailsDTO.firstName}  ${userDetailsDTO.lastName}| "></span>!</h6>
 											</div>
 
 											<!-- item-->

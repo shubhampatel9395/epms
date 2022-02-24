@@ -16,6 +16,7 @@ import javax.sql.rowset.serial.SerialException;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -168,6 +169,9 @@ public class AdminController {
 
 	@Autowired
 	IEventBannerService eventBannerService;
+	
+	@Autowired
+	Environment env;
 
 	public String getAddress(AddressDTO addressDTO) {
 		String address;
@@ -373,6 +377,15 @@ public class AdminController {
 		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
 		userDetailsService.activate(serviceProviderService.findById(serviceProviderId).getUserDetailsId().longValue());
 		serviceProviderService.authenticate(serviceProviderId);
+		
+		Mail mail = new Mail();
+		mail.setMailTo(userDetailsService.findById(serviceProviderId).getEmail());
+		mail.setMailSubject("Authentication");
+		mail.setContentType("text/html");
+		String content = "<p>You have been authorized to use your Unico - Event Planning and Management profile.</p>";
+		mail.setMailContent(content);
+		mailService.sendEmail(mail);
+		
 		return modelandmap;
 	}
 

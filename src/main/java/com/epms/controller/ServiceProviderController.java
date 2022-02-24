@@ -2,14 +2,20 @@ package com.epms.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.epms.dto.AddressDTO;
 import com.epms.dto.EnuCityDTO;
@@ -60,12 +67,20 @@ public class ServiceProviderController {
 
 	@GetMapping("/dashboard")
 	public ModelAndView homePage() {
+		ModelAndView modelandmap = new ModelAndView("serviceprovider/index");
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
 			return new ModelAndView("redirect:/login");
 		} else {
-			return new ModelAndView("serviceProvider/index");
+			return modelandmap;
 		}
+	}
+	
+	@GetMapping("/authentication-remaining")
+	public ModelAndView waitForAuthentication(@ModelAttribute("fullname") String fullname) {
+		ModelAndView modelandmap = new ModelAndView("authentication-remaining");
+		modelandmap.addObject("serviceproviderName",fullname);
+		return modelandmap;
 	}
 	
 	@GetMapping("/service-settings")
@@ -133,15 +148,16 @@ public class ServiceProviderController {
 	@PostMapping("/serviceprovider-registration")
 	public ModelAndView submitServiceProviderRegistration(
 			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO,
-			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
+			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO,
+			ModelAndView modelandmap,RedirectAttributes rm) {
 		AddressDTO insertAddressDTO = addressService.insert(addressDTO);
 		serviceProviderDTO.setAddressId(insertAddressDTO.getAddressId());
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String encodedPassword = passwordEncoder.encode(serviceProviderDTO.getPassword());
 		serviceProviderDTO.setPassword(encodedPassword);
 		ServiceProviderDTO insertServiceProviderDTO = serviceProviderService.insert(serviceProviderDTO);
-		final ModelAndView modelandmap = new ModelAndView("serviceProvider/index");
-		modelandmap.addObject("serviceProviderDTO", insertServiceProviderDTO);
+		modelandmap = new ModelAndView("redirect:/serviceprovider/authentication-remaining");
+		rm.addFlashAttribute("fullname", serviceProviderDTO.getServiceProviderName());
 		return modelandmap;
 	}
 }

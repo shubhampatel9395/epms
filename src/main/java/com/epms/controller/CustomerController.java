@@ -214,7 +214,7 @@ public class CustomerController {
 	public ModelAndView submitCustomerRegistration(
 			@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO, BindingResult userResult,
 			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO, BindingResult addressResult,
-			ModelAndView modelandmap) {
+			ModelAndView modelandmap, RedirectAttributes rm) {
 		userResult = checkCustomerResults(userDetailsDTO, userResult);
 		if (userResult.hasErrors() == true) {
 			modelandmap = new ModelAndView("customerRegisteration");
@@ -224,6 +224,7 @@ public class CustomerController {
 			return modelandmap;
 		}
 
+		String password = userDetailsDTO.getPassword();
 		AddressDTO insertAddressDTO = addressService.insert(addressDTO);
 		userDetailsDTO.setAddressId(insertAddressDTO.getAddressId());
 
@@ -233,7 +234,8 @@ public class CustomerController {
 		UserDetailsDTO insertUserDetailsDTO = userDetailsService.insert(userDetailsDTO);
 
 		modelandmap = new ModelAndView("redirect:/customer/index");
-		modelandmap.addObject("userDetailsDTO", insertUserDetailsDTO);
+		rm.addFlashAttribute("username", insertUserDetailsDTO.getEmail());
+		rm.addFlashAttribute("password", password);
 		return modelandmap;
 	}
 
