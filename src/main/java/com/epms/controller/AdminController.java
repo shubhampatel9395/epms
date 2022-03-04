@@ -360,12 +360,6 @@ public class AdminController {
 		return modelandmap;
 	}
 
-	@GetMapping("/list-event")
-	public ModelAndView listEvent() {
-		ModelAndView modelandmap = new ModelAndView("admin/event");
-		return modelandmap;
-	}
-	
 	@GetMapping("/list-payment")
 	public ModelAndView listPayment() {
 		ModelAndView modelandmap = new ModelAndView("admin/payment");
@@ -714,89 +708,6 @@ public class AdminController {
 		modelandmap.addObject("packageDetailsDTOs", packageDetailsDTO);
 		modelandmap.addObject("serviceWithProviders", serviceWithProviders);
 		// modelandmap.setViewName("fragments :: resultsList");
-		return modelandmap;
-	}
-
-	@GetMapping("/add_event")
-	public ModelAndView addEvent() {
-		ModelAndView modelandmap = new ModelAndView("admin/add_event");
-		List<EmployeeDTO> employees = employeeService
-				.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true).addValue("employeeRoleId",
-						enuEmployeeRoleService
-								.findByNamedParameters(new MapSqlParameterSource().addValue("role", "Event Organizer"))
-								.get(0).getEmployeeRoleId()));
-
-		employees.forEach(employee -> {
-			UserDetailsDTO user = userDetailsService.findById(employee.getUserDetailsId().longValue());
-			employee.setFirstName(user.getFirstName());
-			employee.setLastName(user.getLastName());
-		});
-
-		List<ServiceProviderDTO> serviceProviders = serviceProviderService.findAllActive();
-		PackageDetailsDTO packageDetailsDTO = new PackageDetailsDTO();
-		packageDetailsDTO.setIsStatic(true);
-		EventDTO eventDTO = new EventDTO();
-		eventDTO.setIsFree(true);
-		eventDTO.setIsPublic(true);
-
-		for (int i = 0; i < serviceProviders.size(); i++) {
-			serviceProviders.get(i)
-					.setServiceProviderName(
-							userDetailsService
-									.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId",
-											serviceProviders.get(i).getUserDetailsId()))
-									.get(0).getServiceProviderName());
-		}
-
-		modelandmap.addObject("serviceProviders", serviceProviders);
-		modelandmap.addObject("venueNames",
-				venueService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
-		modelandmap.addObject("serviceTypes",
-				enuServiceTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
-		modelandmap.addObject("packageTempDTO", new PackageTempDTO());
-
-		modelandmap.addObject("eventDTO", eventDTO);
-		modelandmap.addObject("packageDetailsDTO", packageDetailsDTO);
-		modelandmap.addObject("customers", userDetailsService.findByNamedParameters(
-				new MapSqlParameterSource().addValue("isActive", true).addValue("isCustomer", true)));
-		modelandmap.addObject("employees", employees);
-		modelandmap.addObject("bannerDTO", new EventBannerDTO());
-		modelandmap.addObject("eventTypes",
-				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
-		return modelandmap;
-	}
-
-	@PostMapping("/add_event")
-	public ModelAndView saveEvent(@Valid @ModelAttribute("eventDTO") EventDTO eventDTO,
-			@Valid @ModelAttribute("packageDetailsDTO") PackageDetailsDTO packageDetailsDTO,
-			@Valid @ModelAttribute("packageTempDTO") PackageTempDTO packageTempDTO,
-			@RequestParam("banner") MultipartFile banner) {
-		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-event");
-
-		if (packageDetailsDTO.getIsStatic() != true) {
-			eventDTO.setPackageDetailsId(packageDetailsService.insert(packageDetailsDTO).getPackageDetailsId());
-			if (packageTempDTO.getServiceProviderIdList() != null) {
-				packageServiceProviderMappingService.insert(eventDTO.getPackageDetailsId().longValue(),
-						packageTempDTO.getServiceProviderIdList());
-			}
-		}
-		eventDTO.setEventStatusId(DataAccessUtils
-				.singleResult(enuEventStatusService
-						.findByNamedParameters(new MapSqlParameterSource().addValue("status", "Verified")))
-				.getStatusId());
-		EventDTO newEventDTO = eventService.insertByAdmin(eventDTO);
-
-		if (!banner.isEmpty()) {
-			EventBannerDTO obj = new EventBannerDTO();
-			try {
-				obj.setBanner(new SerialBlob(banner.getBytes()));
-				obj.setEventId(newEventDTO.getEventId());
-			} catch (SQLException | IOException e) {
-				log.error(e.toString());
-			}
-			eventBannerService.insert(obj);
-		}
-
 		return modelandmap;
 	}
 
