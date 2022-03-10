@@ -19,6 +19,7 @@ public class PackageDetailsDTO {
 	private Integer eventTypeId;
 	private Integer eventSubTypeId;
 	private Integer venueId;
+	private Integer venueTypeId;
 	private Date createdAt;
 	private Date updatedAt;
 	private Boolean isActive;

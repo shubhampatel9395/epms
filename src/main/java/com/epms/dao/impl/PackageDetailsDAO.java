@@ -78,9 +78,9 @@ public class PackageDetailsDAO implements IPackageDetailsDAO {
 		namedParameters.addValue("totalCost", entity.getTotalCost());
 		namedParameters.addValue("eventTypeId", entity.getEventTypeId());
 		namedParameters.addValue("venueId", entity.getVenueId());
-			namedParameters.addValue("isStatic", entity.getIsStatic());
+		namedParameters.addValue("isStatic", entity.getIsStatic());
 		jdbcTemplate.update(
-				"insert into packagedetails(title,description,guestAmount,totalCost,eventTypeId,venueId,isStatic) values(:title,:description,:guestAmount,:totalCost,:eventTypeId,:venueId,:isStatic)",
+				"insert into packagedetails(title,description,guestAmount,totalCost,eventTypeId,venueId,venueTypeId,isStatic) values(:title,:description,:guestAmount,:totalCost,:eventTypeId,:venueId, (SELECT venueTypeId FROM venue v WHERE :venueId = v.venueId) ,:isStatic)",
 				namedParameters, keyHolder, new String[] { "packageDetailsId" });
 		return findById(keyHolder.getKey().longValue());
 	}
@@ -104,7 +104,7 @@ public class PackageDetailsDAO implements IPackageDetailsDAO {
 		namedParameters.addValue("venueId", entity.getVenueId());
 
 		jdbcTemplate.update(
-				"update packagedetails set title=:title,description=:description,guestAmount=:guestAmount,totalCost=:totalCost,eventTypeId=:eventTypeId,venueId=:venueId where packageDetailsId=:packageDetailsId",
+				"update packagedetails set title=:title,description=:description,guestAmount=:guestAmount,totalCost=:totalCost,eventTypeId=:eventTypeId,venueId=:venueId,venueTypeId=(SELECT venueTypeId FROM venue v WHERE :venueId = v.venueId) where packageDetailsId=:packageDetailsId",
 				namedParameters);
 		return entity;
 	}

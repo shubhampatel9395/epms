@@ -19,7 +19,7 @@ public class EventDTO {
 	private Integer eventTypeId;
 	private Integer eventSubTypeId;
 	private Integer userDetailsId;
-	private Integer packageDetailsId;
+	private Integer packageId;
 	private Integer eventOrganizerId;	// EmployeeId
 	private Boolean isPublic;
 	private Boolean isFree;

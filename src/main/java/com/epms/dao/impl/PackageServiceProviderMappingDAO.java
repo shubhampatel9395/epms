@@ -95,7 +95,7 @@ public class PackageServiceProviderMappingDAO implements IPackageServiceProvider
 		for (String serviceProviderId : serviceProviderList) {
 			namedParameters.addValue("serviceProviderId", serviceProviderId);
 			jdbcTemplate.update(
-					"insert into packageserviceprovidermapping(packageId,serviceProviderId) values(:packageId,:serviceProviderId)",
+					"insert into packageserviceprovidermapping(packageId,serviceProviderId,serviceTypeId) values(:packageId,:serviceProviderId,(SELECT serviceTypeId FROM serviceprovider s WHERE :serviceProviderId = s.serviceProviderId))",
 					namedParameters);
 		}
 	}
@@ -114,5 +114,4 @@ public class PackageServiceProviderMappingDAO implements IPackageServiceProvider
 		sc.addValue("packageId", packageId);
 		jdbcTemplate.update("delete from packageserviceprovidermapping where packageId=:packageId", sc);
 	}
-
 }

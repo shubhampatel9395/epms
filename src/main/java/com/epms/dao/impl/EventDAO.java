@@ -122,7 +122,7 @@ public class EventDAO implements IEventDAO {
 		namedParams.addValue("objective", eventDTO.getObjective());
 		namedParams.addValue("eventTypeId", eventDTO.getEventTypeId());
 		namedParams.addValue("userDetailsId", eventDTO.getUserDetailsId());
-		namedParams.addValue("packageId", eventDTO.getPackageDetailsId());
+		namedParams.addValue("packageId", eventDTO.getPackageId());
 		namedParams.addValue("eventOrganizerId", eventDTO.getEventOrganizerId());
 		namedParams.addValue("isPublic", eventDTO.getIsPublic());
 		namedParams.addValue("isFree", eventDTO.getIsFree());

@@ -13,6 +13,7 @@ public class PackageServiceProviderMappingDTO {
 	private Integer packageServiceProviderMappingId;
 	private Integer packageDetailsId;
 	private Integer serviceProviderId;
+	private Integer serviceTypeId;
 	private Integer statusId;
 	private Date createdAt;
 	private Date updatedAt;

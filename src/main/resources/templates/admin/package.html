@@ -58,7 +58,7 @@
 											<td class="table-action">
 												<a th:href="@{'/admin/view_package/' + ${package.packageDetailsId}}"
 													class="action-icon"> <i class="mdi mdi-eye"></i></a>
-												<a th:href="@{'/admin/edit_package/' + ${package.packageDetailsId}}"
+												<a th:if="${package.isActive}" th:href="@{'/admin/edit_package/' + ${package.packageDetailsId}}"
 													class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a>
 												<div th:if="${package.isActive}" style="display:inline-block;">
 													<a data-bs-toggle="modal" th:data-bs-target="'#staticBackdropDelete' + ${package.packageDetailsId}"

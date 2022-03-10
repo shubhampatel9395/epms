@@ -1,0 +1,131 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/_layout}">
+
+<head>
+	<title>Verify Event</title>
+	<style>
+		.page-title-box .page-title-right {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!--
+		If static -> Ask to set EO
+		If dynamic -> Ask to set venue, EO & serviceproviders
+		-->
+		<!-- Start Content-->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<div class="page-title-right">
+							<a th:href="@{/admin/list-event}" class="btn btn-secondary mb-2">Back</a>
+						</div>
+						<h4 class="page-title">Verify Event</h4>
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<form th:action="@{/admin/verify_event}" method="post">
+								<div class="row g-2">
+									<div class="form-floating mb-3 col-md-6">
+										<select id="inputEventType" class="form-select"
+											th:field="*{eventDTO.eventTypeId}" disabled>
+											<option value="-1" selected hidden readonly>--Select Event Type --
+											</option>
+											<option th:each="eventType : ${eventTypes}"
+												th:value="${eventType.eventTypeId}" th:text="${eventType.eventType}">
+											</option>
+										</select>
+										<label for="floatingSelect">Event Type</label>
+									</div>
+
+									<div class="form-floating mb-3 col-md-6">
+										<select id="venueType" th:field=*{package.venueTypeId} class="form-select"
+											disabled>
+											<option value="" hidden readonly>--Select Venue Type--</option>
+											<option th:each="venueType : ${venueTypes}"
+												th:value="${venueType.enuVenueTypeId}" th:text="${venueType.venueType}">
+											</option>
+										</select>
+										<label for="venueType" class="form-label">Venue Type</label>
+									</div>
+								</div>
+
+								<div th:if="${venues} == null">
+									<p style="color: red"> There's no venues available with selected venue type which organizes selected event
+										type. </p>
+								</div>
+
+								<div th:if="${venues} != null and ${package.isStatic} == false">
+									<div class="mb-3">
+										<label for="inputVenue" class="form-label">Venue</label>
+										<select id="inputVenue" th:field="*{package.venueId}" class="form-select">
+											<option value="" hidden readonly>--Select Venue--</option>
+											<option th:each="venueName : ${venues}" th:value="${venueName.venueId}"
+												th:text="${venueName.venueName}">
+											</option>
+										</select>
+									</div>
+
+									<div class="mb-3">
+										<label class="font-20 form-label">Select serviceproviders for every services
+											seleceted</label>
+									</div>
+									<div class="row g-2" th:each="serviceType : ${serviceTypes}">
+										<div class="mb-3 col-md-6">
+											<input type="checkbox" class="form-check-input"
+												th:id="'service' + ${serviceType.serviceTypeId}" checked disabled>
+											<label class="form-check-label"
+												th:for="'service' + ${serviceType.serviceTypeId}"
+												th:text="${serviceType.service}"></label>
+										</div>
+										<div class="mb-3 col-md-6">
+											<select th:id="'serviceprovider' + ${serviceType.serviceTypeId}"
+												class="form-select" th:field="*{packageTempDTO.serviceProviderIdList}"
+												>
+												<option value="" hidden readonly>--Select Service Provider--</option>
+												<option th:each="serviceProvider : ${serviceProviders}"
+													th:if="${serviceProvider.serviceTypeId} == ${serviceType.serviceTypeId}"
+													th:value="${serviceProvider.serviceProviderId}"
+													th:text="${serviceProvider.serviceProviderName}"></option>
+											</select>
+										</div>
+									</div>
+								</div>
+
+								<div class="form-floating mb-3">
+									<select id="inputEventOrganizer" class="form-select"
+										th:field="*{eventDTO.eventOrganizerId}" required>
+										<option value="" selected hidden readonly>--Select Event Organizer --
+										</option>
+										<option th:each="employee : ${employees}" th:value="${employee.employeeId}"
+											th:text="|${employee.firstName} ${employee.lastName}|">
+										</option>
+									</select>
+									<label for="floatingSelect">Event Organizer</label>
+								</div>
+								
+								<div class="mb-0 d-grid text-center">
+									<button class="btn btn-primary" type="submit">
+										Verify Event
+									</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+	</th:block>
+</body>
+
+</html>
