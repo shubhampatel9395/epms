@@ -1,8 +1,8 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{serviceprovider/_layout}">
+	layout:decorate="~{customer/_layout}">
 
 <head>
-	<title>Service Provider Details</title>
+	<title>Customer Details</title>
 	<style>
 		.page-title-box .page-title-right {
 			display: block;
@@ -17,23 +17,26 @@
 			<div class="row">
 				<div class="col-12">
 					<div class="page-title-box">
-						<h4 class="page-title">Service Provider Details</h4>
+						<h4 class="page-title">Customer Details</h4>
 					</div>
 				</div>
 				<div class="col-12">
 					<div class="card">
 						<div class="card-body">
-							<form th:action="@{/serviceprovider/update_serviceprovider}" method="post">
-								<input type="hidden" th:field="*{serviceProviderDTO.serviceProviderId}" />
+							<form th:action="@{/customer/edit_customer}" method="post">
 								<input type="hidden" th:field="*{userDetailsDTO.userDetailsId}" />
 								<input type="hidden" th:field="*{userDetailsDTO.addressId}" />
-
+								
 								<div class="mb-3">
-									<label for="fullname" class="form-label">Full Name</label>
-									<input class="form-control" th:field="*{userDetailsDTO.serviceProviderName}"
-										type="text" id="fullname" placeholder="Enter name" required>
+									<label for="firstname" class="form-label">First Name</label>
+									<input class="form-control" th:field="*{userDetailsDTO.firstName}" type="text"
+										id="firstname" placeholder="Enter your First name" required>
 								</div>
-
+								<div class="mb-3">
+									<label for="lastname" class="form-label">Last Name</label>
+									<input class="form-control" th:field="*{userDetailsDTO.lastName}" type="text"
+										id="lastname" placeholder="Enter your Last name" required>
+								</div>
 								<div class="mb-3">
 									<label for="emailaddress" class="form-label">Email address</label>
 									<input class="form-control" th:field="*{userDetailsDTO.email}" type="email"
@@ -41,25 +44,9 @@
 								</div>
 								<div class="mb-3">
 									<label for="mobileNumber" class="form-label">Mobile Number</label>
-									<input type="text" class="form-control"
-										th:field="*{userDetailsDTO.mobileNumber}" id="mobileNumber" required
-										placeholder="Enter your mobile number" data-toggle="input-mask"
-										data-mask-format="0000000000">
-								</div>
-								<div class="mb-3">
-									<label for="inputServiceType" class="form-label">Service Type</label>
-									<select id="inputServiceType" th:field="*{serviceProviderDTO.serviceTypeId}"
-										class="form-select">
-										<option value="" readonly>--Select Service Type--</option>
-										<option th:each="serviceType : ${serviceTypes}"
-											th:value="${serviceType.serviceTypeId}" th:text="${serviceType.service}">
-										</option>
-									</select>
-								</div>
-								<div class="mb-3">
-									<label for="inputServiceCost" class="form-label">Service Cost</label>
-									<input type="number" th:field="*{serviceProviderDTO.cost}" id="inputServiceCost"
-										class="form-control" required placeholder="Enter your service cost">
+									<input type="text" class="form-control" th:field="*{userDetailsDTO.mobileNumber}"
+										id="mobileNumber" required placeholder="Enter your mobile number"
+										data-toggle="input-mask" data-mask-format="0000000000">
 								</div>
 								<div class="mb-3">
 									<label for="inputAddress" class="form-label">Address</label>
@@ -108,7 +95,7 @@
 								</div>
 								<div class="mb-0 d-grid text-center">
 									<button class="btn btn-primary" type="submit">
-										Save Service Provider
+										Save Customer
 									</button>
 								</div>
 								<!-- social-->
