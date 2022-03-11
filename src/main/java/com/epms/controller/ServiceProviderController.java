@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,6 +30,7 @@ import com.epms.dto.AddressDTO;
 import com.epms.dto.EnuCityDTO;
 import com.epms.dto.EnuStateDTO;
 import com.epms.dto.ServiceProviderDTO;
+import com.epms.dto.UserDetailsDTO;
 import com.epms.service.IAddressService;
 import com.epms.service.IEnuCityService;
 import com.epms.service.IEnuCountryService;
@@ -160,4 +162,100 @@ public class ServiceProviderController {
 		rm.addFlashAttribute("fullname", serviceProviderDTO.getServiceProviderName());
 		return modelandmap;
 	}
+	
+	@GetMapping("/edit_serviceprovider/{userDetailsId}")
+	public ModelAndView editServiceProvider(@PathVariable("userDetailsId") long userDetailsId) {
+		MapSqlParameterSource paramSource = new MapSqlParameterSource();
+		paramSource.addValue("userDetailsId", userDetailsId);
+		ModelAndView modelandmap = new ModelAndView("serviceprovider/edit_serviceprovider");
+
+		// TODO make form object
+		ServiceProviderDTO serviceProviderDTO = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(paramSource));
+		// Need it to show details
+		UserDetailsDTO userDetailsDTO = userDetailsService.findById(serviceProviderDTO.getUserDetailsId().longValue());
+		AddressDTO addressDTO = addressService.findById(userDetailsDTO.getAddressId().longValue());
+
+		modelandmap.addObject("serviceProviderDTO", serviceProviderDTO);
+		modelandmap.addObject("userDetailsDTO", userDetailsDTO);
+		modelandmap.addObject("serviceTypes", enuServiceTypeService.findAllActive());
+		modelandmap.addObject("addressDTO", addressDTO);
+
+		modelandmap.addObject("countries", enuCountryService.findAll());
+
+		MapSqlParameterSource paramSourceCountry = new MapSqlParameterSource();
+		paramSourceCountry.addValue("countryId", addressDTO.getCountryId());
+		modelandmap.addObject("states", enuStateService.findByNamedParameters(paramSourceCountry));
+
+		MapSqlParameterSource paramSourceState = new MapSqlParameterSource();
+		paramSourceState.addValue("stateId", addressDTO.getStateId());
+		modelandmap.addObject("cities", enuCityService.findByNamedParameters(paramSourceState));
+		return modelandmap;
+	}
+
+	@PostMapping("/edit_serviceprovider")
+	public ModelAndView updateServiceProvider(
+			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO,
+			@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
+			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
+		final ModelAndView modelandmap = new ModelAndView("redirect:/dashboard");
+
+		ServiceProviderDTO oldserviceProviderDTO = serviceProviderService
+				.findById(serviceProviderDTO.getServiceProviderId().longValue());
+		AddressDTO oldAddressDTO = addressService.findById(addressDTO.getAddressId().longValue());
+
+
+		serviceProviderDTO.setServiceProviderName(userDetailsDTO.getServiceProviderName());
+		serviceProviderDTO.setMobileNumber(userDetailsDTO.getMobileNumber());
+		serviceProviderDTO.setEmail(userDetailsDTO.getEmail());
+
+		if (!(serviceProviderDTO.getServiceProviderName().equals(oldserviceProviderDTO.getServiceProviderName()))) {
+			oldserviceProviderDTO.setServiceProviderName(serviceProviderDTO.getServiceProviderName());
+		}
+
+		if (!(serviceProviderDTO.getEmail().equals(oldserviceProviderDTO.getEmail()))) {
+			oldserviceProviderDTO.setEmail(serviceProviderDTO.getEmail());
+		}
+
+		if (!(serviceProviderDTO.getMobileNumber().equals(oldserviceProviderDTO.getMobileNumber()))) {
+			oldserviceProviderDTO.setMobileNumber(serviceProviderDTO.getMobileNumber());
+		}
+
+		if (!(serviceProviderDTO.getServiceTypeId().equals(oldserviceProviderDTO.getServiceTypeId()))) {
+			oldserviceProviderDTO.setServiceTypeId(serviceProviderDTO.getServiceTypeId());
+		}
+
+		if (!(serviceProviderDTO.getCost().equals(oldserviceProviderDTO.getCost()))) {
+			oldserviceProviderDTO.setCost(serviceProviderDTO.getCost());
+		}
+
+		if (!(addressDTO.getAddress1().equals(oldAddressDTO.getAddress1()))) {
+			oldAddressDTO.setAddress1(addressDTO.getAddress1());
+		}
+
+		if (!(addressDTO.getAddress2().equals(oldAddressDTO.getAddress2()))) {
+			oldAddressDTO.setAddress2(addressDTO.getAddress2());
+		}
+
+		if (!(addressDTO.getCityId().equals(oldAddressDTO.getCityId()))) {
+			oldAddressDTO.setCityId(addressDTO.getCityId());
+		}
+
+		if (!(addressDTO.getStateId().equals(oldAddressDTO.getStateId()))) {
+			oldAddressDTO.setStateId(addressDTO.getStateId());
+		}
+
+		if (!(addressDTO.getCountryId().equals(oldAddressDTO.getCountryId()))) {
+			oldAddressDTO.setCountryId(addressDTO.getCountryId());
+		}
+
+		if (!(addressDTO.getPostalCode().equals(oldAddressDTO.getPostalCode()))) {
+			oldAddressDTO.setPostalCode(addressDTO.getPostalCode());
+		}
+
+		addressService.update(oldAddressDTO);
+		// userDetailsService.update(oldUserDetailsDTO);
+		serviceProviderService.update(oldserviceProviderDTO);
+		return modelandmap;
+	}
+
 }
