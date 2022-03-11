@@ -1,0 +1,167 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{customer/_layout}">
+
+<head>
+	<title>Customer Details</title>
+	<style>
+		.page-title-box .page-title-right {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<h4 class="page-title">Customer Details</h4>
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<form th:action="@{/customer/edit_customer}" method="post">
+								<input type="hidden" th:field="*{userDetailsDTO.userDetailsId}" />
+								<input type="hidden" th:field="*{userDetailsDTO.addressId}" />
+								
+								<div class="mb-3">
+									<label for="firstname" class="form-label">First Name</label>
+									<input class="form-control" th:field="*{userDetailsDTO.firstName}" type="text"
+										id="firstname" placeholder="Enter your First name" required>
+								</div>
+								<div class="mb-3">
+									<label for="lastname" class="form-label">Last Name</label>
+									<input class="form-control" th:field="*{userDetailsDTO.lastName}" type="text"
+										id="lastname" placeholder="Enter your Last name" required>
+								</div>
+								<div class="mb-3">
+									<label for="emailaddress" class="form-label">Email address</label>
+									<input class="form-control" th:field="*{userDetailsDTO.email}" type="email"
+										id="email" required placeholder="Enter your email">
+								</div>
+								<div class="mb-3">
+									<label for="mobileNumber" class="form-label">Mobile Number</label>
+									<input type="text" class="form-control" th:field="*{userDetailsDTO.mobileNumber}"
+										id="mobileNumber" required placeholder="Enter your mobile number"
+										data-toggle="input-mask" data-mask-format="0000000000">
+								</div>
+								<div class="mb-3">
+									<label for="inputAddress" class="form-label">Address</label>
+									<input type="text" class="form-control" th:field="*{addressDTO.address1}"
+										id="inputAddress" placeholder="1234 Main St">
+								</div>
+
+								<div class="mb-3">
+									<label for="inputAddress2" class="form-label">Address 2</label>
+									<input type="text" class="form-control" th:field="*{addressDTO.address2}"
+										id="inputAddress2" placeholder="Apartment, studio, or floor">
+								</div>
+
+								<div class="row g-2">
+									<div class="mb-3 col-md-6">
+										<label for="inputCountry" class="form-label">Country</label>
+										<select id="inputCountry" th:field="*{addressDTO.countryId}"
+											class="form-select">
+											<option value="" readonly>--Select Country--</option>
+											<option th:each="country : ${countries}" th:value="${country.countryId}"
+												th:text="${country.country}"></option>
+										</select>
+									</div>
+									<div class="mb-3 col-md-6">
+										<label for="inputState" class="form-label">State</label>
+										<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select">
+											<option value="">--Select State--</option>
+											<option th:each="state : ${states}" th:value="${state.stateId}"
+												th:text="${state.state}"></option>
+										</select>
+									</div>
+								</div>
+								<div class="mb-3">
+									<label for="inputCity" class="form-label">City</label>
+									<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select">
+										<option value="" readonly>--Select City--</option>
+										<option th:each="city : ${cities}" th:value="${city.cityId}"
+												th:text="${city.city}"></option>
+									</select>
+								</div>
+
+								<div class="mb-3">
+									<label for="inputZip" class="form-label">ZIP Code</label>
+									<input type="text" class="form-control" th:field="*{addressDTO.postalCode}"
+										id="inputZip" data-toggle="input-mask" data-mask-format="000000">
+								</div>
+								<div class="mb-0 d-grid text-center">
+									<button class="btn btn-primary" type="submit">
+										Save Customer
+									</button>
+								</div>
+								<!-- social-->
+
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+		<script type="text/javascript">
+
+			$("#inputCountry").change(function () {
+				var selectedValue = $(this)
+					.find(":selected")
+					.val();
+				if (selectedValue === "") {
+					$("#inputState").val("");
+					$("#inputState").prop('disabled', true);
+
+					$("#inputCity").val("");
+					$("#inputCity").prop('disabled', true);
+				}
+				$.ajax({
+					type: "GET",
+					dataType: 'json',
+					url: "/getStates/" + selectedValue + '',
+					success: function (result) {
+						$("#inputState").prop('disabled', false);
+						$("#inputState").empty();
+						$("#inputState").append($("<option></option>").val("").html("--Select State--"));
+						$.each(result, function () {
+							$("#inputState").append($("<option></option>").val(this['stateId']).html(this['state']));
+						});
+					}
+				});
+			});
+
+			$("#inputState").change(function () {
+				var selectedValue = $(this)
+					.find(":selected")
+					.val();
+				if (selectedValue === "") {
+					$("#inputCity").val("");
+					$("#inputCity").prop('disabled', true);
+				}
+				$.ajax({
+					type: "GET",
+					dataType: 'json',
+					url: "/getCities/" + selectedValue + '',
+					success: function (result) {
+						$("#inputCity").prop('disabled', false);
+						$("#inputCity").empty();
+						$("#inputCity").append($("<option></option>").val("").html("--Select City--"));
+						$.each(result, function () {
+							$("#inputCity").append($("<option></option>").val(this['cityId']).html(this['city']));
+						});
+					}
+				});
+			});
+		</script>
+	</th:block>
+</body>
+
+</html>

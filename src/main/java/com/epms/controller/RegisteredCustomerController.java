@@ -23,11 +23,14 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.epms.authentication.CustomUserDetailsDTO;
+import com.epms.dto.AddressDTO;
 import com.epms.dto.AdminDashboardDTO;
 import com.epms.dto.AdminLatestActivityDTO;
 import com.epms.dto.EnuEventSubTypeDTO;
@@ -36,8 +39,13 @@ import com.epms.dto.form.CreateEventBasicInfoForm;
 import com.epms.dto.form.CreateEventPackageForm;
 import com.epms.dto.form.CreateEventPaymentForm;
 import com.epms.dto.form.CreateEventTicketsForm;
+import com.epms.service.IAddressService;
+import com.epms.service.IEnquiryService;
+import com.epms.service.IEnuCityService;
+import com.epms.service.IEnuCountryService;
 import com.epms.service.IEnuEventSubTypeService;
 import com.epms.service.IEnuEventTypeService;
+import com.epms.service.IEnuStateService;
 import com.epms.service.IUserDetailsService;
 
 import groovyjarjarantlr4.v4.runtime.misc.NotNull;
@@ -47,6 +55,19 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/customer")
 @Slf4j
 public class RegisteredCustomerController {
+	
+	@Autowired
+	IEnuCityService enuCityService;
+
+	@Autowired
+	IEnuCountryService enuCountryService;
+
+	@Autowired
+	IEnuStateService enuStateService;
+	
+	@Autowired
+	IAddressService addressService;
+	
 	@Autowired
 	IEnuEventTypeService enuEventTypeService;
 
@@ -164,4 +185,96 @@ public class RegisteredCustomerController {
 			final BindingResult bindingResult) {
 		return 1;
 	}
+	
+	
+	@GetMapping("/edit_customer")
+	public ModelAndView editCustomer() {
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ModelAndView modelandmap = new ModelAndView("customer/edit_customer");
+		// modelandmap.addObject("cities", enuCountryService.findAll());
+
+		// TODO make form object
+		UserDetailsDTO userDetailsDTO = userDetailsService.findById(customUserDetailsDTO.getUserDetailsId().longValue());
+		AddressDTO addressDTO = addressService.findById(userDetailsDTO.getAddressId().longValue());
+
+		modelandmap.addObject("userDetailsDTO", userDetailsDTO);
+		modelandmap.addObject("addressDTO", addressDTO);
+
+		MapSqlParameterSource paramSource = new MapSqlParameterSource();
+		modelandmap.addObject("countries", enuCountryService.findAll());
+		paramSource.addValue("countryId", addressDTO.getCountryId());
+		modelandmap.addObject("states", enuStateService.findByNamedParameters(paramSource));
+
+		paramSource = new MapSqlParameterSource();
+		paramSource.addValue("stateId", addressDTO.getStateId());
+		modelandmap.addObject("cities", enuCityService.findByNamedParameters(paramSource));
+		return modelandmap;
+	}
+
+	public String getAddress(AddressDTO addressDTO) {
+		String address;
+		address = addressDTO.getAddress1();
+		if (addressDTO.getAddress2() != null) {
+			address += ", " + addressDTO.getAddress2();
+		}
+		address += ",\n " + enuCityService.findById(addressDTO.getCityId().longValue()).getCity() + ", "
+				+ enuStateService.findById(addressDTO.getStateId().longValue()).getState() + ", "
+				+ enuCountryService.findById(addressDTO.getCountryId().longValue()).getCountry() + " - "
+				+ addressDTO.getPostalCode();
+		return address;
+	}
+
+	
+	@PostMapping("/edit_customer")
+	public ModelAndView updateCustomer(@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
+			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
+		final ModelAndView modelandmap = new ModelAndView("redirect:/customer/index");
+		UserDetailsDTO oldUserDetailsDTO = userDetailsService.findById(userDetailsDTO.getUserDetailsId().longValue());
+		AddressDTO oldAddressDTO = addressService.findById(addressDTO.getAddressId().longValue());
+
+		if (!(userDetailsDTO.getFirstName().equals(oldUserDetailsDTO.getFirstName()))) {
+			oldUserDetailsDTO.setFirstName(userDetailsDTO.getFirstName());
+		}
+
+		if (!(userDetailsDTO.getLastName().equals(oldUserDetailsDTO.getLastName()))) {
+			oldUserDetailsDTO.setLastName(userDetailsDTO.getLastName());
+		}
+
+		if (!(userDetailsDTO.getEmail().equals(oldUserDetailsDTO.getEmail()))) {
+			oldUserDetailsDTO.setEmail(userDetailsDTO.getEmail());
+		}
+
+		if (!(userDetailsDTO.getMobileNumber().equals(oldUserDetailsDTO.getMobileNumber()))) {
+			oldUserDetailsDTO.setMobileNumber(userDetailsDTO.getMobileNumber());
+		}
+
+		if (!(addressDTO.getAddress1().equals(oldAddressDTO.getAddress1()))) {
+			oldAddressDTO.setAddress1(addressDTO.getAddress1());
+		}
+
+		if (!(addressDTO.getAddress2().equals(oldAddressDTO.getAddress2()))) {
+			oldAddressDTO.setAddress2(addressDTO.getAddress2());
+		}
+
+		if (!(addressDTO.getCityId().equals(oldAddressDTO.getCityId()))) {
+			oldAddressDTO.setCityId(addressDTO.getCityId());
+		}
+
+		if (!(addressDTO.getStateId().equals(oldAddressDTO.getStateId()))) {
+			oldAddressDTO.setStateId(addressDTO.getStateId());
+		}
+
+		if (!(addressDTO.getCountryId().equals(oldAddressDTO.getCountryId()))) {
+			oldAddressDTO.setCountryId(addressDTO.getCountryId());
+		}
+
+		if (!(addressDTO.getPostalCode().equals(oldAddressDTO.getPostalCode()))) {
+			oldAddressDTO.setPostalCode(addressDTO.getPostalCode());
+		}
+
+		addressService.update(oldAddressDTO);
+		userDetailsService.update(oldUserDetailsDTO);
+		return modelandmap;
+	}
+
 }
