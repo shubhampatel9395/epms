@@ -1,0 +1,141 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/_layout}">
+
+<head>
+	<title>Assigned Employees List</title>
+	<!-- third party css -->
+	<link th:href="@{/assets/css/vendor/dataTables.bootstrap5.css}" rel="stylesheet" type="text/css" />
+	<link th:href="@{/assets/css/vendor/responsive.bootstrap5.css}" rel="stylesheet" type="text/css" />
+
+
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+
+			<!-- start page title -->
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<div class="page-title-right">
+							<a th:href="@{'/assign_new_employee/' + ${eventDTO.eventId}}" class="btn btn-danger mb-2"><i
+									class="mdi mdi-plus-circle me-2"></i> Assign Employee</a>
+						</div>
+						<h4 class="page-title">Assigned Employees</h4>
+					</div>
+				</div>
+			</div>
+			<!-- end page title -->
+
+			<div class="row">
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<div class="table-responsive">
+								<table id="basic-datatable" class="table dt-responsive nowrap w-100">
+									<thead>
+										<tr>
+											<th>Employee Name</th>
+											<th>Role</th>
+											<th>Work Description</th>
+											<th>Status</th>
+											<th style="width: 85px;">Action</th>
+										</tr>
+									</thead>
+
+
+									<tbody>
+										<tr th:each="employee : ${employees}">
+											<td
+												th:text="|${employeeBasicDetails[employeeStat.index].firstName} ${employeeBasicDetails[employeeStat.index].lastName}|">
+											</td>
+											<td>
+												<span th:each="employeeRole : ${employeeRoles}"
+													th:if="${employeeRole.employeeRoleId} == ${employee.employeeTypeId}"
+													th:text="${employeeRole.role}"></span>
+											</td>
+											<td th:text="${employee.workDescription}"></td>
+											<td th:if="${employeeWorkingStatuses[employeeStat.index] == 'Assigned'}">
+												<span class="badge bg-primary"
+													th:text="${employeeWorkingStatuses[employeeStat.index]}"></span>
+											</td>
+											<td th:if="${employeeWorkingStatuses[employeeStat.index] == 'In Progress'}">
+												<span class="badge bg-danger"
+													th:text="${employeeWorkingStatuses[employeeStat.index]}"></span>
+											</td>
+											<td th:if="${employeeWorkingStatuses[employeeStat.index] == 'Completed'}">
+												<span class="badge bg-success"
+													th:text="${employeeWorkingStatuses[employeeStat.index]}"></span>
+											</td>
+											<td class="table-action">
+												<a th:href="@{'/view_assigned_employee/' + ${employee.eventEmployeeMappingId}}"
+													class="action-icon"> <i class="mdi mdi-eye"></i></a>
+												<a th:href="@{'/edit_assigned_employee/' + ${employee.eventEmployeeMappingId}}"
+													class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a>
+												<div th:if="${employee.isActive}" style="display:inline-block;">
+													<a data-bs-toggle="modal"
+														th:data-bs-target="'#staticBackdropDelete' + ${employee.eventEmployeeMappingId}"
+														th:href="@{'/delete_assigned_employee/' + ${employee.eventEmployeeMappingId}}"
+														class="action-icon"> <i class="mdi mdi-delete"></i></a>
+													<!-- Modal -->
+													<div class="modal fade"
+														th:id="'staticBackdropDelete' + ${employee.eventEmployeeMappingId}"
+														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+														aria-labelledby="staticBackdropLabel" aria-hidden="true">
+														<div class="modal-dialog">
+															<div class="modal-content">
+																<div class="modal-header">
+																	<h5 class="modal-title" id="staticBackdropLabel">
+																		Remove Employee
+																	</h5>
+																	<button type="button" class="btn-close"
+																		data-bs-dismiss="modal"
+																		aria-hidden="true"></button>
+																</div> <!-- end modal header -->
+																<div class="modal-body">
+																	Are you sure you want to remove this employee from
+																	the event?
+																</div>
+																<div class="modal-footer">
+																	<button type="button" class="btn btn-secondary"
+																		data-bs-dismiss="modal">Close</button>
+																	<a type="button"
+																		th:href="@{'/delete_assigned_employee/' + ${employee.eventEmployeeMappingId}}"
+																		class="btn btn-danger">Remove</a>
+																</div> <!-- end modal footer -->
+															</div> <!-- end modal content-->
+														</div> <!-- end modal dialog-->
+													</div> <!-- end modal-->
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div> <!-- end card-body-->
+					</div> <!-- end card-->
+				</div> <!-- end col -->
+			</div>
+			<!-- end row -->
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+		<!-- third party js -->
+		<script th:src="@{/assets/js/vendor/jquery.dataTables.min.js}"></script>
+		<script th:src="@{/assets/js/vendor/dataTables.bootstrap5.js}"></script>
+		<script th:src="@{/assets/js/vendor/dataTables.responsive.min.js}"></script>
+		<script th:src="@{/assets/js/vendor/responsive.bootstrap5.min.js}"></script>
+
+		<!-- third party js ends -->
+
+		<!-- demo app -->
+		<script th:src="@{/assets/js/pages/demo.datatable-init.js}"></script>
+		<!-- end demo js-->
+	</th:block>
+</body>
+
+</html>

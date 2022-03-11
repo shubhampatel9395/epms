@@ -44,8 +44,7 @@ public class ServiceProviderService implements IServiceProviderService {
 
 	@Override
 	public List<ServiceProviderDTO> findByNamedParameters(MapSqlParameterSource paramSource) {
-		// TODO Auto-generated method stub
-		return null;
+		return serviceProviderDAO.findByNamedParameters(paramSource);
 	}
 
 	@Override

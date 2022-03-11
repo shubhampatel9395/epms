@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 import com.epms.dto.EventDTO;
+import com.epms.dto.PackageDetailsDTO;
 
 public interface IEventService {
 	public List<EventDTO> findAll();
@@ -18,4 +19,6 @@ public interface IEventService {
 	public Integer getCount();
 	public List<EventDTO> getLastDayData();
 	public EventDTO insertByAdmin(EventDTO eventDTO);
+	public EventDTO verifyEvent(EventDTO eventDTO, PackageDetailsDTO packageDetailsDTO);
+	public void unVerifyEvent(long eventId);
 }

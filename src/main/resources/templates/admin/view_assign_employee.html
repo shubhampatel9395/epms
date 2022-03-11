@@ -1,0 +1,60 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/_layout}">
+
+<head>
+	<title>Employee Work Details</title>
+	<style>
+		.page-title-box .page-title-right {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<div class="page-title-right">
+							<a th:href="@{'/assign_employee/' + ${eventDTO.eventId}}" class="btn btn-secondary mb-2">Back</a>
+						</div>
+						<h4 class="page-title">Employee Work Details</h4>
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<dl class="row mb-0">
+								<dt class="col-sm-3">Name</dt>
+								<dd class="col-sm-9" th:text="|${userDetailsDTO.firstName} ${userDetailsDTO.lastName}|"></dd>
+								
+								<dt class="col-sm-3">Event Title</dt>
+								<dd class="col-sm-9" th:text="${eventDTO.eventTitle}"</dd>
+								
+								<dt class="col-sm-3">Employee Role</dt>
+								<dd class="col-sm-9" th:text="${employeeRole}"></dd>
+
+								<dt class="col-sm-3">Email Address</dt>
+								<dd class="col-sm-9" th:utext="${userDetailsDTO.email}"></dd>
+
+								<dt class="col-sm-3">Mobile Number</dt>
+								<dd class="col-sm-9" th:utext="${userDetailsDTO.mobileNumber}"></dd>
+								
+								<dt class="col-sm-3">Work Description</dt>
+								<dd class="col-sm-9" th:text="${employee.workDescription}"</dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+	</th:block>
+</body>
+
+</html>

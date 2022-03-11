@@ -13,6 +13,7 @@ public class EventEmployeeMappingDTO {
 	private Integer eventEmployeeMappingId;
 	private Integer eventId;
 	private Integer employeeId;
+	private Integer employeeTypeId;
 	private String workDescription;
 	private Integer statusId;
 	private Date createdAt;

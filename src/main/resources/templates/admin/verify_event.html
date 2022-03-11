@@ -31,6 +31,10 @@
 					<div class="card">
 						<div class="card-body">
 							<form th:action="@{/admin/verify_event}" method="post">
+							
+								<input type="hidden" th:field="*{eventDTO.eventId}" />
+								<input type="hidden" th:field="*{package.packageDetailsId}" />
+								
 								<div class="row g-2">
 									<div class="form-floating mb-3 col-md-6">
 										<select id="inputEventType" class="form-select"

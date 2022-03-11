@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IEventDAO;
 import com.epms.dto.EventDTO;
+import com.epms.dto.PackageDetailsDTO;
 
 import groovy.util.logging.Slf4j;
 
@@ -146,6 +147,27 @@ public class EventDAO implements IEventDAO {
 		jdbcTemplate.update("insert into event(eventTitle,objective,eventTypeId,userDetailsId,packageId,eventOrganizerId,isPublic,isFree,startDate,startTime,endDate,endTime,estimatedGuest,registrationFee,registrationAvailable,totalCost,eventStatusId) values(:eventTitle,:objective,:eventTypeId,:userDetailsId,:packageId,:eventOrganizerId,:isPublic,:isFree,:startDate,:startTime,:endDate,:endTime,:estimatedGuest,:registrationFee,:registrationAvailable,:totalCost,:eventStatusId)",namedParams,keyHolder,new String[] { "eventId" });
 		
 		return findById(keyHolder.getKey().longValue());
+	}
+
+	@Override
+	public EventDTO verifyEvent(EventDTO eventDTO, PackageDetailsDTO packageDetailsDTO) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("eventId", eventDTO.getEventId());
+		namedParams.addValue("eventStatusId", eventDTO.getEventStatusId());
+		namedParams.addValue("eventOrganizerId", eventDTO.getEventOrganizerId());
+		namedParams.addValue("packageDetailsId", packageDetailsDTO.getPackageDetailsId());
+		namedParams.addValue("venueId", packageDetailsDTO.getVenueId());
+		
+		jdbcTemplate.update("update event e, packagedetails p set e.eventOrganizerId=:eventOrganizerId,e.eventStatusId=:eventStatusId,p.venueId=:venueId where e.packageId=p.packageDetailsId AND e.eventId=:eventId;", namedParams);
+		
+		return findById(eventDTO.getEventId().longValue());
+	}
+
+	@Override
+	public void unVerifyEvent(long eventId) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("eventId", eventId);
+		jdbcTemplate.update("update event set isActive=false where eventId=:eventId", namedParams);
 	}
 }
 

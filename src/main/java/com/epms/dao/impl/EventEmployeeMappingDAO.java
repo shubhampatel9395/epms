@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IEventEmployeeMappingDAO;
@@ -68,14 +70,25 @@ public class EventEmployeeMappingDAO implements IEventEmployeeMappingDAO {
 
 	@Override
 	public EventEmployeeMappingDTO insert(EventEmployeeMappingDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("eventId", entity.getEventId());
+		namedParams.addValue("employeeTypeId", entity.getEmployeeTypeId());
+		namedParams.addValue("employeeId", entity.getEmployeeId());
+		namedParams.addValue("workDescription", entity.getWorkDescription());
+
+		jdbcTemplate.update(
+				"insert into eventemployeemapping(eventId,employeeTypeId,employeeId,workDescription) values(:eventId,:employeeTypeId,:employeeId,:workDescription)",
+				namedParams, keyHolder, new String[] { "eventEmployeemappingId" });
+
+		return findById(keyHolder.getKey().longValue());
 	}
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("eventEmployeemappingId", id);
+		jdbcTemplate.update("update eventemployeemapping set isActive=false where eventEmployeemappingId=:eventEmployeemappingId", namedParams);
 	}
 
 	@Override

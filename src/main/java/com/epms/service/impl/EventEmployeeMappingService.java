@@ -42,14 +42,12 @@ public class EventEmployeeMappingService implements IEventEmployeeMappingService
 
 	@Override
 	public EventEmployeeMappingDTO insert(EventEmployeeMappingDTO EventEmployeeMappingDTO) {
-		// TODO Auto-generated method stub
-		return null;
+		return eventEmployeeMappingDAO.insert(EventEmployeeMappingDTO);
 	}
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+		eventEmployeeMappingDAO.delete(id);
 	}
 
 	@Override

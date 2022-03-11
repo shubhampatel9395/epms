@@ -71,9 +71,47 @@
 													th:href="@{'/admin/verify_event/' + ${event.eventId}}"
 													class="action-icon"> <i class="mdi mdi-check-bold"></i></a>
 
+												<div th:if="${event.isActive} and ${eventStatuses[eventStat.index] == 'Registered'}"
+													style="display:inline-block;">
+													<a data-bs-toggle="modal"
+														th:data-bs-target="'#staticBackdropUnverify' + ${event.eventId}"
+														th:href="@{'/admin/unverify_event/' + ${event.eventId}}"
+														class="action-icon"><i class="mdi mdi-calendar-remove"></i></a>
+													<!-- Modal -->
+													<div class="modal fade"
+														th:id="'staticBackdropUnverify' + ${event.eventId}"
+														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+														aria-labelledby="staticBackdropLabel" aria-hidden="true">
+														<div class="modal-dialog">
+															<div class="modal-content">
+																<div class="modal-header">
+																	<h5 class="modal-title" id="staticBackdropLabel">
+																		Reject Event
+																	</h5>
+																	<button type="button" class="btn-close"
+																		data-bs-dismiss="modal"
+																		aria-hidden="true"></button>
+																</div> <!-- end modal header -->
+																<div class="modal-body">
+																	You will not have any record of this event anymore.
+																	<br />
+																	Are you sure you want to reject this event?
+																</div>
+																<div class="modal-footer">
+																	<button type="button" class="btn btn-secondary"
+																		data-bs-dismiss="modal">Close</button>
+																	<a type="button"
+																		th:href="@{'/admin/unverify_event/' + ${event.eventId}}"
+																		class="btn btn-danger">Reject</a>
+																</div> <!-- end modal footer -->
+															</div> <!-- end modal content-->
+														</div> <!-- end modal dialog-->
+													</div> <!-- end modal-->
+												</div>
+
 												<div id="tooltip-container2" style="display: inline-block;">
 													<a th:if="${event.isActive} and ${eventStatuses[eventStat.index] == 'Verified'}"
-														th:href="@{'/admin/assign_employee/' + ${event.eventId}}"
+														th:href="@{'/assign_employee/' + ${event.eventId}}"
 														class="action-icon" data-bs-container="#tooltip-container2"
 														data-bs-toggle="tooltip" data-bs-placement="top"
 														title="Assign employee for the event"> <i
@@ -88,11 +126,11 @@
 														title="Complete event"><i
 															class="mdi mdi-calendar-check"></i></a>
 												</div>
-												
+
 												<a th:if="${event.isActive} and ${eventStatuses[eventStat.index] == 'Completed'}"
 													th:href="@{'/admin/view_bill/' + ${event.eventId}}"
 													class="action-icon"><i class="mdi mdi-receipt"></i></a>
-												
+
 												<div th:if="${event.isActive} and ${eventStatuses[eventStat.index] == 'Verified'}"
 													style="display:inline-block;">
 													<a data-bs-toggle="modal"

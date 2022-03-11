@@ -6,12 +6,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import javax.sql.rowset.serial.SerialBlob;
 import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.support.DataAccessUtils;
@@ -28,12 +26,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.epms.dto.AddressDTO;
 import com.epms.dto.EmployeeDTO;
+import com.epms.dto.EnuEmployeeRoleDTO;
 import com.epms.dto.EnuEventTypeDTO;
 import com.epms.dto.EnuServiceTypeDTO;
-import com.epms.dto.EnuVenueFacilityDTO;
 import com.epms.dto.EnuVenueTypeDTO;
 import com.epms.dto.EventBannerDTO;
 import com.epms.dto.EventDTO;
+import com.epms.dto.EventEmployeeMappingDTO;
 import com.epms.dto.PackageDetailsDTO;
 import com.epms.dto.PackageServiceProviderMappingDTO;
 import com.epms.dto.PackageTempDTO;
@@ -48,6 +47,7 @@ import com.epms.service.IEnquiryService;
 import com.epms.service.IEnuCityService;
 import com.epms.service.IEnuCountryService;
 import com.epms.service.IEnuEmployeeRoleService;
+import com.epms.service.IEnuEmployeeWorkingStatusService;
 import com.epms.service.IEnuEnquiryStatusService;
 import com.epms.service.IEnuEventStatusService;
 import com.epms.service.IEnuEventTypeService;
@@ -56,6 +56,7 @@ import com.epms.service.IEnuStateService;
 import com.epms.service.IEnuVenueFacilityService;
 import com.epms.service.IEnuVenueTypeService;
 import com.epms.service.IEventBannerService;
+import com.epms.service.IEventEmployeeMappingService;
 import com.epms.service.IEventService;
 import com.epms.service.IPackageDetailsService;
 import com.epms.service.IPackageServiceProviderMappingService;
@@ -148,6 +149,12 @@ public class EventController {
 
 	@Autowired
 	IVenueService venueService;
+
+	@Autowired
+	IEventEmployeeMappingService eventEmployeeMappingService;
+
+	@Autowired
+	IEnuEmployeeWorkingStatusService enuEmployeeWorkingStatusService;
 
 	@GetMapping("/admin/list-event")
 	public ModelAndView listEvent() {
@@ -323,21 +330,25 @@ public class EventController {
 		modelandmap.addObject("package", packageDetailsDTO);
 
 		List<PackageServiceProviderMappingDTO> packageServiceProviderMappings = packageServiceProviderMappingService
-				.findByNamedParameters(new MapSqlParameterSource().addValue("packageId", packageDetailsDTO.getPackageDetailsId()));
+				.findByNamedParameters(
+						new MapSqlParameterSource().addValue("packageId", packageDetailsDTO.getPackageDetailsId()));
 		Map<String, String> serviceWithProviders = new HashMap<>();
 		for (PackageServiceProviderMappingDTO entry : packageServiceProviderMappings) {
 			String service = enuServiceTypeService.findById(entry.getServiceTypeId().longValue()).getService();
-			
-			if(entry.getServiceProviderId() != null) {
+
+			if (entry.getServiceProviderId() != null) {
 				serviceWithProviders.put(service,
-						userDetailsService.findById(serviceProviderService.findById(entry.getServiceProviderId().longValue()).getUserDetailsId().longValue()).getServiceProviderName());
+						userDetailsService.findById(serviceProviderService
+								.findById(entry.getServiceProviderId().longValue()).getUserDetailsId().longValue())
+								.getServiceProviderName());
 			} else {
 				serviceWithProviders.put(service, null);
 			}
 		}
-		
+
 		if (eventDTO.getEventOrganizerId() != null) {
-			UserDetailsDTO eventorganizer = userDetailsService.findById(employeeService.findById(eventDTO.getEventOrganizerId().longValue()).getUserDetailsId().longValue());
+			UserDetailsDTO eventorganizer = userDetailsService.findById(employeeService
+					.findById(eventDTO.getEventOrganizerId().longValue()).getUserDetailsId().longValue());
 			modelandmap.addObject("eventorganizer", eventorganizer);
 		}
 
@@ -355,7 +366,7 @@ public class EventController {
 		ModelAndView modelandmap = new ModelAndView("admin/edit_event");
 		return modelandmap;
 	}
-	
+
 	public List<VenueDTO> getVenuesOnEventType(Long eventTypeId, Long venueTypeId) {
 		List<VenueEventTypeMappingDTO> listVenues = venueEventTypeMappingService
 				.findByNamedParameters(new MapSqlParameterSource().addValue("eventTypeId", eventTypeId));
@@ -363,7 +374,7 @@ public class EventController {
 
 		for (int i = 0; i < listVenues.size(); i++) {
 			VenueDTO temp = venueService.findById(listVenues.get(i).getVenueId().longValue());
-			if(temp.getVenueTypeId().longValue() == venueTypeId) {
+			if (temp.getVenueTypeId().longValue() == venueTypeId) {
 				venues.add(temp);
 			}
 		}
@@ -381,7 +392,8 @@ public class EventController {
 		List<EnuEventTypeDTO> eventTypes = enuEventTypeService.findByNamedParameters(paramSource);
 		List<EnuVenueTypeDTO> venueTypes = enuVenueTypeService.findByNamedParameters(paramSource);
 		List<PackageServiceProviderMappingDTO> packageServiceProviderMappings = packageServiceProviderMappingService
-				.findByNamedParameters(new MapSqlParameterSource().addValue("packageId", packageDetailsDTO.getPackageDetailsId()));
+				.findByNamedParameters(
+						new MapSqlParameterSource().addValue("packageId", packageDetailsDTO.getPackageDetailsId()));
 		List<EnuServiceTypeDTO> serviceTypes = packageServiceProviderMappings.stream().map(entry -> {
 			return enuServiceTypeService.findById(entry.getServiceTypeId().longValue());
 		}).collect(Collectors.toList());
@@ -404,24 +416,146 @@ public class EventController {
 											serviceProviders.get(i).getUserDetailsId()))
 									.get(0).getServiceProviderName());
 		}
-		
+
 		modelandmap.addObject("eventDTO", eventDTO);
 		modelandmap.addObject("package", packageDetailsDTO);
 		modelandmap.addObject("eventTypes", eventTypes);
 		modelandmap.addObject("venueTypes", venueTypes);
 		modelandmap.addObject("serviceTypes", serviceTypes);
-		modelandmap.addObject("venues", getVenuesOnEventType(packageDetailsDTO.getEventTypeId().longValue(), packageDetailsDTO.getVenueTypeId().longValue()));
+		modelandmap.addObject("venues", getVenuesOnEventType(packageDetailsDTO.getEventTypeId().longValue(),
+				packageDetailsDTO.getVenueTypeId().longValue()));
 		modelandmap.addObject("employees", employees);
 		modelandmap.addObject("serviceProviders", serviceProviders);
 		modelandmap.addObject("packageTempDTO", new PackageTempDTO());
 		return modelandmap;
 	}
 
-	@GetMapping("/admin/assign_employee/{eventId}")
+	@PostMapping("/admin/verify_event")
+	public ModelAndView saveVerifyEvent(@Valid @ModelAttribute("eventDTO") EventDTO eventDTO,
+			@Valid @ModelAttribute("package") PackageDetailsDTO packageDetailsDTO,
+			@Valid @ModelAttribute("packageTempDTO") PackageTempDTO packageTempDTO) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-event");
+		PackageDetailsDTO oldPackageDetailsDTO = packageDetailsService
+				.findById(packageDetailsDTO.getPackageDetailsId().longValue());
+
+		eventDTO.setEventStatusId(DataAccessUtils
+				.singleResult(enuEventStatusService
+						.findByNamedParameters(new MapSqlParameterSource().addValue("status", "Verified")))
+				.getStatusId());
+
+		if (oldPackageDetailsDTO.getIsStatic() != true) {
+			packageServiceProviderMappingService.deleteByPackageId(packageDetailsDTO.getPackageDetailsId().longValue());
+			if (packageTempDTO.getServiceProviderIdList() != null) {
+				packageServiceProviderMappingService.insert(oldPackageDetailsDTO.getPackageDetailsId().longValue(),
+						packageTempDTO.getServiceProviderIdList());
+			}
+		} else {
+			packageDetailsDTO.setVenueId(oldPackageDetailsDTO.getVenueId());
+		}
+		eventService.verifyEvent(eventDTO, packageDetailsDTO);
+		return modelandmap;
+	}
+
+	@GetMapping("/admin/unverify_event/{eventId}")
+	public ModelAndView unVerifyEvent(@PathVariable("eventId") long eventId) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-event");
+		eventService.unVerifyEvent(eventId);
+		return modelandmap;
+	}
+
+	@GetMapping("/assign_employee/{eventId}")
 	public ModelAndView assignEmployees(@PathVariable("eventId") long eventId) {
 		ModelAndView modelandmap = new ModelAndView("admin/assign_employee");
-		// Show assigned employees-list(With view,edit,delete) with Assign employee
-		// Button(Add)
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("isActive", true);
+		namedParams.addValue("eventId", eventId);
+		List<EventEmployeeMappingDTO> employees = eventEmployeeMappingService.findByNamedParameters(namedParams);
+		List<UserDetailsDTO> employeeBasicDetails = employees.stream().map(entry -> {
+			return userDetailsService.findById(
+					employeeService.findById(entry.getEmployeeId().longValue()).getUserDetailsId().longValue());
+		}).collect(Collectors.toList());
+		List<EnuEmployeeRoleDTO> employeeRoles = enuEmployeeRoleService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true));
+		List<String> employeeWorkingStatuses = employees.stream().map(entry -> {
+			return enuEmployeeWorkingStatusService.findById(entry.getStatusId().longValue()).getStatus();
+		}).collect(Collectors.toList());
+
+		modelandmap.addObject("eventDTO", eventService.findById(eventId));
+		modelandmap.addObject("employees", employees);
+		modelandmap.addObject("employeeBasicDetails", employeeBasicDetails);
+		modelandmap.addObject("employeeRoles", employeeRoles);
+		modelandmap.addObject("employeeWorkingStatuses", employeeWorkingStatuses);
+		return modelandmap;
+	}
+
+	@GetMapping("/view_assigned_employee/{eventEmployeeMappingId}")
+	public ModelAndView viewAssignEmployees(@PathVariable("eventEmployeeMappingId") long eventEmployeeMappingId) {
+		ModelAndView modelandmap = new ModelAndView("admin/view_assign_employee");
+		EventEmployeeMappingDTO employee = eventEmployeeMappingService.findById(eventEmployeeMappingId);
+
+		modelandmap.addObject("eventDTO", eventService.findById(employee.getEventId().longValue()));
+		modelandmap.addObject("employee", employee);
+		modelandmap.addObject("userDetailsDTO", userDetailsService.findById(
+				employeeService.findById(employee.getEmployeeId().longValue()).getUserDetailsId().longValue()));
+		modelandmap.addObject("employeeRole",
+				enuEmployeeRoleService.findById(employee.getEmployeeTypeId().longValue()).getRole());
+
+		return modelandmap;
+	}
+
+	@GetMapping("/getEmployees/{eventId}/{employeeRoleId}")
+	public List<EmployeeDTO> getEmployees(@PathVariable("eventId") long eventId,
+			@PathVariable("employeeRoleId") long employeeRoleId) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("employeeRoleId", employeeRoleId);
+		namedParams.addValue("isActive", true);
+		List<EmployeeDTO> employees = employeeService.findByNamedParameters(namedParams);
+		employees.forEach(employee -> {
+			UserDetailsDTO user = userDetailsService.findById(employee.getUserDetailsId().longValue());
+			employee.setFirstName(user.getFirstName());
+			employee.setLastName(user.getLastName());
+		});
+
+		// Get Already Assigned Employees List
+		List<EventEmployeeMappingDTO> alreadyAssignedEmployees = eventEmployeeMappingService.findByNamedParameters(
+				new MapSqlParameterSource().addValue("isActive", true).addValue("eventId", eventId));
+		List<String> employeeIdList = alreadyAssignedEmployees.stream().map(entry -> {
+			return entry.getEmployeeId().toString();
+		}).collect(Collectors.toList());
+
+		// Filter it so they cannot be re-assigned 
+		List<EmployeeDTO> finalList = employees.stream()
+				.filter(entry -> !(employeeIdList.contains(entry.getEmployeeId().toString())))
+				.collect(Collectors.toList());
+
+		return finalList;
+	}
+
+	@GetMapping("/assign_new_employee/{eventId}")
+	public ModelAndView assignNewEmployee(@PathVariable("eventId") long eventId) {
+		ModelAndView modelandmap = new ModelAndView("admin/assign_new_employee");
+		modelandmap.addObject("eventDTO", eventService.findById(eventId));
+		modelandmap.addObject("employee", new EventEmployeeMappingDTO());
+		modelandmap.addObject("employeeRoles",
+				enuEmployeeRoleService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		return modelandmap;
+	}
+
+	@PostMapping("/assign_new_employee")
+	public ModelAndView saveAssignedNewEmployee(@Valid @ModelAttribute("eventDTO") EventDTO eventDTO,
+			@Valid @ModelAttribute("employee") EventEmployeeMappingDTO eventEmployeeMappingDTO) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/assign_employee/" + eventDTO.getEventId().toString());
+		eventEmployeeMappingDTO.setEventId(eventDTO.getEventId());
+		eventEmployeeMappingService.insert(eventEmployeeMappingDTO);
+		return modelandmap;
+	}
+
+	@GetMapping("/delete_assigned_employee/{eventEmployeeMappingId}")
+	public ModelAndView deleteAssignedEmployee(@PathVariable("eventEmployeeMappingId") long eventEmployeeMappingId) {
+		EventEmployeeMappingDTO eventEmployeeMappingDTO = eventEmployeeMappingService.findById(eventEmployeeMappingId);
+		ModelAndView modelandmap = new ModelAndView(
+				"redirect:/assign_employee/" + eventEmployeeMappingDTO.getEventId().toString());
+		eventEmployeeMappingService.delete(eventEmployeeMappingId);
 		return modelandmap;
 	}
 

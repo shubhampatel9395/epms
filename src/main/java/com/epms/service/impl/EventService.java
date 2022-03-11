@@ -2,6 +2,8 @@ package com.epms.service.impl;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
@@ -9,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.epms.dao.IEventDAO;
 import com.epms.dto.EventDTO;
+import com.epms.dto.PackageDetailsDTO;
 import com.epms.service.IEventService;
 
 import groovy.util.logging.Slf4j;
@@ -76,6 +79,16 @@ public class EventService implements IEventService {
 	@Override
 	public EventDTO insertByAdmin(EventDTO eventDTO) {
 		return eventDAO.insertByAdmin(eventDTO);
+	}
+
+	@Override
+	public EventDTO verifyEvent(EventDTO eventDTO, PackageDetailsDTO packageDetailsDTO) {
+		return eventDAO.verifyEvent(eventDTO,packageDetailsDTO);
+	}
+
+	@Override
+	public void unVerifyEvent(long eventId) {
+		eventDAO.unVerifyEvent(eventId);
 	}
 
 }
