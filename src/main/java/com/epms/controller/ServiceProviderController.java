@@ -168,14 +168,14 @@ public class ServiceProviderController {
 	public ModelAndView editServiceProvider() {
 		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		MapSqlParameterSource paramSource = new MapSqlParameterSource();
-		paramSource.addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId());
+		paramSource.addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId().longValue());
 		//paramSource.addValue("isServiceProvider", true);
 		ModelAndView modelandmap = new ModelAndView("serviceprovider/edit_serviceprovider");
 
 		// TODO make form object
 		ServiceProviderDTO serviceProviderDTO = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(paramSource));
 		// Need it to show details
-		UserDetailsDTO userDetailsDTO = userDetailsService.findById(serviceProviderDTO.getUserDetailsId().longValue());
+		UserDetailsDTO userDetailsDTO = userDetailsService.findById(customUserDetailsDTO.getUserDetailsId().longValue());
 		AddressDTO addressDTO = addressService.findById(userDetailsDTO.getAddressId().longValue());
 
 		modelandmap.addObject("serviceProviderDTO", serviceProviderDTO);
@@ -200,7 +200,7 @@ public class ServiceProviderController {
 			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO,
 			@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
 			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
-		final ModelAndView modelandmap = new ModelAndView("redirect:/dashboard");
+		final ModelAndView modelandmap = new ModelAndView("redirect:/serviceprovider/dashboard");
 
 		ServiceProviderDTO oldserviceProviderDTO = serviceProviderService
 				.findById(serviceProviderDTO.getServiceProviderId().longValue());
