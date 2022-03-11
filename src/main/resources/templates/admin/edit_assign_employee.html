@@ -1,0 +1,104 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/_layout}">
+
+<head>
+	<title>Edit Assigned Employee</title>
+	<style>
+		.page-title-box .page-title-right {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<div class="page-title-right">
+							<a th:href="@{'/assign_employee/' + ${eventDTO.eventId}}"
+								class="btn btn-secondary mb-2">Back</a>
+						</div>
+						<h4 class="page-title">Edit Assigned Employee</h4>
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<form th:action="@{/edit_assigned_employee}" method="post">
+								<input type="hidden" id="selectedEventId" th:field="*{eventDTO.eventId}" />
+								<input type="hidden" th:field="*{employee.eventEmployeeMappingId}" />
+								
+								<div class="row g-2">
+									<div class="mb-3">
+									<label for="eventTitle" class="form-label">Event Title</label>
+									<input type="text" class="form-control" th:value="${eventDTO.eventTitle}" readonly/>
+								</div>
+								
+									<div class="mb-3 col-md-6">
+										<label for="inputEmployeeRole" class="form-label">Employee Role</label>
+										<select id="inputEmployeeRole" th:field="*{employee.employeeTypeId}"
+											class="form-select" required disabled>
+											<option value="" hidden readonly>--Select Employee Role--</option>
+											<option th:each="employeeRole : ${employeeRoles}"
+												th:if="${employeeRole.role} != 'Event Organizer'"
+												th:value="${employeeRole.employeeRoleId}"
+												th:text="${employeeRole.role}">
+											</option>
+										</select>
+									</div>
+
+									<div class="mb-3 col-md-6">
+										<label for="inputEmployee" class="form-label">Employee</label>
+										<select id="inputEmployee" th:field="*{employee.employeeId}" class="form-select"
+											required disabled>
+											<option value="" hidden readonly>--Select Employee --</option>
+											<option th:each="selectedEmployee : ${selectedEmployees}"
+												th:value="${selectedEmployee.employeeId}"
+												th:text="|${selectedEmployee.firstName} ${selectedEmployee.lastName}|">
+											</option>
+										</select>
+									</div>
+								</div>
+								
+								<div class="mb-3">
+										<label for="inputEmployeeWorkingStatus" class="form-label">Employee Working Status</label>
+										<select id="inputEmployeeWorkingStatus" th:field="*{employee.statusId}" class="form-select"
+											required>
+											<option value="" hidden readonly>--Select Current Status --</option>
+											<option th:each="workingStatus : ${workingStatuses}"
+												th:value="${workingStatus.statusId}"
+												th:text="${workingStatus.status}">
+											</option>
+										</select>
+									</div>
+
+								<div class="mb-3">
+									<label for="description" class="form-label">Work Description</label>
+									<textarea th:field="*{employee.workDescription}" class="form-control"
+										id="example-textarea" rows="5" required></textarea>
+								</div>
+
+								<div class="mb-0 d-grid text-center">
+									<button class="btn btn-primary" type="submit"><i
+											class="mdi mdi-plus-circle me-2"></i>
+										Assign Employee
+									</button>
+								</div>
+								<!-- social-->
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+	</th:block>
+</body>
+
+</html>

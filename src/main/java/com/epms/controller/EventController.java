@@ -491,8 +491,8 @@ public class EventController {
 	@GetMapping("/view_assigned_employee/{eventEmployeeMappingId}")
 	public ModelAndView viewAssignEmployees(@PathVariable("eventEmployeeMappingId") long eventEmployeeMappingId) {
 		ModelAndView modelandmap = new ModelAndView("admin/view_assign_employee");
-		EventEmployeeMappingDTO employee = eventEmployeeMappingService.findById(eventEmployeeMappingId);
 
+		EventEmployeeMappingDTO employee = eventEmployeeMappingService.findById(eventEmployeeMappingId);
 		modelandmap.addObject("eventDTO", eventService.findById(employee.getEventId().longValue()));
 		modelandmap.addObject("employee", employee);
 		modelandmap.addObject("userDetailsDTO", userDetailsService.findById(
@@ -523,7 +523,7 @@ public class EventController {
 			return entry.getEmployeeId().toString();
 		}).collect(Collectors.toList());
 
-		// Filter it so they cannot be re-assigned 
+		// Filter it so they cannot be re-assigned
 		List<EmployeeDTO> finalList = employees.stream()
 				.filter(entry -> !(employeeIdList.contains(entry.getEmployeeId().toString())))
 				.collect(Collectors.toList());
@@ -547,6 +547,48 @@ public class EventController {
 		ModelAndView modelandmap = new ModelAndView("redirect:/assign_employee/" + eventDTO.getEventId().toString());
 		eventEmployeeMappingDTO.setEventId(eventDTO.getEventId());
 		eventEmployeeMappingService.insert(eventEmployeeMappingDTO);
+		return modelandmap;
+	}
+
+	@GetMapping("/edit_assigned_employee/{eventEmployeeMappingId}")
+	public ModelAndView getAssignedEmployee(@PathVariable("eventEmployeeMappingId") long eventEmployeeMappingId) {
+		ModelAndView modelandmap = new ModelAndView("admin/edit_assign_employee");
+		EventEmployeeMappingDTO employee = eventEmployeeMappingService.findById(eventEmployeeMappingId);
+		
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("employeeRoleId", employee.getEmployeeTypeId());
+		namedParams.addValue("isActive", true);
+		List<EmployeeDTO> employees = employeeService.findByNamedParameters(namedParams);
+		employees.forEach(e -> {
+			UserDetailsDTO user = userDetailsService.findById(e.getUserDetailsId().longValue());
+			e.setFirstName(user.getFirstName());
+			e.setLastName(user.getLastName());
+		});
+		
+		modelandmap.addObject("eventDTO", eventService.findById(employee.getEventId().longValue()));
+		modelandmap.addObject("employee", employee);
+		modelandmap.addObject("selectedEmployees", employees);
+		modelandmap.addObject("employeeRoles",
+				enuEmployeeRoleService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		modelandmap.addObject("workingStatuses", enuEmployeeWorkingStatusService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		return modelandmap;
+	}
+	
+	@PostMapping("/edit_assigned_employee")
+	public ModelAndView saveAssignedEditedEmployee(@Valid @ModelAttribute("eventDTO") EventDTO eventDTO,
+			@Valid @ModelAttribute("employee") EventEmployeeMappingDTO eventEmployeeMappingDTO) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/assign_employee/" + eventDTO.getEventId().toString());
+		EventEmployeeMappingDTO oldEventEmployeeMappingDTO = eventEmployeeMappingService.findById(eventEmployeeMappingDTO.getEventEmployeeMappingId().longValue());
+		
+		if(!oldEventEmployeeMappingDTO.getWorkDescription().equalsIgnoreCase(eventEmployeeMappingDTO.getWorkDescription())) {
+			oldEventEmployeeMappingDTO.setWorkDescription(eventEmployeeMappingDTO.getWorkDescription());
+		}
+		if(!oldEventEmployeeMappingDTO.getStatusId().equals(eventEmployeeMappingDTO.getStatusId())) {
+			oldEventEmployeeMappingDTO.setStatusId(eventEmployeeMappingDTO.getStatusId());
+		}
+		
+		eventEmployeeMappingService.update(oldEventEmployeeMappingDTO);
 		return modelandmap;
 	}
 

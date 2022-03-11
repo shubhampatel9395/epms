@@ -93,8 +93,12 @@ public class EventEmployeeMappingDAO implements IEventEmployeeMappingDAO {
 
 	@Override
 	public EventEmployeeMappingDTO update(EventEmployeeMappingDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("eventEmployeemappingId", entity.getEventEmployeeMappingId());
+		namedParams.addValue("workDescription", entity.getWorkDescription());
+		namedParams.addValue("statusId", entity.getStatusId());
+		jdbcTemplate.update("update eventemployeemapping set workDescription=:workDescription,statusId=:statusId where eventEmployeemappingId=:eventEmployeemappingId", namedParams);
+		return entity;
 	}
 
 }

@@ -52,8 +52,6 @@ public class EventEmployeeMappingService implements IEventEmployeeMappingService
 
 	@Override
 	public EventEmployeeMappingDTO update(EventEmployeeMappingDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		return eventEmployeeMappingDAO.update(entity);
 	}
-
 }
