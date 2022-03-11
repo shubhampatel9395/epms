@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.epms.authentication.CustomUserDetailsDTO;
 import com.epms.dto.AddressDTO;
 import com.epms.dto.EnuCityDTO;
 import com.epms.dto.EnuStateDTO;
@@ -163,10 +164,12 @@ public class ServiceProviderController {
 		return modelandmap;
 	}
 	
-	@GetMapping("/edit_serviceprovider/{userDetailsId}")
-	public ModelAndView editServiceProvider(@PathVariable("userDetailsId") long userDetailsId) {
+	@GetMapping("/edit_serviceprovider")
+	public ModelAndView editServiceProvider() {
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		MapSqlParameterSource paramSource = new MapSqlParameterSource();
-		paramSource.addValue("userDetailsId", userDetailsId);
+		paramSource.addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId());
+		//paramSource.addValue("isServiceProvider", true);
 		ModelAndView modelandmap = new ModelAndView("serviceprovider/edit_serviceprovider");
 
 		// TODO make form object
@@ -192,7 +195,7 @@ public class ServiceProviderController {
 		return modelandmap;
 	}
 
-	@PostMapping("/edit_serviceprovider")
+	@PostMapping("/update_serviceprovider")
 	public ModelAndView updateServiceProvider(
 			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO,
 			@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
