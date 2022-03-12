@@ -186,8 +186,7 @@ public class RegisteredCustomerController {
 		return 1;
 	}
 	
-	
-	@GetMapping("/edit_customer")
+	@GetMapping("/edit_profile")
 	public ModelAndView editCustomer() {
 		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ModelAndView modelandmap = new ModelAndView("customer/edit_customer");
@@ -197,7 +196,7 @@ public class RegisteredCustomerController {
 		UserDetailsDTO userDetailsDTO = userDetailsService.findById(customUserDetailsDTO.getUserDetailsId().longValue());
 		AddressDTO addressDTO = addressService.findById(userDetailsDTO.getAddressId().longValue());
 
-		modelandmap.addObject("userDetailsDTO", userDetailsDTO);
+		modelandmap.addObject("userDetailsDTOEdit", userDetailsDTO);
 		modelandmap.addObject("addressDTO", addressDTO);
 
 		MapSqlParameterSource paramSource = new MapSqlParameterSource();
@@ -226,7 +225,7 @@ public class RegisteredCustomerController {
 
 	
 	@PostMapping("/edit_customer")
-	public ModelAndView updateCustomer(@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
+	public ModelAndView updateCustomer(@Valid @ModelAttribute("userDetailsDTOEdit") UserDetailsDTO userDetailsDTO,
 			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
 		final ModelAndView modelandmap = new ModelAndView("redirect:/customer/index");
 		UserDetailsDTO oldUserDetailsDTO = userDetailsService.findById(userDetailsDTO.getUserDetailsId().longValue());

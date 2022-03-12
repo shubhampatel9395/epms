@@ -55,28 +55,33 @@
 
 					<li class="side-nav-title side-nav-item">Navigation</li>
 
-					<li class="side-nav-item" th:classappend="${#request.getRequestURI().contains('/dashboard') ? 'active' : '' }">
+					<li class="side-nav-item"
+						th:classappend="${#request.getRequestURI().contains('/dashboard') ? 'active' : '' }">
 						<a th:href="@{/serviceprovider/dashboard}" class="side-nav-link">
 							<i class="uil-home-alt"></i>
 							<span> Dashboard </span>
 						</a>
 					</li>
 
+					<!--
 					<li class="side-nav-item" th:classappend="${#request.getRequestURI().contains('/service-settings') ? 'active' : '' }">
 						<a th:href="@{/serviceprovider/service-settings}" class="side-nav-link">
 							<i class="dripicons-gear"></i>
 							<span> My services </span>
 						</a>
 					</li>
+					-->
 
-					<li class="side-nav-item" th:classappend="${#request.getRequestURI().contains('/assigned-events') ? 'active' : '' }">
+					<li class="side-nav-item"
+						th:classappend="${#request.getRequestURI().contains('/assigned-events') ? 'active' : '' }">
 						<a th:href="@{/serviceprovider/assigned-events}" class="side-nav-link">
 							<i class="mdi mdi-clipboard-list-outline"></i>
 							<span> Assigned Events </span>
 						</a>
 					</li>
 
-					<li class="side-nav-item" th:classappend="${#request.getRequestURI().contains('event-history') || #request.getRequestURI().contains('payment-history') ? 'menuitem-active' : '' }">
+					<li class="side-nav-item"
+						th:classappend="${#request.getRequestURI().contains('event-history') || #request.getRequestURI().contains('payment-history') ? 'menuitem-active' : '' }">
 						<a data-bs-toggle="collapse" href="#sidebarHistory" aria-expanded="false"
 							aria-controls="sidebarHistory" class="side-nav-link">
 							<i class="mdi mdi-history"></i>
@@ -85,17 +90,20 @@
 						</a>
 						<div class="collapse" id="sidebarHistory">
 							<ul class="side-nav-second-level">
-								<li th:classappend="${#request.getRequestURI().contains('event-history') ? 'active' : '' }">
+								<li
+									th:classappend="${#request.getRequestURI().contains('event-history') ? 'active' : '' }">
 									<a th:href="@{/serviceprovider/event-history}">Events</a>
 								</li>
-								<li th:classappend="${#request.getRequestURI().contains('payment-history') ? 'active' : '' }">
+								<li
+									th:classappend="${#request.getRequestURI().contains('payment-history') ? 'active' : '' }">
 									<a th:href="@{/serviceprovider/payment-history}">Payments</a>
 								</li>
 							</ul>
 						</div>
 					</li>
 
-					<li class="side-nav-item" th:classappend="${#request.getRequestURI().contains('feedbacks') ? 'active' : '' }">
+					<li class="side-nav-item"
+						th:classappend="${#request.getRequestURI().contains('feedbacks') ? 'active' : '' }">
 						<a th:href="@{/serviceprovider/feedbacks}" class="side-nav-link">
 							<i class="uil-feedback"></i>
 							<span> Feedbacks </span>
@@ -136,7 +144,7 @@
 								</div>
 
 								<!-- item-->
-								<a th:href="@{/serviceprovider/edit_serviceprovider}" class="dropdown-item notify-item">
+								<a th:href="@{/serviceprovider/edit_profile}" class="dropdown-item notify-item">
 									<i class="mdi mdi-account-edit me-1"></i>
 									<span>Account Settings</span>
 								</a>
@@ -194,7 +202,7 @@
 
 	</div>
 	<!-- END wrapper -->
-	
+
 	<!-- bundle -->
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
 	<script th:src="@{/assets/js/app.min.js}"></script>

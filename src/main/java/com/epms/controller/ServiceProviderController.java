@@ -164,7 +164,7 @@ public class ServiceProviderController {
 		return modelandmap;
 	}
 	
-	@GetMapping("/edit_serviceprovider")
+	@GetMapping("/edit_profile")
 	public ModelAndView editServiceProvider() {
 		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		MapSqlParameterSource paramSource = new MapSqlParameterSource();
@@ -179,7 +179,7 @@ public class ServiceProviderController {
 		AddressDTO addressDTO = addressService.findById(userDetailsDTO.getAddressId().longValue());
 
 		modelandmap.addObject("serviceProviderDTO", serviceProviderDTO);
-		modelandmap.addObject("userDetailsDTO", userDetailsDTO);
+		modelandmap.addObject("userDetailsDTOEdit", userDetailsDTO);
 		modelandmap.addObject("serviceTypes", enuServiceTypeService.findAllActive());
 		modelandmap.addObject("addressDTO", addressDTO);
 
@@ -198,7 +198,7 @@ public class ServiceProviderController {
 	@PostMapping("/update_serviceprovider")
 	public ModelAndView updateServiceProvider(
 			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO,
-			@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
+			@Valid @ModelAttribute("userDetailsDTOEdit") UserDetailsDTO userDetailsDTO,
 			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
 		final ModelAndView modelandmap = new ModelAndView("redirect:/serviceprovider/dashboard");
 

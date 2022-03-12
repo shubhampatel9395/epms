@@ -17,41 +17,41 @@
 			<div class="row">
 				<div class="col-12">
 					<div class="page-title-box">
-						<h4 class="page-title">Customer Details</h4>
+						<h4 class="page-title">Profile Details</h4>
 					</div>
 				</div>
 				<div class="col-12">
 					<div class="card">
 						<div class="card-body">
 							<form th:action="@{/customer/edit_customer}" method="post">
-								<input type="hidden" th:field="*{userDetailsDTO.userDetailsId}" />
-								<input type="hidden" th:field="*{userDetailsDTO.addressId}" />
+								<input type="hidden" th:field="*{userDetailsDTOEdit.userDetailsId}" />
+								<input type="hidden" th:field="*{userDetailsDTOEdit.addressId}" />
 								
 								<div class="mb-3">
 									<label for="firstname" class="form-label">First Name</label>
-									<input class="form-control" th:field="*{userDetailsDTO.firstName}" type="text"
+									<input class="form-control" th:field="*{userDetailsDTOEdit.firstName}" type="text"
 										id="firstname" placeholder="Enter your First name" required>
 								</div>
 								<div class="mb-3">
 									<label for="lastname" class="form-label">Last Name</label>
-									<input class="form-control" th:field="*{userDetailsDTO.lastName}" type="text"
+									<input class="form-control" th:field="*{userDetailsDTOEdit.lastName}" type="text"
 										id="lastname" placeholder="Enter your Last name" required>
 								</div>
 								<div class="mb-3">
 									<label for="emailaddress" class="form-label">Email address</label>
-									<input class="form-control" th:field="*{userDetailsDTO.email}" type="email"
-										id="email" required placeholder="Enter your email">
+									<input class="form-control" th:field="*{userDetailsDTOEdit.email}" type="email"
+										id="email" required placeholder="Enter your email" >
 								</div>
 								<div class="mb-3">
 									<label for="mobileNumber" class="form-label">Mobile Number</label>
-									<input type="text" class="form-control" th:field="*{userDetailsDTO.mobileNumber}"
+									<input type="text" class="form-control" th:field="*{userDetailsDTOEdit.mobileNumber}"
 										id="mobileNumber" required placeholder="Enter your mobile number"
 										data-toggle="input-mask" data-mask-format="0000000000">
 								</div>
 								<div class="mb-3">
 									<label for="inputAddress" class="form-label">Address</label>
 									<input type="text" class="form-control" th:field="*{addressDTO.address1}"
-										id="inputAddress" placeholder="1234 Main St">
+										id="inputAddress" placeholder="1234 Main St" required>
 								</div>
 
 								<div class="mb-3">
@@ -64,7 +64,7 @@
 									<div class="mb-3 col-md-6">
 										<label for="inputCountry" class="form-label">Country</label>
 										<select id="inputCountry" th:field="*{addressDTO.countryId}"
-											class="form-select">
+											class="form-select" required>
 											<option value="" readonly>--Select Country--</option>
 											<option th:each="country : ${countries}" th:value="${country.countryId}"
 												th:text="${country.country}"></option>
@@ -72,7 +72,7 @@
 									</div>
 									<div class="mb-3 col-md-6">
 										<label for="inputState" class="form-label">State</label>
-										<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select">
+										<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select" required>
 											<option value="">--Select State--</option>
 											<option th:each="state : ${states}" th:value="${state.stateId}"
 												th:text="${state.state}"></option>
@@ -81,7 +81,7 @@
 								</div>
 								<div class="mb-3">
 									<label for="inputCity" class="form-label">City</label>
-									<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select">
+									<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select" required>
 										<option value="" readonly>--Select City--</option>
 										<option th:each="city : ${cities}" th:value="${city.cityId}"
 												th:text="${city.city}"></option>
@@ -91,11 +91,11 @@
 								<div class="mb-3">
 									<label for="inputZip" class="form-label">ZIP Code</label>
 									<input type="text" class="form-control" th:field="*{addressDTO.postalCode}"
-										id="inputZip" data-toggle="input-mask" data-mask-format="000000">
+										id="inputZip" data-toggle="input-mask" data-mask-format="000000" required>
 								</div>
 								<div class="mb-0 d-grid text-center">
 									<button class="btn btn-primary" type="submit">
-										Save Customer
+										Save Profile
 									</button>
 								</div>
 								<!-- social-->
