@@ -51,8 +51,7 @@ public class EventService implements IEventService {
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+		eventDAO.delete(id);
 	}
 
 	@Override
@@ -89,6 +88,11 @@ public class EventService implements IEventService {
 	@Override
 	public void unVerifyEvent(long eventId) {
 		eventDAO.unVerifyEvent(eventId);
+	}
+
+	@Override
+	public void complete(long eventId) {
+		eventDAO.complete(eventId);
 	}
 
 }

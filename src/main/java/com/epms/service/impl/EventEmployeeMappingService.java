@@ -54,4 +54,9 @@ public class EventEmployeeMappingService implements IEventEmployeeMappingService
 	public EventEmployeeMappingDTO update(EventEmployeeMappingDTO entity) {
 		return eventEmployeeMappingDAO.update(entity);
 	}
+
+	@Override
+	public void removedFromEvent(long eventId) {
+		eventEmployeeMappingDAO.removedFromEvent(eventId);
+	}
 }

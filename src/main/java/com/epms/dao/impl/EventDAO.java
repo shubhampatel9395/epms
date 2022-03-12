@@ -75,8 +75,9 @@ public class EventDAO implements IEventDAO {
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("eventId", id);
+		jdbcTemplate.update("update event set isActive=false where eventId=:eventId", namedParams);
 	}
 
 	@Override
@@ -168,6 +169,13 @@ public class EventDAO implements IEventDAO {
 		MapSqlParameterSource namedParams = new MapSqlParameterSource();
 		namedParams.addValue("eventId", eventId);
 		jdbcTemplate.update("update event set isActive=false where eventId=:eventId", namedParams);
+	}
+
+	@Override
+	public void complete(long eventId) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("eventId", eventId);
+		jdbcTemplate.update("update event set eventStatusId=(SELECT statusId from enueventstatus where status='Completed') where eventId=:eventId", namedParams);
 	}
 }
 

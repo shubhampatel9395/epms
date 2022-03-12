@@ -72,4 +72,14 @@ public class PackageServiceProviderMappingService implements IPackageServiceProv
 		packageServiceProviderMappingDAO.deleteByPackageId(packageId);
 	}
 
+	@Override
+	public void removedFromEvent(long packageId, long statusId) {
+		packageServiceProviderMappingDAO.removedFromEvent(packageId, statusId);
+	}
+
+	@Override
+	public void assign(long packageId, List<String> serviceProviderIdList,long statusId) {
+		packageServiceProviderMappingDAO.assign(packageId,serviceProviderIdList,statusId);
+	}
+
 }

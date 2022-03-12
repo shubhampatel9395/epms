@@ -101,4 +101,11 @@ public class EventEmployeeMappingDAO implements IEventEmployeeMappingDAO {
 		return entity;
 	}
 
+	@Override
+	public void removedFromEvent(long eventId) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("eventId", eventId);
+		jdbcTemplate.update("update eventemployeemapping set isActive=false where eventId=:eventId", namedParams);
+	}
+
 }

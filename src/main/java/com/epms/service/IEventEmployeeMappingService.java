@@ -14,4 +14,5 @@ public interface IEventEmployeeMappingService {
 	public EventEmployeeMappingDTO insert(EventEmployeeMappingDTO EventEmployeeMappingDTO);
 	public void delete(Long id);
 	public EventEmployeeMappingDTO update(EventEmployeeMappingDTO entity);
+	public void removedFromEvent(long eventId);
 }

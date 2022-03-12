@@ -47,14 +47,12 @@ public class EventBannerService implements IEventBannerService {
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+		eventBannerDAO.delete(id);
 	}
 
 	@Override
 	public EventBannerDTO update(EventBannerDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		return eventBannerDAO.update(entity);
 	}
 
 }

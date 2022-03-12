@@ -2,6 +2,7 @@ package com.epms.controller;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 
 import javax.sql.rowset.serial.SerialBlob;
 import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.support.DataAccessUtils;
@@ -51,6 +53,7 @@ import com.epms.service.IEnuEmployeeWorkingStatusService;
 import com.epms.service.IEnuEnquiryStatusService;
 import com.epms.service.IEnuEventStatusService;
 import com.epms.service.IEnuEventTypeService;
+import com.epms.service.IEnuServiceProviderWorkingStatusService;
 import com.epms.service.IEnuServiceTypeService;
 import com.epms.service.IEnuStateService;
 import com.epms.service.IEnuVenueFacilityService;
@@ -155,6 +158,9 @@ public class EventController {
 
 	@Autowired
 	IEnuEmployeeWorkingStatusService enuEmployeeWorkingStatusService;
+	
+	@Autowired
+	IEnuServiceProviderWorkingStatusService enuServiceProviderWorkingStatusService;
 
 	@GetMapping("/admin/list-event")
 	public ModelAndView listEvent() {
@@ -179,11 +185,18 @@ public class EventController {
 					.findByNamedParameters(new MapSqlParameterSource().addValue("statusId", event.getEventStatusId())))
 					.getStatus();
 		}).collect(Collectors.toList());
+		
+		List<Boolean> canComplete = events.stream().map(event -> {
+			LocalDateTime endDateTime = LocalDateTime.of(new java.sql.Date(event.getEndDate().getTime()).toLocalDate() , event.getEndTime().toLocalTime());
+			// If end DateTime is less than current DateTime, then only complete
+			return endDateTime.compareTo(LocalDateTime.now()) < 0 ? true : false;
+		}).collect(Collectors.toList()); 
 
 		modelandmap.addObject("events", events);
 		modelandmap.addObject("eventTypes", eventTypes);
 		modelandmap.addObject("customers", customers);
 		modelandmap.addObject("eventStatuses", eventStatuses);
+		modelandmap.addObject("canComplete", canComplete);
 		return modelandmap;
 	}
 
@@ -446,8 +459,8 @@ public class EventController {
 		if (oldPackageDetailsDTO.getIsStatic() != true) {
 			packageServiceProviderMappingService.deleteByPackageId(packageDetailsDTO.getPackageDetailsId().longValue());
 			if (packageTempDTO.getServiceProviderIdList() != null) {
-				packageServiceProviderMappingService.insert(oldPackageDetailsDTO.getPackageDetailsId().longValue(),
-						packageTempDTO.getServiceProviderIdList());
+				packageServiceProviderMappingService.assign(oldPackageDetailsDTO.getPackageDetailsId().longValue(),
+						packageTempDTO.getServiceProviderIdList(), DataAccessUtils.singleResult(enuServiceProviderWorkingStatusService.findByNamedParameters(new MapSqlParameterSource().addValue("status", "Assigned"))).getStatusId().longValue());
 			}
 		} else {
 			packageDetailsDTO.setVenueId(oldPackageDetailsDTO.getVenueId());
@@ -603,7 +616,9 @@ public class EventController {
 
 	@GetMapping("/admin/complete_event/{eventId}")
 	public ModelAndView completeEvent(@PathVariable("eventId") long eventId) {
-		ModelAndView modelandmap = new ModelAndView("admin/complete_event");
+		// ModelAndView modelandmap = new ModelAndView("admin/complete_event");
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-event");
+		eventService.complete(eventId);
 		// Ask for complete payment
 		return modelandmap;
 	}
@@ -618,6 +633,16 @@ public class EventController {
 	@GetMapping("/admin/delete_event/{eventId}")
 	public ModelAndView deleteEvent(@PathVariable("eventId") long eventId) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-event");
+		PackageDetailsDTO packageDetailsDTO = packageDetailsService.findById(eventService.findById(eventId).getPackageId().longValue());
+		
+		eventService.delete(eventId);
+		if(packageDetailsDTO.getIsStatic() == false) {
+			packageDetailsService.delete(packageDetailsDTO.getPackageDetailsId().longValue());
+			packageServiceProviderMappingService.removedFromEvent(eventId, DataAccessUtils.singleResult(enuServiceProviderWorkingStatusService.findByNamedParameters(new MapSqlParameterSource().addValue("status", "Removed"))).getStatusId().longValue());
+		}
+		eventEmployeeMappingService.removedFromEvent(eventId);
+		eventBannerService.delete(eventId);
+		
 		// event isActive False
 		// if dynamic Pacakge set isactive false && packageserviceprovidermapping set
 		// isactive false

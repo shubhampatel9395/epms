@@ -83,8 +83,9 @@ public class EventBannerDAO implements IEventBannerDAO {
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("eventId", id);
+		jdbcTemplate.update("update eventbanner set isActive=false where eventId=:eventId", namedParams);
 	}
 
 	@Override

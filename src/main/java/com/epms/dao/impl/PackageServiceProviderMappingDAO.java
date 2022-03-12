@@ -114,4 +114,25 @@ public class PackageServiceProviderMappingDAO implements IPackageServiceProvider
 		sc.addValue("packageId", packageId);
 		jdbcTemplate.update("delete from packageserviceprovidermapping where packageId=:packageId", sc);
 	}
+	
+	@Override
+	public void removedFromEvent(long packageId,long statusId) {
+		MapSqlParameterSource sc = new MapSqlParameterSource();
+		sc.addValue("packageId", packageId);
+		sc.addValue("statusId", statusId);
+		jdbcTemplate.update("update packageserviceprovidermapping set statusId=:statusId where packageId=:packageId", sc);
+	}
+
+	@Override
+	public void assign(long packageId, List<String> serviceProviderIdList, long statusId) {
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("packageId", packageId);
+		namedParameters.addValue("statusId", statusId);
+		for (String serviceProviderId : serviceProviderIdList) {
+			namedParameters.addValue("serviceProviderId", serviceProviderId);
+			jdbcTemplate.update(
+					"insert into packageserviceprovidermapping(packageId,serviceProviderId,serviceTypeId,statusId) values(:packageId,:serviceProviderId,(SELECT serviceTypeId FROM serviceprovider s WHERE :serviceProviderId = s.serviceProviderId),:statusId)",
+					namedParameters);
+		}
+	}
 }

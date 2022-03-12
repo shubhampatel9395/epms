@@ -5,4 +5,6 @@ import com.epms.dto.EventEmployeeMappingDTO;
 
 public interface IEventEmployeeMappingDAO extends ICRUDRepository<EventEmployeeMappingDTO, Long> {
 
+	public void removedFromEvent(long eventId);
+
 }

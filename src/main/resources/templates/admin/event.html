@@ -118,13 +118,40 @@
 															class="mdi mdi-account-tie"></i></a>
 												</div>
 
-												<div id="tooltip-container3" style="display: inline-block;">
-													<a th:if="${event.isActive} and ${eventStatuses[eventStat.index] == 'Verified'}"
+												<div style="display: inline-block;">
+													<a th:if="${event.isActive} and ${eventStatuses[eventStat.index] == 'Verified'} and ${canComplete[eventStat.index] == true}"
 														th:href="@{'/admin/complete_event/' + ${event.eventId}}"
-														class="action-icon" data-bs-container="#tooltip-container3"
-														data-bs-toggle="tooltip" data-bs-placement="top"
-														title="Complete event"><i
-															class="mdi mdi-calendar-check"></i></a>
+														data-bs-toggle="modal"
+														th:data-bs-target="'#staticBackdropComplete' + ${event.eventId}"
+														class="action-icon"><i class="mdi mdi-calendar-check"></i></a>
+													<!-- Modal -->
+													<div class="modal fade"
+														th:id="'staticBackdropComplete' + ${event.eventId}"
+														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+														aria-labelledby="staticBackdropLabel" aria-hidden="true">
+														<div class="modal-dialog">
+															<div class="modal-content">
+																<div class="modal-header">
+																	<h5 class="modal-title" id="staticBackdropLabel">
+																		Complete Event
+																	</h5>
+																	<button type="button" class="btn-close"
+																		data-bs-dismiss="modal"
+																		aria-hidden="true"></button>
+																</div> <!-- end modal header -->
+																<div class="modal-body">
+																	Are you sure you want to complete this event?
+																</div>
+																<div class="modal-footer">
+																	<button type="button" class="btn btn-secondary"
+																		data-bs-dismiss="modal">Close</button>
+																	<a type="button"
+																		th:href="@{'/admin/complete_event/' + ${event.eventId}}"
+																		class="btn btn-success">Complete</a>
+																</div> <!-- end modal footer -->
+															</div> <!-- end modal content-->
+														</div> <!-- end modal dialog-->
+													</div> <!-- end modal-->
 												</div>
 
 												<a th:if="${event.isActive} and ${eventStatuses[eventStat.index] == 'Completed'}"
