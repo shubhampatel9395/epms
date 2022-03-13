@@ -463,12 +463,14 @@ public class EventController {
 
 		PackageDetailsDTO oldPackageDetailsDTO = packageDetailsService
 				.findById(packageDetailsDTO.getPackageDetailsId().longValue());
+		
+		if (oldPackageDetailsDTO.getIsStatic() != true) {
+			packageDetailsService.delete(oldPackageDetailsDTO.getPackageDetailsId().longValue());
+			packageServiceProviderMappingService
+					.deleteByPackageId(oldPackageDetailsDTO.getPackageDetailsId().longValue());
+		}
+		
 		if (packageDetailsDTO.getIsStatic() != true) {
-			if (oldPackageDetailsDTO.getIsStatic() != true) {
-				packageDetailsService.delete(oldPackageDetailsDTO.getPackageDetailsId().longValue());
-				packageServiceProviderMappingService
-						.deleteByPackageId(oldPackageDetailsDTO.getPackageDetailsId().longValue());
-			}
 			eventDTO.setPackageId(packageDetailsService.insert(packageDetailsDTO).getPackageDetailsId());
 
 			if (packageTempDTO.getServiceProviderIdList() != null) {
@@ -817,7 +819,7 @@ public class EventController {
 		eventService.delete(eventId);
 		if (packageDetailsDTO.getIsStatic() == false) {
 			packageDetailsService.delete(packageDetailsDTO.getPackageDetailsId().longValue());
-			packageServiceProviderMappingService.removedFromEvent(eventId,
+			packageServiceProviderMappingService.removedFromEvent(packageDetailsDTO.getPackageDetailsId().longValue(),
 					DataAccessUtils
 							.singleResult(enuServiceProviderWorkingStatusService
 									.findByNamedParameters(new MapSqlParameterSource().addValue("status", "Removed")))

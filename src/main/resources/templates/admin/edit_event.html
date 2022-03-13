@@ -88,9 +88,9 @@
 								<div class="mb-3">
 									<div>
 										<label class="form-label">Event Banner<small
-																	style="display: block; font-size: 0.75rem; color:  #808080;">
-																	(Old banner will not be retained)
-																	</small></label>
+												style="display: block; font-size: 0.75rem; color:  #808080;">
+												(Old banner will not be retained)
+											</small></label>
 									</div>
 									<div class="mb-3" id="profile-container">
 										<img id="profileImage" th:src="@{/assets/images/img-placeholder.png}"
@@ -186,7 +186,9 @@
 										<h6 class="font-15 mb-3" style="display: inline-block;">Event Cost Information
 										</h6>
 									</div>
-									<label style="display: block; margin:1rem;" th:if="${packageDetailsDTO.isStatic} == true" th:text="'Old Package: ' + ${packageDetailsDTO.title}"></label>
+									<label style="display: block; margin:1rem;"
+										th:if="${packageDetailsDTO.isStatic} == true"
+										th:text="'Old Package: ' + ${packageDetailsDTO.title}"></label>
 									<input type="radio" value="true" class="form-check-input" id="isStaticPackage"
 										th:field="*{packageDetailsDTO.isStatic}"
 										th:checked="${packageDetailsDTO.isStatic}">
@@ -319,10 +321,14 @@
 
 								<input type="hidden" id="eventTotalCost" th:field="*{eventDTO.totalCost}" />
 
+								<div class="mb-3">
+									<label class="form-label">Event Total Cost</label>
+									<input type="text" class="form-control" th:field="*{eventDTO.totalCost}" readonly />
+								</div>
+
 								<div class="mb-0 d-grid text-center">
-									<button class="btn btn-primary" type="submit"><i
-											class="mdi mdi-plus-circle me-2"></i>
-										Create Event
+									<button class="btn btn-primary" type="submit">
+										Save Event
 									</button>
 								</div>
 								<!-- social-->
@@ -407,6 +413,13 @@
 				$(document).ajaxSend(function (e, xhr, options) {
 					xhr.setRequestHeader(header, token);
 				});
+
+				if ($("#isFree").prop('checked')) {
+					$("#regDiv *").prop('disabled', true);
+				}
+				else {
+					$("#regDiv *").prop('disabled', false);
+				}
 
 				$("input:checkbox").each(function () {
 					if ($(this).attr("id") == "isFree") {

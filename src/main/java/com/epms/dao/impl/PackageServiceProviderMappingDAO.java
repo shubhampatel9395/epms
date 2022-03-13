@@ -120,7 +120,7 @@ public class PackageServiceProviderMappingDAO implements IPackageServiceProvider
 		MapSqlParameterSource sc = new MapSqlParameterSource();
 		sc.addValue("packageId", packageId);
 		sc.addValue("statusId", statusId);
-		jdbcTemplate.update("update packageserviceprovidermapping set statusId=:statusId where packageId=:packageId", sc);
+		jdbcTemplate.update("update packageserviceprovidermapping set isActive=false,statusId=:statusId where packageId=:packageId", sc);
 	}
 
 	@Override

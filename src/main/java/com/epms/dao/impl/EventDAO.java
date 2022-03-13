@@ -206,11 +206,13 @@ public class EventDAO implements IEventDAO {
 		namedParams.addValue("estimatedGuest", eventDTO.getEstimatedGuest());
 		namedParams.addValue("totalCost", eventDTO.getTotalCost());
 		namedParams.addValue("eventStatusId", eventDTO.getEventStatusId());
+		namedParams.addValue("registrationFee", eventDTO.getRegistrationFee());
+		namedParams.addValue("registrationAvailable", eventDTO.getRegistrationAvailable());
 
 		jdbcTemplate.update(
 				"update event set eventTitle=:eventTitle,objective=:objective,eventTypeId=:eventTypeId,userDetailsId=:userDetailsId,"
 						+ "packageId=:packageId,eventOrganizerId=:eventOrganizerId,isPublic=:isPublic,isFree=:isFree,startDate=:startDate,startTime=:startTime,"
-						+ "endDate=:endDate,endTime=:endTime,estimatedGuest=:estimatedGuest,totalCost=:totalCost,eventStatusId=:eventStatusId where eventId=:eventId",
+						+ "endDate=:endDate,endTime=:endTime,estimatedGuest=:estimatedGuest,totalCost=:totalCost,eventStatusId=:eventStatusId,registrationFee=:registrationFee,registrationAvailable=:registrationAvailable where eventId=:eventId",
 				namedParams);
 		return eventDTO;
 	}
