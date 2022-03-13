@@ -318,6 +318,27 @@ public class EventController {
 
 		return modelandmap;
 	}
+	
+	@GetMapping("/add_event")
+	public ModelAndView addCustomerEvent() {
+		ModelAndView modelandmap = new ModelAndView("customer/create_event");
+		PackageDetailsDTO packageDetailsDTO = new PackageDetailsDTO();
+		List<String> serviceIds = new ArrayList<>();
+		packageDetailsDTO.setIsStatic(true);
+		EventDTO eventDTO = new EventDTO();
+		eventDTO.setIsFree(true);
+		eventDTO.setIsPublic(true);
+		modelandmap.addObject("serviceTypes",
+				enuServiceTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		modelandmap.addObject("eventDTO", eventDTO);
+		modelandmap.addObject("packageDetailsDTO", packageDetailsDTO);
+		modelandmap.addObject("serviceIds", serviceIds);
+		modelandmap.addObject("eventTypes",
+				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		modelandmap.addObject("venueTypes",
+				enuVenueTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		return modelandmap;
+	}
 
 	public String getAddress(AddressDTO addressDTO) {
 		String address;
