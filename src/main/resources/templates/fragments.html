@@ -15,7 +15,7 @@
 	<th:block th:fragment="resultsPackageEvent" th:unless="${#lists.isEmpty(packageDetailsDTOs)}" id="results-block">
 		<div class="row" id="main">
 			<div class="form-floating mt-3">
-				<select id="inputPackage" class="form-select" th:field="*{eventDTO.packageDetailsId}">
+				<select id="inputPackage" class="form-select" th:field="*{eventDTO.packageId}">
 					<option value="" hidden readonly>--Select Package --
 					</option>
 					<option th:each="package: ${packageDetailsDTOs}" th:text="${package.title}"

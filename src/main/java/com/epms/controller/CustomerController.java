@@ -324,7 +324,7 @@ public class CustomerController {
 		List<VenueDTO> venueDTOs;
 		if (venueId == -1) {
 			venueDTOs = venueService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true));
-			modelandmap.setViewName("fragments :: resultsList");
+			modelandmap.setViewName("fragments :: resultsListVenue");
 		} else {
 			venueDTOs = venueService.findByNamedParameters(
 					new MapSqlParameterSource().addValue("isActive", true).addValue("venueTypeId", venueId));
@@ -423,8 +423,8 @@ public class CustomerController {
 			modelandmap.setViewName("fragments :: resultsList");
 		}
 
-		List<PackageServiceProviderMappingDTO> packageServiceProviderMappings = packageServiceProviderMappingService
-				.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true));
+//		List<PackageServiceProviderMappingDTO> packageServiceProviderMappings = packageServiceProviderMappingService
+//				.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true));
 
 		List<String> venueDetails = packageDetailsDTO.stream().map(packageDTO -> {
 			return venueService.findById(packageDTO.getVenueId().longValue()).getVenueName() + ", "
@@ -438,6 +438,8 @@ public class CustomerController {
 
 		List<Map<String, String>> serviceWithProviders = packageDetailsDTO.stream().map(item -> {
 			Map<String, String> t = new HashMap<String, String>();
+			List<PackageServiceProviderMappingDTO> packageServiceProviderMappings = packageServiceProviderMappingService
+					.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true).addValue("packageId", item.getPackageDetailsId()));
 			packageServiceProviderMappings.stream().map(item2 -> {
 				ServiceProviderDTO temp = serviceProviderService.findById(item2.getServiceProviderId().longValue());
 				return t.put(enuServiceTypeService.findById(temp.getServiceTypeId().longValue()).getService(),

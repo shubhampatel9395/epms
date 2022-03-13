@@ -22,4 +22,5 @@ public interface IEventService {
 	public EventDTO verifyEvent(EventDTO eventDTO, PackageDetailsDTO packageDetailsDTO);
 	public void unVerifyEvent(long eventId);
 	public void complete(long eventId);
+	public EventDTO updateByAdmin(EventDTO entity);
 }

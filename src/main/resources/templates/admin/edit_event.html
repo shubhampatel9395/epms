@@ -1,0 +1,593 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/_layout}">
+
+<head>
+	<title>Edit Event</title>
+	<meta id="_csrf" name="_csrf" th:content="${_csrf.token}" />
+	<meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}" />
+	<style>
+		.page-title-box .page-title-right {
+			display: block;
+		}
+
+		#imageUpload {
+			display: none;
+		}
+
+		#profileImage {
+			cursor: pointer;
+		}
+
+		#profile-container {
+			width: 400px;
+			height: 300px;
+			overflow: hidden;
+		}
+
+		#profile-container img {
+			width: 400px;
+			height: 300px;
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<div class="page-title-right">
+							<a th:href="@{/admin/list-event}" class="btn btn-secondary mb-2">Back</a>
+						</div>
+						<h4 class="page-title">Edit event</h4>
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<form th:action="@{/admin/edit_event}" method="post" enctype="multipart/form-data">
+								<input type="hidden" th:field="*{eventDTO.eventId}" />
+								<input type="hidden" th:field="*{packageDetailsDTO.packageDetailsId}" />
+								<div>
+									<i class="mdi mdi-information-outline"
+										style="font-size: 24px;padding-right: 0.5rem;"></i>
+									<h6 class="font-15 mb-3" style="display: inline-block;">Event Basic
+										Information
+									</h6>
+								</div>
+								<div class="row g-2">
+									<div class="form-floating mb-3 col-md-6">
+										<select id="inputCustomer" class="form-select"
+											th:field="*{eventDTO.userDetailsId}" required>
+											<option value="" hidden readonly>--Select Customer --
+											</option>
+											<option th:each="customer : ${customers}"
+												th:value="${customer.userDetailsId}"
+												th:text="|${customer.firstName} ${customer.lastName}|">
+											</option>
+										</select>
+										<label for="floatingSelect">Customer</label>
+									</div>
+
+									<div class="form-floating mb-3 col-md-6">
+										<select id="inputEventType" class="form-select"
+											th:field="*{eventDTO.eventTypeId}" required>
+											<option value="-1" selected hidden readonly>--Select Event Type --
+											</option>
+											<option th:each="eventType : ${eventTypes}"
+												th:value="${eventType.eventTypeId}" th:text="${eventType.eventType}">
+											</option>
+										</select>
+										<label for="floatingSelect">Event Type</label>
+									</div>
+								</div>
+
+								<div class="mb-3">
+									<div>
+										<label class="form-label">Event Banner<small
+																	style="display: block; font-size: 0.75rem; color:  #808080;">
+																	(Old banner will not be retained)
+																	</small></label>
+									</div>
+									<div class="mb-3" id="profile-container">
+										<img id="profileImage" th:src="@{/assets/images/img-placeholder.png}"
+											class="img-fluid img-thumbnail" />
+										<input id="imageUpload" type="file" name="banner" placeholder="Photo"
+											accept="image/png, image/jpg, image/jpeg" capture>
+									</div>
+								</div>
+
+								<div class="form-floating mb-3">
+									<input th:field="*{eventDTO.eventTitle}" type="text" id="example-helping"
+										class="form-control" placeholder="Helping text" required>
+									<label for="floatingInput">Event
+										Title</label>
+								</div>
+
+								<div class="form-floating mb-3">
+									<textarea th:field="*{eventDTO.objective}" class="form-control" rows="5"
+										placeholder="Leave a comment here" id="floatingTextarea" style="height: 150px;"
+										required></textarea>
+									<label for="floatingTextarea">Event Objective</label>
+								</div>
+
+								<div class="form-floating mb-3">
+									<input th:field="*{eventDTO.estimatedGuest}" type="text" id="example-helping"
+										class="form-control" placeholder="Helping text" required>
+									<label for="floatingInput">Estimated Guests</label>
+								</div>
+
+								<div class="mb-3 row g-2">
+									<div class="col-md-6">
+										<div class="mb-3 position-relative" id="datepicker4">
+											<label class="form-label">Event Start Date</label>
+											<div class="input-group">
+												<span class="input-group-addon" style="background: #727cf5;"><i
+														class="mdi mdi-calendar"
+														style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
+												<input th:field="*{eventDTO.startDate}" type="text" class="form-control"
+													data-provide="datepicker" data-date-autoclose="true"
+													data-date-container="#datepicker4" required>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-6">
+										<label class="form-label">Event Start Time</label>
+										<div class="input-group" id="timepicker-input-group2">
+											<span class="input-group-addon" style="background: #727cf5;"><i
+													class="mdi mdi-clock-outline"
+													style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
+											<input th:field="*{eventDTO.startTime}" id="timepicker2" type="text"
+												class="form-control" data-provide='timepicker' data-minute-step="5"
+												data-show-meridian="false" required>
+										</div>
+									</div>
+
+								</div>
+								<div class="mb-3 row g-2">
+									<div class="col-md-6">
+										<div class="mb-3 position-relative" id="datepicker4">
+											<label class="form-label">Event End Date</label>
+											<div class="input-group">
+												<span class="input-group-addon" style="background: #727cf5;"><i
+														class="mdi mdi-calendar"
+														style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
+												<input th:field="*{eventDTO.endDate}" type="text" class="form-control"
+													data-provide="datepicker" data-date-autoclose="true"
+													data-date-container="#datepicker4" required>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-6">
+										<label class="form-label">Event End Time</label>
+										<div class="input-group" id="timepicker-input-group3">
+											<span class="input-group-addon" style="background: #727cf5;"><i
+													class="mdi mdi-clock-outline"
+													style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
+											<input th:field="*{eventDTO.endTime}" id="timepicker3" type="text"
+												class="form-control" data-provide='timepicker' data-minute-step="5"
+												data-show-meridian="false" required>
+										</div>
+									</div>
+								</div>
+
+								<div id="errorDiv"
+									class="alert alert-danger alert-dismissible bg-danger text-white border-0 fade show"
+									role="alert">
+									<span id="errorTxt"></span>
+								</div>
+								<div>
+									<div>
+										<i class="mdi mdi-currency-inr"
+											style="font-size: 24px;padding-right: 0.5rem;"></i>
+										<h6 class="font-15 mb-3" style="display: inline-block;">Event Cost Information
+										</h6>
+									</div>
+									<label style="display: block; margin:1rem;" th:if="${packageDetailsDTO.isStatic} == true" th:text="'Old Package: ' + ${packageDetailsDTO.title}"></label>
+									<input type="radio" value="true" class="form-check-input" id="isStaticPackage"
+										th:field="*{packageDetailsDTO.isStatic}"
+										th:checked="${packageDetailsDTO.isStatic}">
+									<label class="form-check-label" for="isPublic">Packages</label>
+									<div id="main"></div>
+								</div>
+
+								<div>
+									<input type="radio" value="false" class="form-check-input" id="isDynamicPackage"
+										th:field="*{packageDetailsDTO.isStatic}"
+										th:checked="${packageDetailsDTO.isStatic}">
+									<label class="form-check-label" for="isPublic">Select Individual
+										Services</label>
+									<div id="individual" class="mt-3">
+										<div class="mb-3">
+											<label for="inputVenue" class="form-label">Venue</label>
+											<select id="inputVenue" th:field="*{packageDetailsDTO.venueId}"
+												class="form-select">
+												<option value="" hidden readonly>--Select Venue--</option>
+												<option th:each="venueName : ${venueNames}"
+													th:value="${venueName.venueId}" th:text="${venueName.venueName}">
+												</option>
+											</select>
+										</div>
+										<div class="mb-3">
+											<label class="form-label">Services available</label>
+										</div>
+										<div class="row g-2" th:each="serviceType : ${serviceTypes}">
+											<div class="mb-3 col-md-6">
+												<input type="checkbox" class="form-check-input"
+													th:id="'service' + ${serviceType.serviceTypeId}">
+												<label class="form-check-label"
+													th:for="'service' + ${serviceType.serviceTypeId}"
+													th:text="${serviceType.service}"></label>
+											</div>
+											<div class="mb-3 col-md-6">
+												<select th:id="'serviceprovider' + ${serviceType.serviceTypeId}"
+													class="form-select"
+													th:field="*{packageTempDTO.serviceProviderIdList}" disabled>
+													<option value="" hidden readonly>--Select Service Provider--
+													</option>
+													<option th:each="serviceProvider : ${serviceProviders}"
+														th:if="${serviceProvider.serviceTypeId} == ${serviceType.serviceTypeId}"
+														th:value="${serviceProvider.serviceProviderId}"
+														th:text="${serviceProvider.serviceProviderName}"></option>
+												</select>
+											</div>
+										</div>
+									</div>
+								</div>
+
+
+								<div class="mb-3">
+									<div>
+										<i class="mdi mdi-account-question-outline"
+											style="font-size: 24px;padding-right: 0.5rem;"></i>
+										<h6 class="font-15 mb-3" style="display: inline-block;">Who can see the
+											event?
+										</h6>
+									</div>
+									<div class="form-check">
+										<input checked th:field="*{eventDTO.isPublic}" th:checked="${eventDTO.isPublic}"
+											value="true" type="radio" id="customRadio1" name="customRadio"
+											class="form-check-input">
+										<label class="form-check-label" for="customRadio1">Public<small
+												style="display: block; font-size: 0.75rem; color:  #808080;">Anyone
+												visiting the website</small></label>
+
+									</div>
+									<div class="form-check">
+										<input th:field="*{eventDTO.isPublic}" th:checked="${eventDTO.isPublic}"
+											value="false" type="radio" id="customRadio2" name="customRadio"
+											class="form-check-input">
+										<label class="form-check-label" for="customRadio2">Private<small
+												style="display: block; font-size: 0.75rem; color:  #808080;">Only
+												available to a selected
+												audience</small></label>
+									</div>
+								</div>
+
+								<div class="mb-3">
+									<div>
+										<i class=" dripicons-ticket" style="font-size: 24px;padding-right: 0.5rem;"></i>
+										<h6 class="font-15 mb-3" style="display: inline-block;">Ticket Details
+										</h6>
+									</div>
+
+									<div class="mb-3">
+										<input type="checkbox" th:field="*{eventDTO.isFree}"
+											th:checked="${eventDTO.isFree}" id="isFree" class="form-check-input"
+											checked>
+										<label class="form-check-label" for="isPublic">Free Event<small
+												style="font-size: 0.75rem; color:  #808080; margin-left: 0.5rem;">(No
+												registration required)</small></label>
+									</div>
+									<div id="regDiv">
+										<div class="mb-3 col-md-6">
+											<label for="inputRegFee" class="form-label">Registration Fee<small
+													style="font-size: 0.75rem; color:  #808080; margin-left: 0.5rem;">(Extra
+													charges applied)</small></label>
+											<input type="number" id="inputRegFee" th:field="*{eventDTO.registrationFee}"
+												class="form-control" placeholder="Enter registration fee for event">
+										</div>
+										<div class="mb-3 col-md-6">
+											<label for="inputRegAvailable" class="form-label">Maximum Registration
+												Available</label>
+											<input type="number" id="inputRegAvailable"
+												th:field="*{eventDTO.registrationAvailable}" class="form-control"
+												required placeholder="Enter total registration available for event">
+										</div>
+									</div>
+								</div>
+
+								<div>
+									<i class="mdi mdi-account-tie" style="font-size: 24px;padding-right: 0.5rem;"></i>
+									<h6 class="font-15 mb-3" style="display: inline-block;">Who will organize event?
+									</h6>
+								</div>
+								<div class="form-floating mb-3">
+									<select id="inputEventOrganizer" class="form-select"
+										th:field="*{eventDTO.eventOrganizerId}" required>
+										<option value="" selected hidden readonly>--Select Event Organizer --
+										</option>
+										<option th:each="employee : ${employees}" th:value="${employee.employeeId}"
+											th:text="|${employee.firstName} ${employee.lastName}|">
+										</option>
+									</select>
+									<label for="floatingSelect">Event Organizer</label>
+								</div>
+
+								<input type="hidden" id="eventTotalCost" th:field="*{eventDTO.totalCost}" />
+
+								<div class="mb-0 d-grid text-center">
+									<button class="btn btn-primary" type="submit"><i
+											class="mdi mdi-plus-circle me-2"></i>
+										Create Event
+									</button>
+								</div>
+								<!-- social-->
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+		<script type="text/javascript">
+			$("#profileImage").click(function (e) {
+				$("#imageUpload").click();
+			});
+
+			function fasterPreview(uploader) {
+				if (uploader.files && uploader.files[0]) {
+					$('#profileImage').attr('src',
+						window.URL.createObjectURL(uploader.files[0]));
+				}
+			}
+
+			$("#imageUpload").change(function () {
+				fasterPreview(this);
+			});
+
+			$("#inputEventType").change(function () {
+				$.ajax({
+					type: "GET",
+					dataType: 'json',
+					url: "/admin/getVenues/" + $(this).find(":selected").val() + '',
+					success: function (result) {
+						$("#inputVenue").empty();
+						$("#inputVenue").append($("<option></option>").val("").html("--Select Venue--"));
+						$.each(result, function () {
+							$("#inputVenue").append($("<option></option>").val(this['venueId']).html(this['venueName']));
+						});
+					}
+				});
+			});
+
+			$(document).ready(function () {
+				$("#startDate").val(new Date(document.getElementById("startDate").value).toLocaleDateString().substring(0, 10));
+				$("#endDate").val(new Date(document.getElementById("endDate").value).toLocaleDateString().substring(0, 10));
+
+				// $("#individual").find("input[type='checkbox']").prop('disabled', true);
+				// $("#inputVenue").prop('disabled', true);
+				// $("#regDiv *").prop('disabled', true);
+				$("#errorDiv").css('display', 'none');
+
+				var value = $("#inputEventType").find(":selected").val();
+				var urlToCall = "/admin/getPackagesOfEvent/" + value + '';
+				$.get(urlToCall).done(function (result) {
+					$("#main").replaceWith(result);
+					if ($('input[type="radio"][name="isStatic"]:checked').val() === "true") {
+						$("#main *").prop('disabled', false);
+						$("#individual").find("input[type='checkbox']").prop('disabled', true);
+						$("#inputVenue").prop('disabled', true);
+						$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+							$(this).prop("disabled", true);
+						});
+						// console.log("Ok");
+					}
+					else {
+						$("#main *").prop('disabled', true);
+						$("#individual").find("input[type='checkbox']").prop('disabled', false);
+						$("#inputVenue").prop('disabled', false);
+						$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+							if ($(this).find(":selected").val() != "") {
+								$('#' + $(this).attr('id').replace("serviceprovider", "service")).prop('checked', true);
+								$(this).prop("disabled", false);
+							}
+						});
+					}
+				});
+
+				var token = $("meta[name='_csrf']").attr("content");
+				var header = $("meta[name='_csrf_header']").attr("content");
+				$(document).ajaxSend(function (e, xhr, options) {
+					xhr.setRequestHeader(header, token);
+				});
+
+				$("input:checkbox").each(function () {
+					if ($(this).attr("id") == "isFree") {
+						$(this).change(function () {
+							if ($(this).prop('checked')) {
+								$("#regDiv *").prop('disabled', true);
+							}
+							else {
+								$("#regDiv *").prop('disabled', false);
+							}
+						});
+					}
+					else {
+						$(this).change(function () {
+							//console.log($(this).prop('checked'));
+							if ($(this).prop('checked')) {
+								$('#' + $(this).attr("id").replace("service", "serviceprovider") + '').prop('disabled', false);
+							}
+							else {
+								$('#' + $(this).attr("id").replace("service", "serviceprovider") + '').prop('disabled', true);
+								$('#' + $(this).attr("id").replace("service", "serviceprovider") + '').val("");
+							}
+						});
+					}
+				});
+
+				$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+					if ($(this).find(":selected").val() != "") {
+						$('#' + $(this).attr('id').replace("serviceprovider", "service")).prop('checked', true);
+						$(this).prop("disabled", false);
+					}
+				});
+
+				$('input[type=radio][name=isStatic]').change(function () {
+					// console.log($(this).val() === "true");
+					if ($('input[type="radio"][name="isStatic"]:checked').val() === "true") {
+						$("#main *").prop('disabled', false);
+						$("#individual").find("input[type='checkbox']").prop('disabled', true);
+						$("#inputVenue").prop('disabled', true);
+						$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+							$(this).prop("disabled", true);
+						});
+						// console.log("Ok");
+					}
+					else {
+						$("#main *").prop('disabled', true);
+						$("#individual").find("input[type='checkbox']").prop('disabled', false);
+						$("#inputVenue").prop('disabled', false);
+						$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+							// console.log($('#' + $(this).attr('id').replace("serviceprovider", "service")).prop('checked'));
+							if ($('#' + $(this).attr('id').replace("serviceprovider", "service")).prop('checked') === true) {
+								$(this).prop("disabled", false);
+							}
+						});
+					}
+				});
+			});
+
+			$("#inputEventType").change(function () {
+				var value = $(this).find(":selected").val();
+				var urlToCall = "/admin/getPackagesOfEvent/" + value + '';
+				// console.log(value);
+				$.get(urlToCall).done(function (result) { // get from controller
+					$("#main").replaceWith(result); // update snippet of page
+					if ($('input[type="radio"][name="isStatic"]:checked').val() === "true") {
+						$("#main *").prop('disabled', false);
+						$("#individual").find("input[type='checkbox']").prop('disabled', true);
+						$("#inputVenue").prop('disabled', true);
+						$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+							$(this).prop("disabled", true);
+						});
+						// console.log("Ok");
+					}
+					else {
+						$("#main *").prop('disabled', true);
+						$("#individual").find("input[type='checkbox']").prop('disabled', false);
+						$("#inputVenue").prop('disabled', false);
+						$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+							if ($(this).find(":selected").val() != "") {
+								$('#' + $(this).attr('id').replace("serviceprovider", "service")).prop('checked', true);
+								$(this).prop("disabled", false);
+							}
+						});
+					}
+				});
+
+				$.ajax({
+					type: "GET",
+					dataType: 'json',
+					url: "/admin/getVenues/" + $(this).find(":selected").val() + '',
+					success: function (result) {
+						$("#inputVenue").empty();
+						$("#inputVenue").append($("<option></option>").val("").html("--Select Venue--"));
+						$.each(result, function () {
+							$("#inputVenue").append($("<option></option>").val(this['venueId']).html(this['venueName']));
+						});
+					}
+				});
+			});
+
+			$("form").submit(function () {
+				if ($('input[type="radio"][name="isStatic"]:checked').val() === "true") {
+					if ($("#inputPackage").find(":selected").val() === "") {
+						$("#errorTxt").text("Please select package.");
+						$("#errorDiv").css('display', 'block');
+						return false;
+					}
+				}
+
+				if ($('input[type="radio"][name="isStatic"]:checked').val() === "false") {
+					if ($("#inputVenue :selected").val() === "") {
+						$("#errorTxt").text("Please select venue.");
+						$("#errorDiv").css('display', 'block');
+						return false;
+					}
+
+					var isError = false;
+					$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+						if ($(this).prop('disabled') === false && $(this).find(":selected").val() === "") {
+							isError = true;
+						}
+					});
+
+					if (isError == true) {
+						$("#errorTxt").text("Please select service provider for the selected service.");
+						$("#errorDiv").css('display', 'block');
+						return false;
+					}
+				}
+				$("#errorDiv").css('display', 'none');
+
+				var messageConfirm = "";
+				var token = $("meta[name='_csrf']").attr("content");
+				var forCost = [];
+				var isDone = false;
+
+				if ($('input[type="radio"][name="isStatic"]:checked').val() === "true") {
+					forCost.push("Static");
+					forCost.push($("#inputPackage").find(":selected").val());
+				}
+				else {
+					forCost.push("Dynamic");
+					forCost.push($("#inputVenue :selected").val());
+					$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+						if ($(this).find(":selected").val() != "") {
+							forCost.push($(this).find(":selected").val());
+						}
+					});
+				}
+				forCost.push($("input[type=radio][name=isPublic]:checked").val());
+				// console.log($("#isFree").is(":checked"));
+				forCost.push($("#isFree").is(":checked"));
+
+				$.ajax({
+					async: false,
+					type: "POST",
+					contentType: "application/json",
+					datatype: 'json',
+					traditional: true,
+					url: "/getEventCost/",
+					headers: {"X-CSRF-TOKEN": token}, //send CSRF token in header
+					data: JSON.stringify(forCost),
+					success: function (result) {
+						$("#eventTotalCost").val(result);
+						messageConfirm = "Updated Total event cost will be " + result + "." + "\nDo you want to continue?"
+						if (confirm(messageConfirm) == true) {
+							isDone = true;
+						}
+						else {
+							isDone = false;
+						}
+					}
+				});
+
+				return isDone;
+			});
+		</script>
+
+		<!-- Timepicker -->
+		<script th:src="@{/assets/js/pages/demo.timepicker.js}"></script>
+	</th:block>
+</body>
+
+</html>

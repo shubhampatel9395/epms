@@ -21,4 +21,6 @@ public interface IEventDAO extends ICRUDRepository<EventDTO, Long> {
 	public void unVerifyEvent(long eventId);
 
 	public void complete(long eventId);
+
+	public EventDTO updateByAdmin(EventDTO entity);
 }

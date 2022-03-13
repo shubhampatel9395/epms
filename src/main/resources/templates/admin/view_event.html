@@ -7,6 +7,22 @@
 		.page-title-box .page-title-right {
 			display: block;
 		}
+
+		#profileImage {
+			cursor: pointer;
+		}
+
+		#profile-container {
+			width: 400px;
+			height: 300px;
+			overflow: hidden;
+		}
+
+		#profile-container img {
+			width: 400px;
+			height: 300px;
+			display: block;
+		}
 	</style>
 </head>
 
@@ -33,6 +49,11 @@
 				<div class="col-12">
 					<div class="card">
 						<div class="card-body">
+							<div th:if="${banner} != null" class="mb-3" id="profile-container">
+								<img id="profileImage" class="img-fluid img-thumbnail"
+									th:src="@{'/admin/banner/' + ${banner.bannerId}}" />
+							</div>
+
 							<dl class="row mb-0">
 								<dt class="col-sm-3">Event Title</dt>
 								<dd class="col-sm-9" th:text="${eventDTO.eventTitle}"></dd>

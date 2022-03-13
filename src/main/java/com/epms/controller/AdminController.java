@@ -38,8 +38,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.epms.dao.IEnuEventStatusDAO;
-import com.epms.dao.IEventBannerDAO;
 import com.epms.dto.AddressDTO;
 import com.epms.dto.AdminDashboardDTO;
 import com.epms.dto.AdminLatestActivityDTO;
@@ -51,7 +49,6 @@ import com.epms.dto.EnuEventTypeDTO;
 import com.epms.dto.EnuServiceTypeDTO;
 import com.epms.dto.EnuVenueFacilityDTO;
 import com.epms.dto.EnuVenueTypeDTO;
-import com.epms.dto.EventBannerDTO;
 import com.epms.dto.EventDTO;
 import com.epms.dto.PackageDetailsDTO;
 import com.epms.dto.PackageServiceProviderMappingDTO;
@@ -664,11 +661,11 @@ public class AdminController {
 		List<PackageDetailsDTO> packageDetailsDTO;
 		if (eventTypeId == -1) {
 			packageDetailsDTO = packageDetailsService
-					.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true));
+					.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true).addValue("isStatic", true));
 			modelandmap.setViewName("fragments :: resultsPackageEvent");
 		} else {
 			packageDetailsDTO = packageDetailsService.findByNamedParameters(
-					new MapSqlParameterSource().addValue("isActive", true).addValue("eventTypeId", eventTypeId));
+					new MapSqlParameterSource().addValue("isActive", true).addValue("eventTypeId", eventTypeId).addValue("isStatic", true));
 		}
 
 		if (packageDetailsDTO.size() == 0) {
@@ -677,8 +674,8 @@ public class AdminController {
 			modelandmap.setViewName("fragments :: resultsPackageEvent");
 		}
 
-		List<PackageServiceProviderMappingDTO> packageServiceProviderMappings = packageServiceProviderMappingService
-				.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true));
+//		List<PackageServiceProviderMappingDTO> packageServiceProviderMappings = packageServiceProviderMappingService
+//				.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true));
 
 		List<String> venueDetails = packageDetailsDTO.stream().map(packageDTO -> {
 			return venueService.findById(packageDTO.getVenueId().longValue()).getVenueName() + ", "
@@ -692,6 +689,8 @@ public class AdminController {
 
 		List<Map<String, String>> serviceWithProviders = packageDetailsDTO.stream().map(item -> {
 			Map<String, String> t = new HashMap<String, String>();
+			List<PackageServiceProviderMappingDTO> packageServiceProviderMappings = packageServiceProviderMappingService
+					.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true).addValue("packageId", item.getPackageDetailsId()));
 			packageServiceProviderMappings.stream().map(item2 -> {
 				ServiceProviderDTO temp = serviceProviderService.findById(item2.getServiceProviderId().longValue());
 				return t.put(enuServiceTypeService.findById(temp.getServiceTypeId().longValue()).getService(),

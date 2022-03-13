@@ -1,6 +1,7 @@
 package com.epms.controller;
 
 import java.io.IOException;
+import java.sql.Blob;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -15,12 +16,17 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -158,7 +164,7 @@ public class EventController {
 
 	@Autowired
 	IEnuEmployeeWorkingStatusService enuEmployeeWorkingStatusService;
-	
+
 	@Autowired
 	IEnuServiceProviderWorkingStatusService enuServiceProviderWorkingStatusService;
 
@@ -185,12 +191,13 @@ public class EventController {
 					.findByNamedParameters(new MapSqlParameterSource().addValue("statusId", event.getEventStatusId())))
 					.getStatus();
 		}).collect(Collectors.toList());
-		
+
 		List<Boolean> canComplete = events.stream().map(event -> {
-			LocalDateTime endDateTime = LocalDateTime.of(new java.sql.Date(event.getEndDate().getTime()).toLocalDate() , event.getEndTime().toLocalTime());
+			LocalDateTime endDateTime = LocalDateTime.of(new java.sql.Date(event.getEndDate().getTime()).toLocalDate(),
+					event.getEndTime().toLocalTime());
 			// If end DateTime is less than current DateTime, then only complete
 			return endDateTime.compareTo(LocalDateTime.now()) < 0 ? true : false;
-		}).collect(Collectors.toList()); 
+		}).collect(Collectors.toList());
 
 		modelandmap.addObject("events", events);
 		modelandmap.addObject("eventTypes", eventTypes);
@@ -325,6 +332,21 @@ public class EventController {
 		return address;
 	}
 
+	@RequestMapping(value = "/admin/banner/{bannerId}", produces = MediaType.IMAGE_PNG_VALUE)
+	public ResponseEntity<byte[]> getImage(@PathVariable("bannerId") Long bannerId) throws IOException {
+		Blob img = eventBannerService.findById(bannerId).getBanner();
+		byte[] imageContent = null;
+		try {
+			imageContent = img.getBytes(1, (int) img.length());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		final HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.IMAGE_PNG);
+		return new ResponseEntity<byte[]>(imageContent, headers, HttpStatus.OK);
+	}
+
 	@GetMapping("/admin/view_event/{eventId}")
 	public ModelAndView viewEvent(@PathVariable("eventId") long eventId) {
 		ModelAndView modelandmap = new ModelAndView("admin/view_event");
@@ -370,6 +392,8 @@ public class EventController {
 				enuVenueTypeService.findById(packageDetailsDTO.getVenueTypeId().longValue()).getVenueType());
 		modelandmap.addObject("addressVenue", getAddress(addressService.findById(venueDTO.getAddressId().longValue())));
 		modelandmap.addObject("serviceWithProviders", serviceWithProviders);
+		modelandmap.addObject("banner", DataAccessUtils.singleResult(eventBannerService.findByNamedParameters(
+				new MapSqlParameterSource().addValue("eventId", eventId).addValue("isActive", true))));
 
 		return modelandmap;
 	}
@@ -377,6 +401,154 @@ public class EventController {
 	@GetMapping("/admin/edit_event/{eventId}")
 	public ModelAndView editEvent(@PathVariable("eventId") long eventId) {
 		ModelAndView modelandmap = new ModelAndView("admin/edit_event");
+		List<EmployeeDTO> employees = employeeService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true).addValue("employeeRoleId",
+						enuEmployeeRoleService
+								.findByNamedParameters(new MapSqlParameterSource().addValue("role", "Event Organizer"))
+								.get(0).getEmployeeRoleId()));
+
+		employees.forEach(employee -> {
+			UserDetailsDTO user = userDetailsService.findById(employee.getUserDetailsId().longValue());
+			employee.setFirstName(user.getFirstName());
+			employee.setLastName(user.getLastName());
+		});
+
+		List<ServiceProviderDTO> serviceProviders = serviceProviderService.findAllActive();
+		EventDTO eventDTO = eventService.findById(eventId);
+		PackageDetailsDTO packageDetailsDTO = packageDetailsService.findById(eventDTO.getPackageId().longValue());
+
+		for (int i = 0; i < serviceProviders.size(); i++) {
+			serviceProviders.get(i)
+					.setServiceProviderName(
+							userDetailsService
+									.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId",
+											serviceProviders.get(i).getUserDetailsId()))
+									.get(0).getServiceProviderName());
+		}
+
+		PackageTempDTO packageTempDTO = new PackageTempDTO();
+		List<PackageServiceProviderMappingDTO> packageServiceProviderMappings = packageServiceProviderMappingService
+				.findByNamedParameters(
+						new MapSqlParameterSource().addValue("packageId", packageDetailsDTO.getPackageDetailsId()));
+		List<String> serviceProvidersIdList = new ArrayList<>();
+		for (PackageServiceProviderMappingDTO entry : packageServiceProviderMappings) {
+			serviceProvidersIdList.add(entry.getServiceProviderId().toString());
+		}
+		packageTempDTO.setServiceProviderIdList(serviceProvidersIdList);
+
+		modelandmap.addObject("serviceProviders", serviceProviders);
+		modelandmap.addObject("venueNames",
+				venueService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		modelandmap.addObject("serviceTypes",
+				enuServiceTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		modelandmap.addObject("packageTempDTO", packageTempDTO);
+
+		modelandmap.addObject("eventDTO", eventDTO);
+		modelandmap.addObject("packageDetailsDTO", packageDetailsDTO);
+		modelandmap.addObject("customers", userDetailsService.findByNamedParameters(
+				new MapSqlParameterSource().addValue("isActive", true).addValue("isCustomer", true)));
+		modelandmap.addObject("employees", employees);
+		modelandmap.addObject("bannerDTO", new EventBannerDTO());
+		modelandmap.addObject("eventTypes",
+				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		return modelandmap;
+	}
+
+	@PostMapping("/admin/edit_event")
+	public ModelAndView saveEditedEvent(@Valid @ModelAttribute("eventDTO") EventDTO eventDTO,
+			@Valid @ModelAttribute("packageDetailsDTO") PackageDetailsDTO packageDetailsDTO,
+			@Valid @ModelAttribute("packageTempDTO") PackageTempDTO packageTempDTO,
+			@RequestParam("banner") MultipartFile banner) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-event");
+
+		PackageDetailsDTO oldPackageDetailsDTO = packageDetailsService
+				.findById(packageDetailsDTO.getPackageDetailsId().longValue());
+		if (packageDetailsDTO.getIsStatic() != true) {
+			if (oldPackageDetailsDTO.getIsStatic() != true) {
+				packageDetailsService.delete(oldPackageDetailsDTO.getPackageDetailsId().longValue());
+				packageServiceProviderMappingService
+						.deleteByPackageId(oldPackageDetailsDTO.getPackageDetailsId().longValue());
+			}
+			eventDTO.setPackageId(packageDetailsService.insert(packageDetailsDTO).getPackageDetailsId());
+
+			if (packageTempDTO.getServiceProviderIdList() != null) {
+				packageServiceProviderMappingService.assign(eventDTO.getPackageId().longValue(),
+						packageTempDTO.getServiceProviderIdList(),
+						DataAccessUtils
+								.singleResult(enuServiceProviderWorkingStatusService.findByNamedParameters(
+										new MapSqlParameterSource().addValue("status", "Assigned")))
+								.getStatusId().longValue());
+			}
+		}
+
+		EventDTO oldEventDTO = eventService.findById(eventDTO.getEventId().longValue());
+		if (!eventDTO.getEventTitle().equalsIgnoreCase(oldEventDTO.getEventTitle())) {
+			oldEventDTO.setEventTitle(eventDTO.getEventTitle());
+		}
+		if (!eventDTO.getObjective().equalsIgnoreCase(oldEventDTO.getObjective())) {
+			oldEventDTO.setObjective(eventDTO.getObjective());
+		}
+		if (!eventDTO.getEventTypeId().equals(oldEventDTO.getEventTypeId())) {
+			oldEventDTO.setEventTypeId(eventDTO.getEventTypeId());
+		}
+		if (!eventDTO.getUserDetailsId().equals(oldEventDTO.getUserDetailsId())) {
+			oldEventDTO.setUserDetailsId(eventDTO.getUserDetailsId());
+		}
+		if (!eventDTO.getPackageId().equals(oldEventDTO.getPackageId())) {
+			oldEventDTO.setPackageId(eventDTO.getPackageId());
+		}
+		if (!eventDTO.getEventOrganizerId().equals(oldEventDTO.getEventOrganizerId())) {
+			oldEventDTO.setEventOrganizerId(eventDTO.getEventOrganizerId());
+		}
+		if (!eventDTO.getIsFree().equals(oldEventDTO.getIsFree())) {
+			oldEventDTO.setIsFree(eventDTO.getIsFree());
+			if (oldEventDTO.getIsFree() == true) {
+				oldEventDTO.setRegistrationFee(0.0);
+				oldEventDTO.setRegistrationAvailable(0);
+			} else {
+				if (!eventDTO.getRegistrationFee().equals(oldEventDTO.getRegistrationFee())) {
+					oldEventDTO.setRegistrationFee(eventDTO.getRegistrationFee());
+				}
+				if (!eventDTO.getRegistrationAvailable().equals(oldEventDTO.getRegistrationAvailable())) {
+					oldEventDTO.setRegistrationAvailable(eventDTO.getRegistrationAvailable());
+				}
+			}
+		}
+		if (!eventDTO.getIsPublic().equals(oldEventDTO.getIsPublic())) {
+			oldEventDTO.setIsPublic(eventDTO.getIsPublic());
+		}
+		if (!eventDTO.getStartDate().equals(oldEventDTO.getStartDate())) {
+			oldEventDTO.setStartDate(eventDTO.getStartDate());
+		}
+		if (!eventDTO.getStartTime().equals(oldEventDTO.getStartTime())) {
+			oldEventDTO.setStartTime(eventDTO.getStartTime());
+		}
+		if (!eventDTO.getEndDate().equals(oldEventDTO.getEndDate())) {
+			oldEventDTO.setEndDate(eventDTO.getEndDate());
+		}
+		if (!eventDTO.getEndTime().equals(oldEventDTO.getEndTime())) {
+			oldEventDTO.setEndTime(eventDTO.getEndTime());
+		}
+		if (!eventDTO.getEstimatedGuest().equals(oldEventDTO.getEstimatedGuest())) {
+			oldEventDTO.setEstimatedGuest(eventDTO.getEstimatedGuest());
+		}
+		if (!eventDTO.getTotalCost().equals(oldEventDTO.getTotalCost())) {
+			oldEventDTO.setTotalCost(eventDTO.getTotalCost());
+		}
+		eventService.updateByAdmin(oldEventDTO);
+
+		if (!banner.isEmpty()) {
+			eventBannerService.delete(oldEventDTO.getEventId().longValue());
+			EventBannerDTO obj = new EventBannerDTO();
+			try {
+				obj.setBanner(new SerialBlob(banner.getBytes()));
+				obj.setEventId(oldEventDTO.getEventId());
+			} catch (SQLException | IOException e) {
+				log.error(e.toString());
+			}
+			eventBannerService.insert(obj);
+		}
+
 		return modelandmap;
 	}
 
@@ -460,7 +632,11 @@ public class EventController {
 			packageServiceProviderMappingService.deleteByPackageId(packageDetailsDTO.getPackageDetailsId().longValue());
 			if (packageTempDTO.getServiceProviderIdList() != null) {
 				packageServiceProviderMappingService.assign(oldPackageDetailsDTO.getPackageDetailsId().longValue(),
-						packageTempDTO.getServiceProviderIdList(), DataAccessUtils.singleResult(enuServiceProviderWorkingStatusService.findByNamedParameters(new MapSqlParameterSource().addValue("status", "Assigned"))).getStatusId().longValue());
+						packageTempDTO.getServiceProviderIdList(),
+						DataAccessUtils
+								.singleResult(enuServiceProviderWorkingStatusService.findByNamedParameters(
+										new MapSqlParameterSource().addValue("status", "Assigned")))
+								.getStatusId().longValue());
 			}
 		} else {
 			packageDetailsDTO.setVenueId(oldPackageDetailsDTO.getVenueId());
@@ -567,7 +743,7 @@ public class EventController {
 	public ModelAndView getAssignedEmployee(@PathVariable("eventEmployeeMappingId") long eventEmployeeMappingId) {
 		ModelAndView modelandmap = new ModelAndView("admin/edit_assign_employee");
 		EventEmployeeMappingDTO employee = eventEmployeeMappingService.findById(eventEmployeeMappingId);
-		
+
 		MapSqlParameterSource namedParams = new MapSqlParameterSource();
 		namedParams.addValue("employeeRoleId", employee.getEmployeeTypeId());
 		namedParams.addValue("isActive", true);
@@ -577,7 +753,7 @@ public class EventController {
 			e.setFirstName(user.getFirstName());
 			e.setLastName(user.getLastName());
 		});
-		
+
 		modelandmap.addObject("eventDTO", eventService.findById(employee.getEventId().longValue()));
 		modelandmap.addObject("employee", employee);
 		modelandmap.addObject("selectedEmployees", employees);
@@ -587,20 +763,22 @@ public class EventController {
 				.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		return modelandmap;
 	}
-	
+
 	@PostMapping("/edit_assigned_employee")
 	public ModelAndView saveAssignedEditedEmployee(@Valid @ModelAttribute("eventDTO") EventDTO eventDTO,
 			@Valid @ModelAttribute("employee") EventEmployeeMappingDTO eventEmployeeMappingDTO) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/assign_employee/" + eventDTO.getEventId().toString());
-		EventEmployeeMappingDTO oldEventEmployeeMappingDTO = eventEmployeeMappingService.findById(eventEmployeeMappingDTO.getEventEmployeeMappingId().longValue());
-		
-		if(!oldEventEmployeeMappingDTO.getWorkDescription().equalsIgnoreCase(eventEmployeeMappingDTO.getWorkDescription())) {
+		EventEmployeeMappingDTO oldEventEmployeeMappingDTO = eventEmployeeMappingService
+				.findById(eventEmployeeMappingDTO.getEventEmployeeMappingId().longValue());
+
+		if (!oldEventEmployeeMappingDTO.getWorkDescription()
+				.equalsIgnoreCase(eventEmployeeMappingDTO.getWorkDescription())) {
 			oldEventEmployeeMappingDTO.setWorkDescription(eventEmployeeMappingDTO.getWorkDescription());
 		}
-		if(!oldEventEmployeeMappingDTO.getStatusId().equals(eventEmployeeMappingDTO.getStatusId())) {
+		if (!oldEventEmployeeMappingDTO.getStatusId().equals(eventEmployeeMappingDTO.getStatusId())) {
 			oldEventEmployeeMappingDTO.setStatusId(eventEmployeeMappingDTO.getStatusId());
 		}
-		
+
 		eventEmployeeMappingService.update(oldEventEmployeeMappingDTO);
 		return modelandmap;
 	}
@@ -633,16 +811,21 @@ public class EventController {
 	@GetMapping("/admin/delete_event/{eventId}")
 	public ModelAndView deleteEvent(@PathVariable("eventId") long eventId) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-event");
-		PackageDetailsDTO packageDetailsDTO = packageDetailsService.findById(eventService.findById(eventId).getPackageId().longValue());
-		
+		PackageDetailsDTO packageDetailsDTO = packageDetailsService
+				.findById(eventService.findById(eventId).getPackageId().longValue());
+
 		eventService.delete(eventId);
-		if(packageDetailsDTO.getIsStatic() == false) {
+		if (packageDetailsDTO.getIsStatic() == false) {
 			packageDetailsService.delete(packageDetailsDTO.getPackageDetailsId().longValue());
-			packageServiceProviderMappingService.removedFromEvent(eventId, DataAccessUtils.singleResult(enuServiceProviderWorkingStatusService.findByNamedParameters(new MapSqlParameterSource().addValue("status", "Removed"))).getStatusId().longValue());
+			packageServiceProviderMappingService.removedFromEvent(eventId,
+					DataAccessUtils
+							.singleResult(enuServiceProviderWorkingStatusService
+									.findByNamedParameters(new MapSqlParameterSource().addValue("status", "Removed")))
+							.getStatusId().longValue());
 		}
 		eventEmployeeMappingService.removedFromEvent(eventId);
 		eventBannerService.delete(eventId);
-		
+
 		// event isActive False
 		// if dynamic Pacakge set isactive false && packageserviceprovidermapping set
 		// isactive false

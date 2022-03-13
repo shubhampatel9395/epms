@@ -368,9 +368,29 @@
 				$("#errorDiv").css('display', 'none');
 
 				var value = $("#inputEventType").find(":selected").val();
-				var urlToCall = "getPackagesOfEvent/" + value + '';
+				var urlToCall = "/admin/getPackagesOfEvent/" + value + '';
 				$.get(urlToCall).done(function (result) {
 					$("#main").replaceWith(result);
+					if ($('input[type="radio"][name="isStatic"]:checked').val() === "true") {
+						$("#main *").prop('disabled', false);
+						$("#individual").find("input[type='checkbox']").prop('disabled', true);
+						$("#inputVenue").prop('disabled', true);
+						$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+							$(this).prop("disabled", true);
+						});
+						// console.log("Ok");
+					}
+					else {
+						$("#main *").prop('disabled', true);
+						$("#individual").find("input[type='checkbox']").prop('disabled', false);
+						$("#inputVenue").prop('disabled', false);
+						$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+							if ($(this).find(":selected").val() != "") {
+								$('#' + $(this).attr('id').replace("serviceprovider", "service")).prop('checked', true);
+								$(this).prop("disabled", false);
+							}
+						});
+					}
 				});
 				
 				var token = $("meta[name='_csrf']").attr("content");
@@ -406,26 +426,55 @@
 
 				$('input[type=radio][name=isStatic]').change(function () {
 					// console.log($(this).val() === "true");
-					if ($(this).val() === "true") {
+					if ($('input[type="radio"][name="isStatic"]:checked').val() === "true") {
 						$("#main *").prop('disabled', false);
 						$("#individual").find("input[type='checkbox']").prop('disabled', true);
 						$("#inputVenue").prop('disabled', true);
+						$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+							$(this).prop("disabled", true);
+						});
 						// console.log("Ok");
 					}
 					else {
 						$("#main *").prop('disabled', true);
 						$("#individual").find("input[type='checkbox']").prop('disabled', false);
 						$("#inputVenue").prop('disabled', false);
+						$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+							// console.log($('#' + $(this).attr('id').replace("serviceprovider", "service")).prop('checked'));
+							if ($('#' + $(this).attr('id').replace("serviceprovider", "service")).prop('checked') === true) {
+								$(this).prop("disabled", false);
+							}
+						});
 					}
 				});
 			});
 
 			$("#inputEventType").change(function () {
 				var value = $(this).find(":selected").val();
-				var urlToCall = "getPackagesOfEvent/" + value + '';
+				var urlToCall = "/admin/getPackagesOfEvent/" + value + '';
 				// console.log(value);
 				$.get(urlToCall).done(function (result) { // get from controller
 					$("#main").replaceWith(result); // update snippet of page
+					if ($('input[type="radio"][name="isStatic"]:checked').val() === "true") {
+						$("#main *").prop('disabled', false);
+						$("#individual").find("input[type='checkbox']").prop('disabled', true);
+						$("#inputVenue").prop('disabled', true);
+						$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+							$(this).prop("disabled", true);
+						});
+						// console.log("Ok");
+					}
+					else {
+						$("#main *").prop('disabled', true);
+						$("#individual").find("input[type='checkbox']").prop('disabled', false);
+						$("#inputVenue").prop('disabled', false);
+						$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+							if ($(this).find(":selected").val() != "") {
+								$('#' + $(this).attr('id').replace("serviceprovider", "service")).prop('checked', true);
+								$(this).prop("disabled", false);
+							}
+						});
+					}
 				});
 
 				$.ajax({

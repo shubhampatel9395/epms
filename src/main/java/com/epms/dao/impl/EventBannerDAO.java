@@ -81,6 +81,7 @@ public class EventBannerDAO implements IEventBannerDAO {
 		return findById(keyHolder.getKey().longValue());
 	}
 
+	// By Event ID
 	@Override
 	public void delete(Long id) {
 		MapSqlParameterSource namedParams = new MapSqlParameterSource();

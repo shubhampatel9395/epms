@@ -85,27 +85,31 @@ public class EventDAO implements IEventDAO {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
-	public Integer getCountByEventType(String eventType)
-	{
+	public Integer getCountByEventType(String eventType) {
 		MapSqlParameterSource namedParams = new MapSqlParameterSource();
 		namedParams.addValue("eventType", eventType);
 		namedParams.addValue("isActive", true);
 		namedParams.addValue("statusRegistered", "Registered");
 		namedParams.addValue("statusVerified", "Verified");
-		int count = jdbcTemplate.queryForObject("select count(1) from event e join enueventtype et on e.eventTypeId = et.eventTypeId join enueventstatus ees on e.eventStatusId = ees.statusId where et.eventType=:eventType and (ees.status=:statusRegistered or ees.status=:statusVerified) and e.isActive=:isActive",namedParams,Integer.class);
+		namedParams.addValue("statusCompleted", "Completed");
+		int count = jdbcTemplate.queryForObject(
+				"select count(1) from event e join enueventtype et on e.eventTypeId = et.eventTypeId join enueventstatus ees on e.eventStatusId = ees.statusId where et.eventType=:eventType and (ees.status=:statusRegistered or ees.status=:statusVerified or ees.status=:statusCompleted) and e.isActive=:isActive",
+				namedParams, Integer.class);
 		return count;
 	}
-	
+
 	@Override
-	public Integer getCount()
-	{
+	public Integer getCount() {
 		MapSqlParameterSource namedParams = new MapSqlParameterSource();
 		namedParams.addValue("isActive", true);
 		namedParams.addValue("statusRegistered", "Registered");
 		namedParams.addValue("statusVerified", "Verified");
-		int count = jdbcTemplate.queryForObject("select count(1) from event e join enueventstatus ees on e.eventStatusId = ees.statusId where (ees.status=:statusRegistered or ees.status=:statusVerified) and e.isActive=:isActive",namedParams,Integer.class);
+		namedParams.addValue("statusCompleted", "Completed");
+		int count = jdbcTemplate.queryForObject(
+				"select count(1) from event e join enueventstatus ees on e.eventStatusId = ees.statusId where (ees.status=:statusRegistered or ees.status=:statusVerified or ees.status=:statusCompleted) and e.isActive=:isActive",
+				namedParams, Integer.class);
 		return count;
 	}
 
@@ -135,18 +139,19 @@ public class EventDAO implements IEventDAO {
 		namedParams.addValue("estimatedGuest", eventDTO.getEstimatedGuest());
 		namedParams.addValue("totalCost", eventDTO.getTotalCost());
 		namedParams.addValue("eventStatusId", eventDTO.getEventStatusId());
-		
-		if(eventDTO.getIsFree() != true)
-		{
+
+		if (eventDTO.getIsFree() != true) {
 			namedParams.addValue("registrationFee", eventDTO.getRegistrationFee());
 			namedParams.addValue("registrationAvailable", eventDTO.getRegistrationAvailable());
 		} else {
 			namedParams.addValue("registrationFee", 0);
 			namedParams.addValue("registrationAvailable", 0);
 		}
-		
-		jdbcTemplate.update("insert into event(eventTitle,objective,eventTypeId,userDetailsId,packageId,eventOrganizerId,isPublic,isFree,startDate,startTime,endDate,endTime,estimatedGuest,registrationFee,registrationAvailable,totalCost,eventStatusId) values(:eventTitle,:objective,:eventTypeId,:userDetailsId,:packageId,:eventOrganizerId,:isPublic,:isFree,:startDate,:startTime,:endDate,:endTime,:estimatedGuest,:registrationFee,:registrationAvailable,:totalCost,:eventStatusId)",namedParams,keyHolder,new String[] { "eventId" });
-		
+
+		jdbcTemplate.update(
+				"insert into event(eventTitle,objective,eventTypeId,userDetailsId,packageId,eventOrganizerId,isPublic,isFree,startDate,startTime,endDate,endTime,estimatedGuest,registrationFee,registrationAvailable,totalCost,eventStatusId) values(:eventTitle,:objective,:eventTypeId,:userDetailsId,:packageId,:eventOrganizerId,:isPublic,:isFree,:startDate,:startTime,:endDate,:endTime,:estimatedGuest,:registrationFee,:registrationAvailable,:totalCost,:eventStatusId)",
+				namedParams, keyHolder, new String[] { "eventId" });
+
 		return findById(keyHolder.getKey().longValue());
 	}
 
@@ -158,9 +163,11 @@ public class EventDAO implements IEventDAO {
 		namedParams.addValue("eventOrganizerId", eventDTO.getEventOrganizerId());
 		namedParams.addValue("packageDetailsId", packageDetailsDTO.getPackageDetailsId());
 		namedParams.addValue("venueId", packageDetailsDTO.getVenueId());
-		
-		jdbcTemplate.update("update event e, packagedetails p set e.eventOrganizerId=:eventOrganizerId,e.eventStatusId=:eventStatusId,p.venueId=:venueId where e.packageId=p.packageDetailsId AND e.eventId=:eventId;", namedParams);
-		
+
+		jdbcTemplate.update(
+				"update event e, packagedetails p set e.eventOrganizerId=:eventOrganizerId,e.eventStatusId=:eventStatusId,p.venueId=:venueId where e.packageId=p.packageDetailsId AND e.eventId=:eventId;",
+				namedParams);
+
 		return findById(eventDTO.getEventId().longValue());
 	}
 
@@ -175,7 +182,36 @@ public class EventDAO implements IEventDAO {
 	public void complete(long eventId) {
 		MapSqlParameterSource namedParams = new MapSqlParameterSource();
 		namedParams.addValue("eventId", eventId);
-		jdbcTemplate.update("update event set eventStatusId=(SELECT statusId from enueventstatus where status='Completed') where eventId=:eventId", namedParams);
+		jdbcTemplate.update(
+				"update event set eventStatusId=(SELECT statusId from enueventstatus where status='Completed') where eventId=:eventId",
+				namedParams);
+	}
+
+	@Override
+	public EventDTO updateByAdmin(EventDTO eventDTO) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("eventId", eventDTO.getEventId());
+		namedParams.addValue("eventTitle", eventDTO.getEventTitle());
+		namedParams.addValue("objective", eventDTO.getObjective());
+		namedParams.addValue("eventTypeId", eventDTO.getEventTypeId());
+		namedParams.addValue("userDetailsId", eventDTO.getUserDetailsId());
+		namedParams.addValue("packageId", eventDTO.getPackageId());
+		namedParams.addValue("eventOrganizerId", eventDTO.getEventOrganizerId());
+		namedParams.addValue("isPublic", eventDTO.getIsPublic());
+		namedParams.addValue("isFree", eventDTO.getIsFree());
+		namedParams.addValue("startDate", eventDTO.getStartDate());
+		namedParams.addValue("startTime", eventDTO.getStartTime());
+		namedParams.addValue("endDate", eventDTO.getEndDate());
+		namedParams.addValue("endTime", eventDTO.getEndTime());
+		namedParams.addValue("estimatedGuest", eventDTO.getEstimatedGuest());
+		namedParams.addValue("totalCost", eventDTO.getTotalCost());
+		namedParams.addValue("eventStatusId", eventDTO.getEventStatusId());
+
+		jdbcTemplate.update(
+				"update event set eventTitle=:eventTitle,objective=:objective,eventTypeId=:eventTypeId,userDetailsId=:userDetailsId,"
+						+ "packageId=:packageId,eventOrganizerId=:eventOrganizerId,isPublic=:isPublic,isFree=:isFree,startDate=:startDate,startTime=:startTime,"
+						+ "endDate=:endDate,endTime=:endTime,estimatedGuest=:estimatedGuest,totalCost=:totalCost,eventStatusId=:eventStatusId where eventId=:eventId",
+				namedParams);
+		return eventDTO;
 	}
 }
-

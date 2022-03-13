@@ -2,8 +2,6 @@ package com.epms.service.impl;
 
 import java.util.List;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
@@ -56,8 +54,7 @@ public class EventService implements IEventService {
 
 	@Override
 	public EventDTO update(EventDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		return eventDAO.update(entity);
 	}
 
 	@Override
@@ -78,6 +75,11 @@ public class EventService implements IEventService {
 	@Override
 	public EventDTO insertByAdmin(EventDTO eventDTO) {
 		return eventDAO.insertByAdmin(eventDTO);
+	}
+	
+	@Override
+	public EventDTO updateByAdmin(EventDTO entity) {
+		return eventDAO.updateByAdmin(entity);
 	}
 
 	@Override
