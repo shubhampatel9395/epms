@@ -212,6 +212,40 @@ public class EventController {
 		modelandmap.addObject("canComplete", canComplete);
 		return modelandmap;
 	}
+	
+	@GetMapping("/customer/manage-events")
+	public ModelAndView manageEvent() {
+		ModelAndView modelandmap = new ModelAndView("customer/manage_event");
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		
+		List<EventDTO> events = eventService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true).addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId()));
+		List<String> eventTypes = events.stream().map(event -> {
+			return DataAccessUtils
+					.singleResult(enuEventTypeService.findByNamedParameters(
+							new MapSqlParameterSource().addValue("eventTypeId", event.getEventTypeId())))
+					.getEventType();
+		}).collect(Collectors.toList());
+		List<String> eventStatuses = events.stream().map(event -> {
+			return DataAccessUtils.singleResult(enuEventStatusService
+					.findByNamedParameters(new MapSqlParameterSource().addValue("statusId", event.getEventStatusId())))
+					.getStatus();
+		}).collect(Collectors.toList());
+
+		List<Boolean> canComplete = events.stream().map(event -> {
+			LocalDateTime endDateTime = LocalDateTime.of(new java.sql.Date(event.getEndDate().getTime()).toLocalDate(),
+					event.getEndTime().toLocalTime());
+			// If end DateTime is less than current DateTime, then only complete
+			return endDateTime.compareTo(LocalDateTime.now()) < 0 ? true : false;
+		}).collect(Collectors.toList());
+
+		modelandmap.addObject("events", events);
+		modelandmap.addObject("eventTypes", eventTypes);
+		modelandmap.addObject("eventStatuses", eventStatuses);
+		modelandmap.addObject("canComplete", canComplete);
+		return modelandmap;
+	}
 
 	@PostMapping("/getEventCost")
 	public Double getEventCost(@RequestBody List<String> data) {
@@ -507,7 +541,7 @@ public class EventController {
 		mail.setContentType("text/html");
 		String content = "<p>You have created an Event <strong>" + newEventDTO.getEventTitle() + " - "
 				+ newEventDTO.getObjective() + "</strong> on Unico - Event Planning and Management website.</p>"
-				+ "<p>You will have to wait until we verifies your event details.</p>"
+				+ "<p>You will have to wait until we verify your event details.</p>"
 				+ "<p>You will be notified about your event details.</p>";
 		mail.setMailContent(content);
 		mailService.sendEmail(mail);
@@ -549,7 +583,12 @@ public class EventController {
 		EventDTO eventDTO = eventService.findById(eventId);
 		UserDetailsDTO customerDTO = userDetailsService.findById(eventDTO.getUserDetailsId().longValue());
 		PackageDetailsDTO packageDetailsDTO = packageDetailsService.findById(eventDTO.getPackageId().longValue());
-		VenueDTO venueDTO = venueService.findById(packageDetailsDTO.getVenueId().longValue());
+		VenueDTO venueDTO = null;
+		if(packageDetailsDTO.getVenueId() != null)
+		{
+			venueDTO = venueService.findById(packageDetailsDTO.getVenueId().longValue());
+			modelandmap.addObject("addressVenue", getAddress(addressService.findById(venueDTO.getAddressId().longValue())));
+		}
 
 		modelandmap.addObject("eventDTO", eventDTO);
 		modelandmap.addObject("customer", customerDTO);
@@ -586,7 +625,58 @@ public class EventController {
 		modelandmap.addObject("venue", venueDTO);
 		modelandmap.addObject("venueType",
 				enuVenueTypeService.findById(packageDetailsDTO.getVenueTypeId().longValue()).getVenueType());
-		modelandmap.addObject("addressVenue", getAddress(addressService.findById(venueDTO.getAddressId().longValue())));
+		modelandmap.addObject("serviceWithProviders", serviceWithProviders);
+		modelandmap.addObject("banner", DataAccessUtils.singleResult(eventBannerService.findByNamedParameters(
+				new MapSqlParameterSource().addValue("eventId", eventId).addValue("isActive", true))));
+
+		return modelandmap;
+	}
+	
+	@GetMapping("/customer/view_event/{eventId}")
+	public ModelAndView viewManageEvent(@PathVariable("eventId") long eventId) {
+		ModelAndView modelandmap = new ModelAndView("customer/view_event");
+		EventDTO eventDTO = eventService.findById(eventId);
+		PackageDetailsDTO packageDetailsDTO = packageDetailsService.findById(eventDTO.getPackageId().longValue());
+		VenueDTO venueDTO = null;
+		if(packageDetailsDTO.getVenueId() != null)
+		{
+			venueDTO = venueService.findById(packageDetailsDTO.getVenueId().longValue());
+			modelandmap.addObject("addressVenue", getAddress(addressService.findById(venueDTO.getAddressId().longValue())));
+		}
+
+		modelandmap.addObject("eventDTO", eventDTO);
+		modelandmap.addObject("eventType",
+				enuEventTypeService.findById(eventDTO.getEventTypeId().longValue()).getEventType());
+		modelandmap.addObject("eventStatus",
+				enuEventStatusService.findById(eventDTO.getEventStatusId().longValue()).getStatus());
+		modelandmap.addObject("package", packageDetailsDTO);
+
+		List<PackageServiceProviderMappingDTO> packageServiceProviderMappings = packageServiceProviderMappingService
+				.findByNamedParameters(
+						new MapSqlParameterSource().addValue("packageId", packageDetailsDTO.getPackageDetailsId()));
+		Map<String, String> serviceWithProviders = new HashMap<>();
+		for (PackageServiceProviderMappingDTO entry : packageServiceProviderMappings) {
+			String service = enuServiceTypeService.findById(entry.getServiceTypeId().longValue()).getService();
+
+			if (entry.getServiceProviderId() != null) {
+				serviceWithProviders.put(service,
+						userDetailsService.findById(serviceProviderService
+								.findById(entry.getServiceProviderId().longValue()).getUserDetailsId().longValue())
+								.getServiceProviderName());
+			} else {
+				serviceWithProviders.put(service, null);
+			}
+		}
+
+		if (eventDTO.getEventOrganizerId() != null) {
+			UserDetailsDTO eventorganizer = userDetailsService.findById(employeeService
+					.findById(eventDTO.getEventOrganizerId().longValue()).getUserDetailsId().longValue());
+			modelandmap.addObject("eventorganizer", eventorganizer);
+		}
+
+		modelandmap.addObject("venue", venueDTO);
+		modelandmap.addObject("venueType",
+				enuVenueTypeService.findById(packageDetailsDTO.getVenueTypeId().longValue()).getVenueType());
 		modelandmap.addObject("serviceWithProviders", serviceWithProviders);
 		modelandmap.addObject("banner", DataAccessUtils.singleResult(eventBannerService.findByNamedParameters(
 				new MapSqlParameterSource().addValue("eventId", eventId).addValue("isActive", true))));

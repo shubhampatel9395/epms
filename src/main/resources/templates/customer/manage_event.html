@@ -1,0 +1,172 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{customer/_layout}">
+
+<head>
+	<title>Manage Events</title>
+	<!-- third party css -->
+	<link th:href="@{/assets/css/vendor/dataTables.bootstrap5.css}" rel="stylesheet" type="text/css" />
+	<link th:href="@{/assets/css/vendor/responsive.bootstrap5.css}" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+
+			<!-- start page title -->
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<h4 class="page-title">My Events</h4>
+					</div>
+				</div>
+			</div>
+			<!-- end page title -->
+
+			<div class="row">
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<div class="table-responsive">
+								<table id="basic-datatable" class="table dt-responsive nowrap w-100">
+									<thead>
+										<tr>
+											<th>Event Title</th>
+											<th>Event Type</th>
+											<th>Amount</th>
+											<th>Status</th>
+											<th style="width: 85px;">Action</th>
+										</tr>
+									</thead>
+
+									<tbody>
+										<tr th:each="event : ${events}">
+											<td th:text="${event.eventTitle}"></td>
+											<td th:text="${eventTypes[eventStat.index]}"></td>
+											<td th:text="${event.totalCost}"></td>
+											<td th:if="${eventStatuses[eventStat.index] == 'Registered'}"><span
+													class="badge bg-primary"
+													th:text="${eventStatuses[eventStat.index]}"></span></td>
+											<td th:if="${eventStatuses[eventStat.index] == 'Verified'}"><span
+													class="badge bg-danger"
+													th:text="${eventStatuses[eventStat.index]}"></span></td>
+											<td th:if="${eventStatuses[eventStat.index] == 'Completed'}"><span
+													class="badge bg-success"
+													th:text="${eventStatuses[eventStat.index]}"></span></td>
+											<td class="table-action">
+												<a th:href="@{'/customer/view_event/' + ${event.eventId}}"
+													class="action-icon"> <i class="mdi mdi-eye"></i></a>
+
+												<a th:if="${event.isActive} and (${eventStatuses[eventStat.index] == 'Verified'} or ${eventStatuses[eventStat.index] == 'Registered'} )"
+													th:href="@{'/customer/edit_event/' + ${event.eventId}}"
+													class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a>
+
+												<div style="display: inline-block;">
+													<a th:if="${event.isActive} and ${eventStatuses[eventStat.index] == 'Verified'} and ${canComplete[eventStat.index] == true}"
+														th:href="@{'/customer/complete_event/' + ${event.eventId}}"
+														data-bs-toggle="modal"
+														th:data-bs-target="'#staticBackdropComplete' + ${event.eventId}"
+														class="action-icon"><i class="mdi mdi-calendar-check"></i></a>
+													<!-- Modal -->
+													<div style="z-index: 9999999999;" class="modal fade"
+														th:id="'staticBackdropComplete' + ${event.eventId}"
+														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+														aria-labelledby="staticBackdropLabel" aria-hidden="true">
+														<div class="modal-dialog">
+															<div class="modal-content">
+																<div class="modal-header">
+																	<h5 class="modal-title" id="staticBackdropLabel">
+																		Complete Event
+																	</h5>
+																	<button type="button" class="btn-close"
+																		data-bs-dismiss="modal"
+																		aria-hidden="true"></button>
+																</div> <!-- end modal header -->
+																<div class="modal-body">
+																	You will be redirected to payment page.
+																	Are you sure you want to complete this event?
+																</div>
+																<div class="modal-footer">
+																	<button type="button" class="btn btn-secondary"
+																		data-bs-dismiss="modal">Close</button>
+																	<a type="button"
+																		th:href="@{'/customer/complete_event/' + ${event.eventId}}"
+																		class="btn btn-success">Complete</a>
+																</div> <!-- end modal footer -->
+															</div> <!-- end modal content-->
+														</div> <!-- end modal dialog-->
+													</div> <!-- end modal-->
+												</div>
+
+												<a th:if="${event.isActive} and ${eventStatuses[eventStat.index] == 'Completed'}"
+													th:href="@{'/customer/view_bill/' + ${event.eventId}}"
+													class="action-icon"><i class="mdi mdi-receipt"></i></a>
+
+												<div th:if="${event.isActive} and (${eventStatuses[eventStat.index] == 'Verified'} or ${eventStatuses[eventStat.index] == 'Registered'})"
+													style="display:inline-block;">
+													<a data-bs-toggle="modal"
+														th:data-bs-target="'#staticBackdropDelete' + ${event.eventId}"
+														th:href="@{'/customer/delete_event/' + ${event.eventId}}"
+														class="action-icon"> <i class="mdi mdi-delete"></i></a>
+													<!-- Modal -->
+													<div style="z-index: 9999999999;" class="modal fade"
+														th:id="'staticBackdropDelete' + ${event.eventId}"
+														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+														aria-labelledby="staticBackdropLabel" aria-hidden="true">
+														<div class="modal-dialog">
+															<div class="modal-content">
+																<div class="modal-header">
+																	<h5 class="modal-title" id="staticBackdropLabel">
+																		Delete Event
+																	</h5>
+																	<button type="button" class="btn-close"
+																		data-bs-dismiss="modal"
+																		aria-hidden="true"></button>
+																</div> <!-- end modal header -->
+																<div class="modal-body">
+																	You will not have any record of this event anymore.
+																	<br />
+																	Are you sure you want to delete this event?
+																</div>
+																<div class="modal-footer">
+																	<button type="button" class="btn btn-secondary"
+																		data-bs-dismiss="modal">Close</button>
+																	<a type="button"
+																		th:href="@{'/customer/delete_event/' + ${event.eventId}}"
+																		class="btn btn-danger">Delete</a>
+																</div> <!-- end modal footer -->
+															</div> <!-- end modal content-->
+														</div> <!-- end modal dialog-->
+													</div> <!-- end modal-->
+												</div>
+							</div>
+							</td>
+							</tr>
+							</tbody>
+							</table>
+						</div>
+					</div> <!-- end card-body-->
+				</div> <!-- end card-->
+			</div> <!-- end col -->
+		</div>
+		<!-- end row -->
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+		<!-- third party js -->
+		<script th:src="@{/assets/js/vendor/jquery.dataTables.min.js}"></script>
+		<script th:src="@{/assets/js/vendor/dataTables.bootstrap5.js}"></script>
+		<script th:src="@{/assets/js/vendor/dataTables.responsive.min.js}"></script>
+		<script th:src="@{/assets/js/vendor/responsive.bootstrap5.min.js}"></script>
+
+		<!-- third party js ends -->
+
+		<!-- demo app -->
+		<script th:src="@{/assets/js/pages/demo.datatable-init.js}"></script>
+		<!-- end demo js-->
+	</th:block>
+</body>
+
+</html>

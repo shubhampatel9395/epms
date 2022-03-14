@@ -1,5 +1,5 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{admin/_layout}">
+	layout:decorate="~{customer/_layout}">
 
 <head>
 	<title>Event Details</title>
@@ -41,7 +41,7 @@
 				<div class="col-12">
 					<div class="page-title-box">
 						<div class="page-title-right">
-							<a th:href="@{/admin/list-event}" class="btn btn-secondary mb-2">Back</a>
+							<a th:href="@{/customer/manage-events}" class="btn btn-secondary mb-2">Back</a>
 						</div>
 						<h4 class="page-title"> Event Details</h4>
 					</div>
@@ -99,32 +99,6 @@
 
 									<dt class="col-sm-3">Total Registration Available</dt>
 									<dd class="col-sm-9" th:utext="${eventDTO.registrationAvailable}"></dd>
-								</dl>
-							</div>
-						</div>
-					</div>
-
-					<div class="page-title-box">
-						<h4 class="page-title"> Customer Details</h4>
-					</div>
-					<div class="col-12">
-						<div class="card">
-							<div class="card-body">
-								<dl class="row mb-0">
-									<dt class="col-sm-3">Name</dt>
-									<dd class="col-sm-9" th:utext="|${customer.firstName} ${customer.lastName}|">
-									</dd>
-
-									<dt class="col-sm-3">Email Address</dt>
-									<dd class="col-sm-9" th:utext="${customer.email}">
-									</dd>
-
-									<dt class="col-sm-3">Address</dt>
-									<dd class="col-sm-9" th:utext="${#strings.replace(address,'&#10;','&lt;br&gt;')}">
-									</dd>
-
-									<dt class="col-sm-3">Mobile Number</dt>
-									<dd class="col-sm-9" th:utext="${customer.mobileNumber}"></dd>
 								</dl>
 							</div>
 						</div>
