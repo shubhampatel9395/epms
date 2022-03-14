@@ -45,7 +45,7 @@
 				<div class="col-12">
 					<div class="card">
 						<div class="card-body">
-							<form th:action="@{/admin/add_event}" method="post" enctype="multipart/form-data">
+							<form th:action="@{/add_event}" method="post" enctype="multipart/form-data">
 								<div>
 									<i class="mdi mdi-information-outline"
 										style="font-size: 24px;padding-right: 0.5rem;"></i>
@@ -180,7 +180,7 @@
 									<div id="individual" class="mt-3">
 										<div class="mb-3">
 											<label for="inputVenueType" class="form-label">Venue Types</label>
-											<select id="inputVenueType" th:field="*{packageDetailsDTO.venueId}"
+											<select id="inputVenueType" th:field="*{packageDetailsDTO.venueTypeId}"
 												class="form-select">
 												<option value="" hidden readonly>--Select Venue Type--</option>
 												<option th:each="venueType : ${venueTypes}"
@@ -194,9 +194,9 @@
 										</div>
 										<div class="mb-3" th:each="serviceType : ${serviceTypes}">
 											<input type="checkbox" class="form-check-input"
-												th:value="serviceType.serviceTypeId"
+												th:value="${serviceType.serviceTypeId}"
 												th:id="'service' + ${serviceType.serviceTypeId}"
-												th:field="*{serviceIds}">
+												th:field="*{serviceIds.serviceTypeIds}">
 											<label class="form-check-label"
 												th:for="'service' + ${serviceType.serviceTypeId}"
 												th:text="${serviceType.service}"></label>
@@ -303,7 +303,7 @@
 
 			$(document).ready(function () {
 				$("#individual").find("input[type='checkbox']").prop('disabled', true);
-				$("#inputVenue").prop('disabled', true);
+				$("#inputVenueType").prop('disabled', true);
 				$("#regDiv *").prop('disabled', true);
 				$("#errorDiv").css('display', 'none');
 
@@ -377,6 +377,19 @@
 						$("#inputVenueType").prop('disabled', false);
 					}
 				});
+
+				$.ajax({
+					type: "GET",
+					dataType: 'json',
+					url: "/getVenueTypeOnEventType/" + $(this).find(":selected").val() + '',
+					success: function (result) {
+						$("#inputVenueType").empty();
+						$("#inputVenueType").append($("<option hidden></option>").val("").html("--Select Venue Type--"));
+						$.each(result, function () {
+							$("#inputVenueType").append($("<option></option>").val(this['enuVenueTypeId']).html(this['venueType']));
+						});
+					}
+				});
 			});
 
 			$("form").submit(function () {
@@ -398,42 +411,15 @@
 				$("#errorDiv").css('display', 'none');
 
 				// 1000 Advance Fixed
-				var messageConfirm = "";
-				var token = $("meta[name='_csrf']").attr("content");
-				var forCost = [];
+				var messageConfirm = "You have to pay 1000 advance to confirm the event.\nDo you want to continue?";
 				var isDone = false;
-
-				if ($('input[type="radio"][name="isStatic"]:checked').val() === "true") {
-					forCost.push("Static");
-					forCost.push($("#inputPackage").find(":selected").val());
+				$("#eventTotalCost").val(0);
+				if (confirm(messageConfirm) == true) {
+					isDone = true;
 				}
 				else {
-					forCost.push("Dynamic");
+					isDone = false;
 				}
-				forCost.push($("input[type=radio][name=isPublic]:checked").val());
-				// console.log($("#isFree").is(":checked"));
-				forCost.push($("#isFree").is(":checked"));
-
-				$.ajax({
-					async: false,
-					type: "POST",
-					contentType: "application/json",
-					datatype: 'json',
-					traditional: true,
-					url: "/getEventCost/",
-					headers: {"X-CSRF-TOKEN": token}, //send CSRF token in header
-					data: JSON.stringify(forCost),
-					success: function (result) {
-						$("#eventTotalCost").val(result);
-						messageConfirm = "Total event cost will be " + result + "." + "\nYou have to pay 10% advance to confirm the event.\nDo you want to continue?"
-						if (confirm(messageConfirm) == true) {
-							isDone = true;
-						}
-						else {
-							isDone = false;
-						}
-					}
-				});
 
 				return isDone;
 			});

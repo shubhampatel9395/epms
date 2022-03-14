@@ -3,6 +3,8 @@ package com.epms.dao.impl;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -163,9 +165,10 @@ public class EventDAO implements IEventDAO {
 		namedParams.addValue("eventOrganizerId", eventDTO.getEventOrganizerId());
 		namedParams.addValue("packageDetailsId", packageDetailsDTO.getPackageDetailsId());
 		namedParams.addValue("venueId", packageDetailsDTO.getVenueId());
+		namedParams.addValue("totalCost", eventDTO.getTotalCost());
 
 		jdbcTemplate.update(
-				"update event e, packagedetails p set e.eventOrganizerId=:eventOrganizerId,e.eventStatusId=:eventStatusId,p.venueId=:venueId where e.packageId=p.packageDetailsId AND e.eventId=:eventId;",
+				"update event e, packagedetails p set e.totalCost=:totalCost,e.eventOrganizerId=:eventOrganizerId,e.eventStatusId=:eventStatusId,p.venueId=:venueId where e.packageId=p.packageDetailsId AND e.eventId=:eventId;",
 				namedParams);
 
 		return findById(eventDTO.getEventId().longValue());
@@ -215,5 +218,40 @@ public class EventDAO implements IEventDAO {
 						+ "endDate=:endDate,endTime=:endTime,estimatedGuest=:estimatedGuest,totalCost=:totalCost,eventStatusId=:eventStatusId,registrationFee=:registrationFee,registrationAvailable=:registrationAvailable where eventId=:eventId",
 				namedParams);
 		return eventDTO;
+	}
+
+	@Override
+	public EventDTO insertByCustomer(@Valid EventDTO eventDTO) {
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("eventTitle", eventDTO.getEventTitle());
+		namedParams.addValue("objective", eventDTO.getObjective());
+		namedParams.addValue("eventTypeId", eventDTO.getEventTypeId());
+		namedParams.addValue("userDetailsId", eventDTO.getUserDetailsId());
+		namedParams.addValue("packageId", eventDTO.getPackageId());
+		namedParams.addValue("eventOrganizerId", eventDTO.getEventOrganizerId());
+		namedParams.addValue("isPublic", eventDTO.getIsPublic());
+		namedParams.addValue("isFree", eventDTO.getIsFree());
+		namedParams.addValue("startDate", eventDTO.getStartDate());
+		namedParams.addValue("startTime", eventDTO.getStartTime());
+		namedParams.addValue("endDate", eventDTO.getEndDate());
+		namedParams.addValue("endTime", eventDTO.getEndTime());
+		namedParams.addValue("estimatedGuest", eventDTO.getEstimatedGuest());
+		namedParams.addValue("totalCost", eventDTO.getTotalCost());
+		namedParams.addValue("eventStatusId", eventDTO.getEventStatusId());
+
+		if (eventDTO.getIsFree() != true) {
+			namedParams.addValue("registrationFee", eventDTO.getRegistrationFee());
+			namedParams.addValue("registrationAvailable", eventDTO.getRegistrationAvailable());
+		} else {
+			namedParams.addValue("registrationFee", 0);
+			namedParams.addValue("registrationAvailable", 0);
+		}
+
+		jdbcTemplate.update(
+				"insert into event(eventTitle,objective,eventTypeId,userDetailsId,packageId,eventOrganizerId,isPublic,isFree,startDate,startTime,endDate,endTime,estimatedGuest,registrationFee,registrationAvailable,totalCost,eventStatusId) values(:eventTitle,:objective,:eventTypeId,:userDetailsId,:packageId,:eventOrganizerId,:isPublic,:isFree,:startDate,:startTime,:endDate,:endTime,:estimatedGuest,:registrationFee,:registrationAvailable,:totalCost,:eventStatusId)",
+				namedParams, keyHolder, new String[] { "eventId" });
+
+		return findById(keyHolder.getKey().longValue());
 	}
 }

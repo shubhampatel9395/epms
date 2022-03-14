@@ -2,6 +2,8 @@ package com.epms.service.impl;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
@@ -95,6 +97,11 @@ public class EventService implements IEventService {
 	@Override
 	public void complete(long eventId) {
 		eventDAO.complete(eventId);
+	}
+
+	@Override
+	public EventDTO insertByCustomer(@Valid EventDTO eventDTO) {
+		return eventDAO.insertByCustomer(eventDTO);
 	}
 
 }

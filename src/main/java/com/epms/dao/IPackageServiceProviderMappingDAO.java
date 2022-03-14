@@ -16,4 +16,6 @@ public interface IPackageServiceProviderMappingDAO extends ICRUDRepository<Packa
 	public void removedFromEvent(long packageId,long statusId);
 
 	public void assign(long packageId, List<String> serviceProviderIdList,long statusId);
+
+	public void insertByCustomer(long longValue, List<String> serviceTypeIds);
 }

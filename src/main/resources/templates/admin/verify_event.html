@@ -3,6 +3,8 @@
 
 <head>
 	<title>Verify Event</title>
+	<meta id="_csrf" name="_csrf" th:content="${_csrf.token}" />
+	<meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}" />
 	<style>
 		.page-title-box .page-title-right {
 			display: block;
@@ -31,10 +33,13 @@
 					<div class="card">
 						<div class="card-body">
 							<form th:action="@{/admin/verify_event}" method="post">
-							
+
 								<input type="hidden" th:field="*{eventDTO.eventId}" />
 								<input type="hidden" th:field="*{package.packageDetailsId}" />
-								
+								<input type="hidden" id="isStatic" th:value="${package.isStatic}" />
+								<input type="hidden" id="isFree" th:value="${eventDTO.isFree}" />
+								<input type="hidden" id="isPublic" th:value="${eventDTO.isPublic}" />
+
 								<div class="row g-2">
 									<div class="form-floating mb-3 col-md-6">
 										<select id="inputEventType" class="form-select"
@@ -61,8 +66,15 @@
 								</div>
 
 								<div th:if="${venues} == null">
-									<p style="color: red"> There's no venues available with selected venue type which organizes selected event
+									<p style="color: red"> There's no venues available with selected venue type which
+										organizes selected event
 										type. </p>
+								</div>
+
+								<div id="errorDiv"
+									class="alert alert-danger alert-dismissible bg-danger text-white border-0 fade show"
+									role="alert">
+									<span id="errorTxt"></span>
 								</div>
 
 								<div th:if="${venues} != null and ${package.isStatic} == false">
@@ -90,8 +102,7 @@
 										</div>
 										<div class="mb-3 col-md-6">
 											<select th:id="'serviceprovider' + ${serviceType.serviceTypeId}"
-												class="form-select" th:field="*{packageTempDTO.serviceProviderIdList}"
-												>
+												class="form-select" th:field="*{packageTempDTO.serviceProviderIdList}">
 												<option value="" hidden readonly>--Select Service Provider--</option>
 												<option th:each="serviceProvider : ${serviceProviders}"
 													th:if="${serviceProvider.serviceTypeId} == ${serviceType.serviceTypeId}"
@@ -113,7 +124,9 @@
 									</select>
 									<label for="floatingSelect">Event Organizer</label>
 								</div>
-								
+
+								<input type="hidden" id="eventTotalCost" th:field="*{eventDTO.totalCost}" />
+
 								<div class="mb-0 d-grid text-center">
 									<button class="btn btn-primary" type="submit">
 										Verify Event
@@ -129,6 +142,77 @@
 	</th:block>
 
 	<th:block layout:fragment="script">
+		<script type="text/javascript">
+			$(document).ready(function () {
+				$("#errorDiv").css('display', 'none');
+			});
+
+			$("form").submit(function () {
+				if ($('#isStatic').val() === "false") {
+					if ($("#inputVenue :selected").val() === "") {
+						$("#errorTxt").text("Please select venue.");
+						$("#errorDiv").css('display', 'block');
+						return false;
+					}
+
+					var isError = false;
+					$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+						if ($(this).prop('disabled') === false && $(this).find(":selected").val() === "") {
+							isError = true;
+						}
+					});
+
+					if (isError == true) {
+						$("#errorTxt").text("Please select service provider for the selected service.");
+						$("#errorDiv").css('display', 'block');
+						return false;
+					}
+
+					$("#errorDiv").css('display', 'none');
+
+					var messageConfirm = "";
+					var token = $("meta[name='_csrf']").attr("content");
+					var forCost = [];
+					var isDone = false;
+
+					forCost.push($("#inputVenue :selected").val());
+					$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+						if ($(this).find(":selected").val() != "") {
+							forCost.push($(this).find(":selected").val());
+						}
+					});
+					forCost.push($("#isPublic").val());
+					// console.log($("#isFree").is(":checked"));
+					forCost.push($("#isFree").val());
+
+					$.ajax({
+						async: false,
+						type: "POST",
+						contentType: "application/json",
+						datatype: 'json',
+						traditional: true,
+						url: "/getEventCostVerify/",
+						headers: {"X-CSRF-TOKEN": token}, //send CSRF token in header
+						data: JSON.stringify(forCost),
+						success: function (result) {
+							$("#eventTotalCost").val(result);
+							messageConfirm = "Total event cost will be " + result + "." + "\nDo you want to continue?"
+							if (confirm(messageConfirm) == true) {
+								isDone = true;
+							}
+							else {
+								isDone = false;
+							}
+						}
+					});
+
+					return isDone;
+				}
+				else {
+					return true;
+				}
+			});
+		</script>
 	</th:block>
 </body>
 

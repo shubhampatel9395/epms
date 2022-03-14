@@ -135,4 +135,16 @@ public class PackageServiceProviderMappingDAO implements IPackageServiceProvider
 					namedParameters);
 		}
 	}
+
+	@Override
+	public void insertByCustomer(long packageId, List<String> serviceTypeIds) {
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("packageId", packageId);
+		for (String serviceProviderType : serviceTypeIds) {
+			namedParameters.addValue("serviceTypeId", Integer.parseInt(serviceProviderType));
+			jdbcTemplate.update(
+					"insert into packageserviceprovidermapping(packageId,serviceTypeId) values(:packageId,:serviceTypeId)",
+					namedParameters);
+		}
+	}
 }

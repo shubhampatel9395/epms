@@ -2,6 +2,8 @@ package com.epms.dao;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import com.epms.core.ICRUDRepository;
 import com.epms.dto.EventDTO;
 import com.epms.dto.PackageDetailsDTO;
@@ -23,4 +25,6 @@ public interface IEventDAO extends ICRUDRepository<EventDTO, Long> {
 	public void complete(long eventId);
 
 	public EventDTO updateByAdmin(EventDTO entity);
+
+	public EventDTO insertByCustomer(@Valid EventDTO eventDTO);
 }

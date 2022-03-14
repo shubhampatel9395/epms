@@ -2,6 +2,8 @@ package com.epms.service;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 import com.epms.dto.PackageDetailsDTO;
@@ -15,4 +17,5 @@ public interface IPackageDetailsService {
 	public void delete(Long id);
 	public PackageDetailsDTO update(PackageDetailsDTO entity);
 	public void activate(long packageDetailsId);
+	public PackageDetailsDTO insertByCustomer(@Valid PackageDetailsDTO packageDetailsDTO);
 }

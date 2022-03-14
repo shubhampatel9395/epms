@@ -39,7 +39,7 @@
 											<th>Type</th>
 											<th>Address</th>
 											<th>Mobile Number</th>
-											<th>Email</th>
+											<!--<th>Email</th>-->
 											<th>Cost</th>
 											<th style="width: 85px;">Action</th>
 										</tr>
@@ -54,7 +54,7 @@
 												th:utext="${#strings.replace(addresses[venueStat.index],'&#10;','&lt;br&gt;')}">
 											</td>
 											<td th:text="${venue.contactNumber}"></td>
-											<td th:text="${venue.email}"></td>
+											<!--<td th:text="${venue.email}"></td>-->
 											<td th:text="${venue.cost}"></td>
 											<td class="table-action">
 												<a th:href="@{'/admin/view_venue/' + ${venue.venueId}}"

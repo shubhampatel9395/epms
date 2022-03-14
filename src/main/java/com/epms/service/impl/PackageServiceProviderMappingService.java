@@ -82,4 +82,9 @@ public class PackageServiceProviderMappingService implements IPackageServiceProv
 		packageServiceProviderMappingDAO.assign(packageId,serviceProviderIdList,statusId);
 	}
 
+	@Override
+	public void insertByCustomer(long longValue, List<String> serviceTypeIds) {
+		packageServiceProviderMappingDAO.insertByCustomer(longValue,serviceTypeIds);
+	}
+
 }

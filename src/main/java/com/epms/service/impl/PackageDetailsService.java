@@ -2,6 +2,8 @@ package com.epms.service.impl;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
@@ -58,6 +60,11 @@ public class PackageDetailsService implements IPackageDetailsService {
 	@Override
 	public void activate(long packageDetailsId) {
 		packageDetailsDAO.activate(packageDetailsId);
+	}
+
+	@Override
+	public PackageDetailsDTO insertByCustomer(@Valid PackageDetailsDTO packageDetailsDTO) {
+		return packageDetailsDAO.insertByCustomer(packageDetailsDTO);
 	}
 
 }

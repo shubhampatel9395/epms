@@ -3,6 +3,8 @@ package com.epms.dao.impl;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -114,6 +116,23 @@ public class PackageDetailsDAO implements IPackageDetailsDAO {
 		MapSqlParameterSource sc = new MapSqlParameterSource();
 		sc.addValue("id", packageDetailsId);
 		jdbcTemplate.update("update packagedetails set isActive=true where packageDetailsId=:id", sc);
+	}
+
+	@Override
+	public PackageDetailsDTO insertByCustomer(@Valid PackageDetailsDTO entity) {
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("title", entity.getTitle());
+		namedParameters.addValue("description", entity.getDescription());
+		namedParameters.addValue("guestAmount", entity.getGuestAmount());
+		namedParameters.addValue("totalCost", entity.getTotalCost());
+		namedParameters.addValue("eventTypeId", entity.getEventTypeId());
+		namedParameters.addValue("venueTypeId", entity.getVenueTypeId());
+		namedParameters.addValue("isStatic", entity.getIsStatic());
+		jdbcTemplate.update(
+				"insert into packagedetails(title,description,guestAmount,totalCost,eventTypeId,venueTypeId,isStatic) values(:title,:description,:guestAmount,:totalCost,:eventTypeId,:venueTypeId,:isStatic)",
+				namedParameters, keyHolder, new String[] { "packageDetailsId" });
+		return findById(keyHolder.getKey().longValue());
 	}
 
 }

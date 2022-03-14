@@ -19,4 +19,5 @@ public interface IPackageServiceProviderMappingService {
 	public void deleteByPackageId(long packageId);
 	public void removedFromEvent(long packageId,long statusId);
 	public void assign(long packageId, List<String> serviceProviderIdList,long statusId);
+	public void insertByCustomer(long longValue, List<String> serviceTypeIds);
 }
