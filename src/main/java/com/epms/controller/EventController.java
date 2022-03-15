@@ -46,6 +46,7 @@ import com.epms.dto.EnuVenueTypeDTO;
 import com.epms.dto.EventBannerDTO;
 import com.epms.dto.EventDTO;
 import com.epms.dto.EventEmployeeMappingDTO;
+import com.epms.dto.EventVenueDetailsDTO;
 import com.epms.dto.PackageDetailsDTO;
 import com.epms.dto.PackageServiceProviderMappingDTO;
 import com.epms.dto.PackageTempDTO;
@@ -73,6 +74,7 @@ import com.epms.service.IEnuVenueTypeService;
 import com.epms.service.IEventBannerService;
 import com.epms.service.IEventEmployeeMappingService;
 import com.epms.service.IEventService;
+import com.epms.service.IInvoiceService;
 import com.epms.service.IPackageDetailsService;
 import com.epms.service.IPackageServiceProviderMappingService;
 import com.epms.service.IServiceProviderService;
@@ -87,6 +89,9 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @Slf4j
 public class EventController {
+	@Autowired
+	IInvoiceService invoiceService;
+	
 	@Autowired
 	IEnuCityService enuCityService;
 
@@ -1142,8 +1147,9 @@ public class EventController {
 
 	@GetMapping("/admin/view_bill/{eventId}")
 	public ModelAndView getBill(@PathVariable("eventId") long eventId) {
-		ModelAndView modelandmap = new ModelAndView("admin/view_bill");
-		// Show bill
+		ModelAndView modelandmap = new ModelAndView("admin/invoice");
+		EventVenueDetailsDTO eventVenueDetailsDTO  = invoiceService.getEventVenueDetails(eventId);
+		modelandmap.addObject("eventVenueDetails", eventVenueDetailsDTO);
 		return modelandmap;
 	}
 
