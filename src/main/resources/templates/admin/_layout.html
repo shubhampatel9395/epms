@@ -100,7 +100,7 @@
 					</li>
 
 					<li class="side-nav-item"
-						th:classappend="${#request.getRequestURI().contains('event') or #request.getRequestURI().contains('assign') ? 'menuitem-active' : ''}">
+						th:classappend="${#request.getRequestURI().contains('event') || #request.getRequestURI().contains('assign') || #request.getRequestURI().contains('bill') ? 'menuitem-active' : '' }">
 						<a th:href="@{/admin/list-event}" class="side-nav-link">
 							<i class="mdi mdi-calendar-multiple-check"></i>
 							<span>Events</span>

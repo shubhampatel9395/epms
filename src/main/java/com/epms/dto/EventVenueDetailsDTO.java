@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class EventVenueDetailsDTO {
     private String venueName;
 	private String venueType;
+	private Long addressId;
 	private String cost;
 	private String eventType;
 	private String eventTitle;

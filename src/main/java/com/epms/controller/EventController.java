@@ -1313,6 +1313,7 @@ public class EventController {
 		ModelAndView modelandmap = new ModelAndView("admin/invoice");
 		EventVenueDetailsDTO eventVenueDetailsDTO  = invoiceService.getEventVenueDetails(eventId);
 		modelandmap.addObject("eventVenueDetails", eventVenueDetailsDTO);
+		modelandmap.addObject("venueAddress", getAddress(addressService.findById(eventVenueDetailsDTO.getAddressId().longValue())));
 		return modelandmap;
 	}
 

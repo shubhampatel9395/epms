@@ -24,6 +24,7 @@ public class InvoiceDAO  implements IInvoiceDAO{
 	public EventVenueDetailsDTO getEventVenueDetails(long eventId) {
 		String sql = "SELECT v.venueName" 
 						+ " , vt.venueType"  
+						+ " , v.addressId"
 						+ "	, v.cost" 
 						+ "	, et.eventType"  
 						+ "	, e.eventTitle"  
