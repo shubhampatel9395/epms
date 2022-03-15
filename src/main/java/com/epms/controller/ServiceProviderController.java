@@ -2,21 +2,16 @@ package com.epms.controller;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,14 +26,32 @@ import com.epms.dto.AddressDTO;
 import com.epms.dto.EnuCityDTO;
 import com.epms.dto.EnuStateDTO;
 import com.epms.dto.ServiceProviderDTO;
+import com.epms.dto.ServiceProviderDashboardDTO;
 import com.epms.dto.UserDetailsDTO;
+import com.epms.email.configuration.IMailService;
 import com.epms.service.IAddressService;
+import com.epms.service.IEmployeeService;
+import com.epms.service.IEnquiryService;
 import com.epms.service.IEnuCityService;
 import com.epms.service.IEnuCountryService;
+import com.epms.service.IEnuEmployeeRoleService;
+import com.epms.service.IEnuEnquiryStatusService;
+import com.epms.service.IEnuEventStatusService;
+import com.epms.service.IEnuEventTypeService;
 import com.epms.service.IEnuServiceTypeService;
 import com.epms.service.IEnuStateService;
+import com.epms.service.IEnuVenueFacilityService;
+import com.epms.service.IEnuVenueTypeService;
+import com.epms.service.IEventBannerService;
+import com.epms.service.IEventService;
+import com.epms.service.IPackageDetailsService;
+import com.epms.service.IPackageServiceProviderMappingService;
 import com.epms.service.IServiceProviderService;
 import com.epms.service.IUserDetailsService;
+import com.epms.service.IVenueEventTypeMappingService;
+import com.epms.service.IVenueFacilityMappingService;
+import com.epms.service.IVenueImageMappingService;
+import com.epms.service.IVenueService;
 
 import groovyjarjarantlr4.v4.runtime.misc.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -67,6 +80,63 @@ public class ServiceProviderController {
 
 	@Autowired
 	IServiceProviderService serviceProviderService;
+	
+	@Autowired
+	IEnquiryService enquiryService;
+
+	@Autowired
+	IEnuServiceTypeService enuserviceTypeService;
+	
+	@Autowired
+	IEmployeeService employeeService;
+
+	@Autowired
+	IEnuEmployeeRoleService enuEmployeeRoleService;
+
+	@Autowired
+	IEnuEventTypeService enuEventTypeService;
+
+	@Autowired
+	IEnuVenueFacilityService enuVenueFacilityService;
+
+	@Autowired
+	IEnuVenueTypeService enuVenueTypeService;
+
+	@Autowired
+	IVenueService venueService;
+
+	@Autowired
+	IVenueFacilityMappingService venueFacilityMappingService;
+
+	@Autowired
+	IVenueEventTypeMappingService venueEventTypeMappingService;
+
+	@Autowired
+	IVenueImageMappingService venueImageMappingService;
+
+	@Autowired
+	IPackageDetailsService packageDetailsService;
+
+	@Autowired
+	IMailService mailService;
+
+	@Autowired
+	IPackageServiceProviderMappingService packageServiceProviderMappingService;
+
+	@Autowired
+	IEventService eventService;
+
+	@Autowired
+	IEnuEnquiryStatusService enquiryStatusService;
+
+	@Autowired
+	IEnuEventStatusService enuEventStatusService;
+
+	@Autowired
+	IEventBannerService eventBannerService;
+	
+	@Autowired
+	Environment env;
 
 	@GetMapping("/dashboard")
 	public ModelAndView homePage() {
@@ -75,6 +145,11 @@ public class ServiceProviderController {
 		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
 			return new ModelAndView("redirect:/login");
 		} else {
+			CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+					.getAuthentication().getPrincipal();
+			ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
+			
+			ServiceProviderDashboardDTO serviceProviderDashboardDTO = new ServiceProviderDashboardDTO();			
 			return modelandmap;
 		}
 	}

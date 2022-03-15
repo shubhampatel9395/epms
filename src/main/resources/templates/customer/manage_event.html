@@ -68,7 +68,7 @@
 														th:data-bs-target="'#staticBackdropComplete' + ${event.eventId}"
 														class="action-icon"><i class="mdi mdi-calendar-check"></i></a>
 													<!-- Modal -->
-													<div style="z-index: 9999999999;" class="modal fade"
+													<div style="z-index: 99999999999999;" class="modal fade"
 														th:id="'staticBackdropComplete' + ${event.eventId}"
 														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
 														aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -83,7 +83,7 @@
 																		aria-hidden="true"></button>
 																</div> <!-- end modal header -->
 																<div class="modal-body">
-																	You will be redirected to payment page.
+																	You will be redirected to payment page. <br/>
 																	Are you sure you want to complete this event?
 																</div>
 																<div class="modal-footer">
@@ -109,7 +109,7 @@
 														th:href="@{'/customer/delete_event/' + ${event.eventId}}"
 														class="action-icon"> <i class="mdi mdi-delete"></i></a>
 													<!-- Modal -->
-													<div style="z-index: 9999999999;" class="modal fade"
+													<div style="z-index: 99999999999999;" class="modal fade"
 														th:id="'staticBackdropDelete' + ${event.eventId}"
 														data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
 														aria-labelledby="staticBackdropLabel" aria-hidden="true">

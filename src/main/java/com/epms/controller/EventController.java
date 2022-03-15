@@ -212,15 +212,15 @@ public class EventController {
 		modelandmap.addObject("canComplete", canComplete);
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/customer/manage-events")
 	public ModelAndView manageEvent() {
 		ModelAndView modelandmap = new ModelAndView("customer/manage_event");
 		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
 				.getAuthentication().getPrincipal();
-		
-		List<EventDTO> events = eventService
-				.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true).addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId()));
+
+		List<EventDTO> events = eventService.findByNamedParameters(new MapSqlParameterSource()
+				.addValue("isActive", true).addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId()));
 		List<String> eventTypes = events.stream().map(event -> {
 			return DataAccessUtils
 					.singleResult(enuEventTypeService.findByNamedParameters(
@@ -239,6 +239,8 @@ public class EventController {
 			// If end DateTime is less than current DateTime, then only complete
 			return endDateTime.compareTo(LocalDateTime.now()) < 0 ? true : false;
 		}).collect(Collectors.toList());
+		
+		// System.out.println(canComplete);
 
 		modelandmap.addObject("events", events);
 		modelandmap.addObject("eventTypes", eventTypes);
@@ -414,13 +416,11 @@ public class EventController {
 				+ "<p><strong>End Date: </strong>" + newEventDTO.getEndDate() + "</p>"
 				+ "<p><strong>End Time: </strong>" + newEventDTO.getEndTime() + "</p>"
 				+ "<p><strong>Estimated Guest: </strong>" + newEventDTO.getEstimatedGuest() + "</p>"
-				+ "<p><strong>Public Event: </strong>" + isPublic + "</p>"
-				+ "<p><strong>Free Event: </strong>" + isFree + "</p>"
-				+ "<p><strong>Total Cost: </strong>" + newEventDTO.getTotalCost() + "</p>";
+				+ "<p><strong>Public Event: </strong>" + isPublic + "</p>" + "<p><strong>Free Event: </strong>" + isFree
+				+ "</p>" + "<p><strong>Total Cost: </strong>" + newEventDTO.getTotalCost() + "</p>";
 		if (newEventDTO.getIsFree() != true) {
 			content += "<p><strong>Registration Fee: </strong>" + newEventDTO.getRegistrationFee() + "</p>"
-					+ "<p><strong>Registrations Available: </strong>" + newEventDTO.getRegistrationAvailable()
-					+ "</p>";
+					+ "<p><strong>Registrations Available: </strong>" + newEventDTO.getRegistrationAvailable() + "</p>";
 		}
 		content += "<br/><p><strong>" + newEventDTO.getEventTitle() + " - " + newEventDTO.getObjective()
 				+ " Services Details</strong></p>";
@@ -448,8 +448,8 @@ public class EventController {
 		if (newEventDTO.getEventOrganizerId() != null) {
 			UserDetailsDTO eventorganizer = userDetailsService.findById(employeeService
 					.findById(newEventDTO.getEventOrganizerId().longValue()).getUserDetailsId().longValue());
-			content += "<p><strong>" + eventorganizer.getFirstName() + " " + eventorganizer.getLastName() + "</strong> ("
-					+ eventorganizer.getEmail() + ")</p>";
+			content += "<p><strong>" + eventorganizer.getFirstName() + " " + eventorganizer.getLastName()
+					+ "</strong> (" + eventorganizer.getEmail() + ")</p>";
 		}
 
 		mail.setMailContent(content);
@@ -519,11 +519,12 @@ public class EventController {
 			if (!eventDTO.getIsFree() == true) {
 				cost += 500.0;
 			}
-			eventDTO.setTotalCost(packageDetailsService.findById(eventDTO.getPackageId().longValue()).getTotalCost() + cost);
+			eventDTO.setTotalCost(
+					packageDetailsService.findById(eventDTO.getPackageId().longValue()).getTotalCost() + cost);
 		}
 
 		EventDTO newEventDTO = eventService.insertByCustomer(eventDTO);
-		
+
 		if (!banner.isEmpty()) {
 			EventBannerDTO obj = new EventBannerDTO();
 			try {
@@ -584,10 +585,10 @@ public class EventController {
 		UserDetailsDTO customerDTO = userDetailsService.findById(eventDTO.getUserDetailsId().longValue());
 		PackageDetailsDTO packageDetailsDTO = packageDetailsService.findById(eventDTO.getPackageId().longValue());
 		VenueDTO venueDTO = null;
-		if(packageDetailsDTO.getVenueId() != null)
-		{
+		if (packageDetailsDTO.getVenueId() != null) {
 			venueDTO = venueService.findById(packageDetailsDTO.getVenueId().longValue());
-			modelandmap.addObject("addressVenue", getAddress(addressService.findById(venueDTO.getAddressId().longValue())));
+			modelandmap.addObject("addressVenue",
+					getAddress(addressService.findById(venueDTO.getAddressId().longValue())));
 		}
 
 		modelandmap.addObject("eventDTO", eventDTO);
@@ -631,17 +632,17 @@ public class EventController {
 
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/customer/view_event/{eventId}")
 	public ModelAndView viewManageEvent(@PathVariable("eventId") long eventId) {
 		ModelAndView modelandmap = new ModelAndView("customer/view_event");
 		EventDTO eventDTO = eventService.findById(eventId);
 		PackageDetailsDTO packageDetailsDTO = packageDetailsService.findById(eventDTO.getPackageId().longValue());
 		VenueDTO venueDTO = null;
-		if(packageDetailsDTO.getVenueId() != null)
-		{
+		if (packageDetailsDTO.getVenueId() != null) {
 			venueDTO = venueService.findById(packageDetailsDTO.getVenueId().longValue());
-			modelandmap.addObject("addressVenue", getAddress(addressService.findById(venueDTO.getAddressId().longValue())));
+			modelandmap.addObject("addressVenue",
+					getAddress(addressService.findById(venueDTO.getAddressId().longValue())));
 		}
 
 		modelandmap.addObject("eventDTO", eventDTO);
@@ -682,6 +683,18 @@ public class EventController {
 				new MapSqlParameterSource().addValue("eventId", eventId).addValue("isActive", true))));
 
 		return modelandmap;
+	}
+	
+	public List<VenueDTO> getVenuesOnEventType(Long eventTypeId) {
+		List<VenueEventTypeMappingDTO> listVenues = venueEventTypeMappingService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("eventTypeId", eventTypeId));
+		List<VenueDTO> venues = new ArrayList<>();
+
+		for (int i = 0; i < listVenues.size(); i++) {
+			venues.add(venueService.findById(listVenues.get(i).getVenueId().longValue()));
+		}
+
+		return venues;
 	}
 
 	@GetMapping("/admin/edit_event/{eventId}")
@@ -724,7 +737,7 @@ public class EventController {
 
 		modelandmap.addObject("serviceProviders", serviceProviders);
 		modelandmap.addObject("venueNames",
-				venueService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+				getVenuesOnEventType(eventDTO.getEventTypeId().longValue()));
 		modelandmap.addObject("serviceTypes",
 				enuServiceTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		modelandmap.addObject("packageTempDTO", packageTempDTO);
@@ -848,6 +861,156 @@ public class EventController {
 		mailService.sendEmail(mail);
 
 		eventDetailsMail(oldEventDTO.getEventId());
+
+		return modelandmap;
+	}
+
+	@GetMapping("/customer/edit_event/{eventId}")
+	public ModelAndView editEventByCustomer(@PathVariable("eventId") long eventId) {
+		ModelAndView modelandmap = new ModelAndView("customer/edit_event");
+
+		EventDTO eventDTO = eventService.findById(eventId);
+		PackageDetailsDTO packageDetailsDTO = packageDetailsService.findById(eventDTO.getPackageId().longValue());
+		CustomerCreateEventTempDTO customerCreateEventTempDTO = new CustomerCreateEventTempDTO();
+		List<PackageServiceProviderMappingDTO> packageServiceProviderMappingDTOs = packageServiceProviderMappingService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true).addValue("packageId",
+						packageDetailsDTO.getPackageDetailsId()));
+		List<String> serviceTypeIds = packageServiceProviderMappingDTOs.stream().map(entry -> {
+			return entry.getServiceTypeId().toString();
+		}).collect(Collectors.toList());
+		customerCreateEventTempDTO.setServiceTypeIds(serviceTypeIds);
+
+		modelandmap.addObject("serviceTypes",
+				enuServiceTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		modelandmap.addObject("eventDTO", eventDTO);
+		modelandmap.addObject("packageDetailsDTO", packageDetailsDTO);
+		modelandmap.addObject("serviceIds", customerCreateEventTempDTO);
+		modelandmap.addObject("eventTypes",
+				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		modelandmap.addObject("venueTypes",
+				getVenueTypeOnEventType(eventDTO.getEventTypeId()));
+		modelandmap.addObject("eventStatus",
+				enuEventStatusService.findById(eventDTO.getEventStatusId().longValue()).getStatus());
+		return modelandmap;
+	}
+
+	@PostMapping("/customer/edit_event")
+	public ModelAndView saveEditedEventByCustomer(@Valid @ModelAttribute("eventDTO") EventDTO eventDTO,
+			@Valid @ModelAttribute("packageDetailsDTO") PackageDetailsDTO packageDetailsDTO,
+			@Valid @ModelAttribute("serviceIds") CustomerCreateEventTempDTO serviceIds,
+			@RequestParam("banner") MultipartFile banner) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/customer/manage-events");
+
+		EventDTO oldEventDTO = eventService.findById(eventDTO.getEventId().longValue());
+		PackageDetailsDTO oldPackageDetailsDTO = packageDetailsService
+				.findById(packageDetailsDTO.getPackageDetailsId().longValue());
+
+		if (enuEventStatusService.findById(eventDTO.getEventStatusId().longValue()).getStatus().equals("Registered")) {
+			if (oldPackageDetailsDTO.getIsStatic() != true) {
+				packageDetailsService.delete(oldPackageDetailsDTO.getPackageDetailsId().longValue());
+				packageServiceProviderMappingService
+						.deleteByPackageId(oldPackageDetailsDTO.getPackageDetailsId().longValue());
+			}
+
+			if (packageDetailsDTO.getIsStatic() != true) {
+				eventDTO.setPackageId(packageDetailsService.insertByCustomer(packageDetailsDTO).getPackageDetailsId());
+				if (serviceIds.getServiceTypeIds() != null) {
+					packageServiceProviderMappingService.insertByCustomer(eventDTO.getPackageId().longValue(),
+							serviceIds.getServiceTypeIds());
+				}
+			} else {
+				double cost = 0.0;
+				if (eventDTO.getIsPublic() == true) {
+					cost += 500.0;
+				}
+				if (!eventDTO.getIsFree() == true) {
+					cost += 500.0;
+				}
+				eventDTO.setTotalCost(
+						packageDetailsService.findById(eventDTO.getPackageId().longValue()).getTotalCost() + cost);
+			}
+			
+			if (!eventDTO.getPackageId().equals(oldEventDTO.getPackageId())) {
+				oldEventDTO.setPackageId(eventDTO.getPackageId());
+			}
+		}
+		
+		if (enuEventStatusService.findById(eventDTO.getEventStatusId().longValue()).getStatus().equals("Verified")) {
+			double cost = oldEventDTO.getTotalCost();
+			if(oldEventDTO.getIsPublic() == true) {
+				cost -= 500.0;
+			}
+			if (!(oldEventDTO.getIsFree() == true)) {
+				cost -= 500.0;
+			}
+			
+			if (eventDTO.getIsPublic() == true) {
+				cost += 500.0;
+			}
+			
+			if (!eventDTO.getIsFree() == true) {
+				cost += 500.0;
+			}
+			eventDTO.setTotalCost(cost);
+		}
+
+		if (!eventDTO.getEventTitle().equalsIgnoreCase(oldEventDTO.getEventTitle())) {
+			oldEventDTO.setEventTitle(eventDTO.getEventTitle());
+		}
+		if (!eventDTO.getObjective().equalsIgnoreCase(oldEventDTO.getObjective())) {
+			oldEventDTO.setObjective(eventDTO.getObjective());
+		}
+		if (!eventDTO.getEventTypeId().equals(oldEventDTO.getEventTypeId())) {
+			oldEventDTO.setEventTypeId(eventDTO.getEventTypeId());
+		}
+		if (!eventDTO.getIsFree().equals(oldEventDTO.getIsFree())) {
+			oldEventDTO.setIsFree(eventDTO.getIsFree());
+			if (oldEventDTO.getIsFree() == true) {
+				oldEventDTO.setRegistrationFee(0.0);
+				oldEventDTO.setRegistrationAvailable(0);
+			} else {
+				if (!eventDTO.getRegistrationFee().equals(oldEventDTO.getRegistrationFee())) {
+					oldEventDTO.setRegistrationFee(eventDTO.getRegistrationFee());
+				}
+				if (!eventDTO.getRegistrationAvailable().equals(oldEventDTO.getRegistrationAvailable())) {
+					oldEventDTO.setRegistrationAvailable(eventDTO.getRegistrationAvailable());
+				}
+			}
+		}
+		if (!eventDTO.getIsPublic().equals(oldEventDTO.getIsPublic())) {
+			oldEventDTO.setIsPublic(eventDTO.getIsPublic());
+		}
+		if (!eventDTO.getStartDate().equals(oldEventDTO.getStartDate())) {
+			oldEventDTO.setStartDate(eventDTO.getStartDate());
+		}
+		if (!eventDTO.getStartTime().equals(oldEventDTO.getStartTime())) {
+			oldEventDTO.setStartTime(eventDTO.getStartTime());
+		}
+		if (!eventDTO.getEndDate().equals(oldEventDTO.getEndDate())) {
+			oldEventDTO.setEndDate(eventDTO.getEndDate());
+		}
+		if (!eventDTO.getEndTime().equals(oldEventDTO.getEndTime())) {
+			oldEventDTO.setEndTime(eventDTO.getEndTime());
+		}
+		if (!eventDTO.getEstimatedGuest().equals(oldEventDTO.getEstimatedGuest())) {
+			oldEventDTO.setEstimatedGuest(eventDTO.getEstimatedGuest());
+		}
+		if (!eventDTO.getTotalCost().equals(oldEventDTO.getTotalCost())) {
+			oldEventDTO.setTotalCost(eventDTO.getTotalCost());
+		}
+		eventService.updateByAdmin(oldEventDTO);
+
+		if (!banner.isEmpty()) {
+			eventBannerService.delete(oldEventDTO.getEventId().longValue());
+			EventBannerDTO obj = new EventBannerDTO();
+			try {
+				obj.setBanner(new SerialBlob(banner.getBytes()));
+				obj.setEventId(oldEventDTO.getEventId());
+			} catch (SQLException | IOException e) {
+				log.error(e.toString());
+			}
+			eventBannerService.insert(obj);
+		}
 
 		return modelandmap;
 	}
@@ -1172,6 +1335,66 @@ public class EventController {
 		mail.setContentType("text/html");
 		String content = "<p>Your event <strong>" + eventDTO.getEventTitle() + " - " + eventDTO.getObjective()
 				+ "</strong> on Unico - Event Planning and Management website has been removed by us.</p>"
+				+ "<p>We apologize for the inconvenience we caused you.</p>";
+		mail.setMailContent(content);
+		mailService.sendEmail(mail);
+
+		// event isActive False
+		// if dynamic Pacakge set isactive false && packageserviceprovidermapping set
+		// isactive false
+		// eventemployeemapping set isactive false
+		// eventbanner set isactive false
+		return modelandmap;
+	}
+
+	@GetMapping("/customer/complete_event/{eventId}")
+	public ModelAndView completeEventByCustomer(@PathVariable("eventId") long eventId) {
+		// ModelAndView modelandmap = new ModelAndView("admin/complete_event");
+		ModelAndView modelandmap = new ModelAndView("redirect:/customer/manage-events");
+		eventService.complete(eventId);
+		// Ask for complete payment
+
+		EventDTO eventDTO = eventService.findById(eventId);
+		Mail mail = new Mail();
+		mail.setMailTo(userDetailsService.findById(eventDTO.getUserDetailsId().longValue()).getEmail());
+		mail.setMailSubject("Event Completed");
+		mail.setContentType("text/html");
+		String content = "<p>Your event <strong>" + eventDTO.getEventTitle() + " - " + eventDTO.getObjective()
+				+ "</strong> on Unico - Event Planning and Management website has been completed.</p>"
+				+ "<p>We apologize for the inconvenience we caused you at any stage of event planning.</p>"
+				+ "<p>You can provide your invaluable feedback at the website.</p>"
+				+ "<p>Hoping to meet you again on the next event organized by us.</p>";
+		mail.setMailContent(content);
+		mailService.sendEmail(mail);
+
+		return modelandmap;
+	}
+
+	@GetMapping("/customer/delete_event/{eventId}")
+	public ModelAndView deleteEventByCustomer(@PathVariable("eventId") long eventId) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/customer/manage-events");
+		PackageDetailsDTO packageDetailsDTO = packageDetailsService
+				.findById(eventService.findById(eventId).getPackageId().longValue());
+
+		eventService.delete(eventId);
+		if (packageDetailsDTO.getIsStatic() == false) {
+			packageDetailsService.delete(packageDetailsDTO.getPackageDetailsId().longValue());
+			packageServiceProviderMappingService.removedFromEvent(packageDetailsDTO.getPackageDetailsId().longValue(),
+					DataAccessUtils
+							.singleResult(enuServiceProviderWorkingStatusService
+									.findByNamedParameters(new MapSqlParameterSource().addValue("status", "Removed")))
+							.getStatusId().longValue());
+		}
+		eventEmployeeMappingService.removedFromEvent(eventId);
+		eventBannerService.delete(eventId);
+
+		EventDTO eventDTO = eventService.findById(eventId);
+		Mail mail = new Mail();
+		mail.setMailTo(userDetailsService.findById(eventDTO.getUserDetailsId().longValue()).getEmail());
+		mail.setMailSubject("Event Deleted");
+		mail.setContentType("text/html");
+		String content = "<p>Your event <strong>" + eventDTO.getEventTitle() + " - " + eventDTO.getObjective()
+				+ "</strong> on Unico - Event Planning and Management website has been removed by you.</p>"
 				+ "<p>We apologize for the inconvenience we caused you.</p>";
 		mail.setMailContent(content);
 		mailService.sendEmail(mail);
