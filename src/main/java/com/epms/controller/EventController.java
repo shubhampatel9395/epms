@@ -1319,6 +1319,11 @@ public class EventController {
 		EventVenueDetailsDTO eventVenueDetailsDTO  = invoiceService.getEventVenueDetails(eventId);
 		modelandmap.addObject("eventVenueDetails", eventVenueDetailsDTO);
 		modelandmap.addObject("venueAddress", getAddress(addressService.findById(eventVenueDetailsDTO.getAddressId().longValue())));
+		List<ServiceProviderDTO> serviceProviderDTOs = invoiceService.getServiceProviderDetails(eventId);
+		modelandmap.addObject("serviceProviders", serviceProviderDTOs);
+		Double total = serviceProviderDTOs.stream().mapToDouble( f -> f.getCost()).sum();
+		Double finalTotal = Double.sum(total, eventVenueDetailsDTO.getCost());
+		modelandmap.addObject("finalTotal", finalTotal);
 		return modelandmap;
 	}
 

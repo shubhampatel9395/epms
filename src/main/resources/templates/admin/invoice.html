@@ -94,28 +94,12 @@
 												<td class="text-end"><span th:text="${eventVenueDetails.cost}"></span>
 												</td>
 											</tr>
-											<tr>
-												<td>2</td>
-												<td>
-													<b>Warranty</b> <br />
-													Two Year Extended Warranty -
-													Parts and Labor
-												</td>
-												<td>3</td>
-												<td>$499.00</td>
-												<td class="text-end">$1497.00</td>
+											<tr th:each="serviceProvider: ${serviceProviders}">
+												<td>1</td>
+												<td th:text="${serviceProvider.serviceProviderName}" />
+												<td th:text="${serviceProvider.cost}" />
+												
 											</tr>
-											<tr>
-												<td>3</td>
-												<td>
-													<b>LED</b> <br />
-													80cm (32) HD Ready LED TV
-												</td>
-												<td>2</td>
-												<td>$412.00</td>
-												<td class="text-end">$824.00</td>
-											</tr>
-
 										</tbody>
 									</table>
 								</div> <!-- end table-responsive-->
@@ -127,9 +111,7 @@
 
 							<div class="col-sm-12">
 								<div class="float-end mt-3 mt-sm-0">
-									<p><b>Sub-total:</b> <span class="float-end">$4120.00</span></p>
-									<p><b>VAT (12.5):</b> <span class="float-end">$515.00</span></p>
-									<h3>$4635.00 USD</h3>
+									<h3><span th:text="${finalTotal}"></span> Rs</h3>
 								</div>
 								<div class="clearfix"></div>
 							</div> <!-- end col -->

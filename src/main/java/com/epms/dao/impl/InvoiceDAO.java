@@ -1,5 +1,7 @@
 package com.epms.dao.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -9,7 +11,9 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IInvoiceDAO;
+import com.epms.dto.EventDTO;
 import com.epms.dto.EventVenueDetailsDTO;
+import com.epms.dto.ServiceProviderDTO;
 
 import groovy.util.logging.Slf4j;
 
@@ -45,6 +49,23 @@ public class InvoiceDAO  implements IInvoiceDAO{
 		try {
 			return jdbcTemplate.queryForObject(sql, namedParameters,
 					new BeanPropertyRowMapper<EventVenueDetailsDTO>(EventVenueDetailsDTO.class));
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+	}
+
+	@Override
+	public List<ServiceProviderDTO> getServiceProviderDetails(long eventId) {
+		String sql = "SELECT s.cost,u.serviceProviderName" + 
+				" FROM event e" + 
+				" join packageserviceprovidermapping pm on e.packageId = pm.packageId" + 
+				" join serviceprovider s on pm.serviceProviderId = s.serviceProviderId" + 
+				" join userdetails u on u.userDetailsId= e.userDetailsId where e.eventId = :eventId";
+		SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("eventId", eventId);
+
+		try {
+			return jdbcTemplate.query(sql.toString(),namedParameters,
+					new BeanPropertyRowMapper<ServiceProviderDTO>(ServiceProviderDTO.class));
 		} catch (EmptyResultDataAccessException e) {
 			return null;
 		}
