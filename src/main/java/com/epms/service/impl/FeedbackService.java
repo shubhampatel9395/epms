@@ -42,20 +42,17 @@ public class FeedbackService implements IFeedbackService {
 
 	@Override
 	public FeedbackDTO insert(FeedbackDTO FeedbackDTO) {
-		// TODO Auto-generated method stub
-		return null;
+		return feedbackDAO.insert(FeedbackDTO);
 	}
 
 	@Override
 	public void delete(Long id) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public FeedbackDTO update(FeedbackDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		return feedbackDAO.update(entity);
 	}
 
 }

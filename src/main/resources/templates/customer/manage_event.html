@@ -101,6 +101,10 @@
 												<a th:if="${event.isActive} and ${eventStatuses[eventStat.index] == 'Completed'}"
 													th:href="@{'/customer/view_bill/' + ${event.eventId}}"
 													class="action-icon"><i class="mdi mdi-receipt"></i></a>
+													
+													<a th:if="${event.isActive} and ${eventStatuses[eventStat.index] == 'Completed'}"
+													th:href="@{'/customer/feedback/' + ${event.eventId}}"
+													class="action-icon"><i class="mdi mdi-star-face"></i></a>
 
 												<div th:if="${event.isActive} and (${eventStatuses[eventStat.index] == 'Verified'} or ${eventStatuses[eventStat.index] == 'Registered'})"
 													style="display:inline-block;">

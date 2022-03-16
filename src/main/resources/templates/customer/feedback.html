@@ -1,0 +1,116 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{customer/_layout}">
+
+<head>
+	<title>Event Feedbacks</title>
+	<style>
+		.page-title-box .page-title-right {
+			display: block;
+		}
+		
+		.rateit {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<div class="page-title-right">
+							<a th:href="@{/customer/manage-events}" class="btn btn-secondary mb-2">Back</a>
+						</div>
+						<h4 class="page-title"> Event Feedbacks</h4>
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<div class="row mb-3">
+								<input type="hidden" id="eventId" th:value="${eventDTO.eventId}"/>
+								<label for="inputRatingEntity" class="form-label">Entity To Rate</label>
+								<select id="inputRatingEntity" class="form-select">
+									<option th:value="'event' + ${eventDTO.eventId}" selected>Overall Event</option>
+									<option
+										th:if="${packageDetailsDTO != null} and ${packageDetailsDTO.isStatic == true}"
+										th:value="'package' + ${packageDetailsDTO.packageDetailsId}"
+										th:text="${packageDetailsDTO.title}"></option>
+									<option th:each="entry : ${serviceWithProviders}"
+										th:value="'serviceprovider' + ${entry.value.serviceProviderId}"
+										th:text="|${entry.key} - ${entry.value.serviceProviderName}|">
+									</option>
+								</select>
+							</div>
+							<div class="row" id="main"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+		<!-- Plgins only -->
+		<script th:src="@{/assets/js/vendor/jquery.rateit.min.js}"></script>
+		<script th:src="@{/assets/js/ui/component.rating.js}"></script>
+
+		<script type="text/javascript">
+			var defaultEventId = $("#eventId").val();
+			$(document).ready(function () {
+				eventRating($("#inputRatingEntity").find(':selected').val().replace('event', ''));
+			});
+
+			$("#inputRatingEntity").change(function () {
+				var selectedEntity = $("#inputRatingEntity").find(':selected').val();
+				// console.log(selectedEntity);
+
+				if (selectedEntity.indexOf("event") != -1) {
+					// console.log(selectedEntity.replace('event',''));
+					eventRating(selectedEntity.replace('event', ''));
+				}
+
+				if (selectedEntity.indexOf("package") != -1) {
+					// console.log(selectedEntity.replace('package',''));
+					packageRating(selectedEntity.replace('package', ''));
+				}
+
+				if (selectedEntity.indexOf("serviceprovider") != -1) {
+					// console.log(selectedEntity.replace('serviceprovider',''));
+					serviceproviderRating(selectedEntity.replace('serviceprovider', ''));
+				}
+			});
+
+			function eventRating(eventId) {
+				var urlToCall = "/event-rating/" + eventId + '';
+				$.get(urlToCall).done(function (result) { // get from controller
+					$("#main").replaceWith(result); // update snippet of page
+					$('div.rateit, span.rateit').rateit();
+				});
+			}
+
+			function packageRating(packageId) {
+				var urlToCall = "/package-rating/" + defaultEventId + '/' + packageId + '';
+				$.get(urlToCall).done(function (result) { // get from controller
+					$("#main").replaceWith(result); // update snippet of page
+					$('div.rateit, span.rateit').rateit();
+				});
+			}
+
+			function serviceproviderRating(serviceproviderId) {
+				var urlToCall = "/serviceprovider-rating/" + defaultEventId + '/' + serviceproviderId + '';
+				$.get(urlToCall).done(function (result) { // get from controller
+					$("#main").replaceWith(result); // update snippet of page
+					$('div.rateit, span.rateit').rateit();
+				});
+			}
+		</script>
+
+	</th:block>
+</body>
+
+</html>

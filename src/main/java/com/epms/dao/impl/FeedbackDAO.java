@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IFeedbackDAO;
@@ -66,20 +68,46 @@ public class FeedbackDAO implements IFeedbackDAO {
 
 	@Override
 	public FeedbackDTO insert(FeedbackDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("eventId", entity.getEventId());
+		namedParameters.addValue("eventRating", entity.getEventRating());
+		namedParameters.addValue("eventDescription", entity.getEventDescription());
+		namedParameters.addValue("serviceProviderId", entity.getServiceProviderId());
+		namedParameters.addValue("serviceProviderRating", entity.getServiceProviderRating());
+		namedParameters.addValue("serviceProviderDescription", entity.getServiceProviderDescription());
+		namedParameters.addValue("packageId", entity.getPackageId());
+		namedParameters.addValue("packageRating", entity.getPackageRating());
+		namedParameters.addValue("packageDescription", entity.getPackageDescription());
+		jdbcTemplate.update(
+				"insert into feedback(eventId,eventRating,eventDescription,serviceProviderId,serviceProviderRating,serviceProviderDescription,packageId,packageRating,packageDescription) values(:eventId,:eventRating,:eventDescription,:serviceProviderId,:serviceProviderRating,:serviceProviderDescription,:packageId,:packageRating,:packageDescription)",
+				namedParameters, keyHolder, new String[] { "feedbackId" });
+		return findById(keyHolder.getKey().longValue());
 	}
 
 	@Override
 	public void delete(Long id) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public FeedbackDTO update(FeedbackDTO entity) {
-		// TODO Auto-generated method stub
-		return null;
+		MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+		namedParameters.addValue("feedbackId", entity.getFeedbackId());
+		namedParameters.addValue("eventId", entity.getEventId());
+		namedParameters.addValue("eventRating", entity.getEventRating());
+		namedParameters.addValue("eventDescription", entity.getEventDescription());
+		namedParameters.addValue("serviceProviderId", entity.getServiceProviderId());
+		namedParameters.addValue("serviceProviderRating", entity.getServiceProviderRating());
+		namedParameters.addValue("serviceProviderDescription", entity.getServiceProviderDescription());
+		namedParameters.addValue("packageId", entity.getPackageId());
+		namedParameters.addValue("packageRating", entity.getPackageRating());
+		namedParameters.addValue("packageDescription", entity.getPackageDescription());
+
+		jdbcTemplate.update(
+				"update feedback set eventId=:eventId,eventRating=:eventRating,eventDescription=:eventDescription,serviceProviderId=:serviceProviderId,serviceProviderRating=:serviceProviderRating,serviceProviderDescription=:serviceProviderDescription,packageId=:packageId,packageRating=:packageRating,packageDescription=:packageDescription where feedbackId=:feedbackId",
+				namedParameters);
+		return entity;
 	}
 
 }

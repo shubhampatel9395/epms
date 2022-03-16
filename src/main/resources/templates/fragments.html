@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
 <head>
 </head>
 
@@ -24,7 +25,7 @@
 				</select>
 				<label for="floatingSelect" style="margin-left: 0.75rem;">Package</label>
 			</div>
-			
+
 			<div class="col-md-6 col-xxl-3" th:each="package: ${packageDetailsDTOs}">
 				<!-- project card -->
 				<div class="card d-block">
@@ -212,6 +213,88 @@
 					</div> <!-- end card-body-->
 				</div> <!-- end card-->
 			</div> <!-- end col -->
+		</div>
+	</th:block>
+
+	<th:block th:fragment="eventRating">
+		<div class="row" id="main">
+			<form th:action="@{/event-rating}" method="POST">
+				<input type="hidden" th:field="*{eventDTORating.eventId}" />
+				<div class="mb-3">
+					<label for="eventRating" class="form-label">Event Rating</label>
+					<input type="range" min="0" max="5" step="0.5" id="backing3" th:field="*{feedbackDTO.eventRating}">
+					<div class="rateit" data-rateit-mode="font" data-rateit-backingfld="#backing3">
+					</div>
+				</div>
+
+				<div class="mb-3">
+					<label for="description" class="form-label">Comments</label>
+					<textarea th:field="*{feedbackDTO.eventDescription}" class="form-control" id="example-textarea"
+						rows="5"></textarea>
+				</div>
+
+				<div class="mb-0 d-grid text-center">
+					<button class="btn btn-primary" type="submit">
+						Save
+					</button>
+				</div>
+			</form>
+		</div>
+	</th:block>
+
+	<th:block th:fragment="serviceproviderRating">
+		<div class="row" id="main">
+			<form th:action="@{/serviceprovider-rating}" method="POST">
+				<input type="hidden" th:field="*{eventDTORating.eventId}" />
+				<input type="hidden" th:field="*{feedbackDTO.serviceProviderId}" />
+				<div class="mb-3">
+					<label for="serviceproviderRating" class="form-label">Serviceprovider Rating</label>
+					<input type="range" min="0" max="5" step="0.5" id="backing3"
+						th:field="*{feedbackDTO.serviceProviderRating}">
+					<div class="rateit" data-rateit-mode="font" data-rateit-backingfld="#backing3">
+					</div>
+				</div>
+
+				<div class="mb-3">
+					<label for="description" class="form-label">Comments</label>
+					<textarea th:field="*{feedbackDTO.serviceProviderDescription}" class="form-control"
+						id="example-textarea" rows="5"></textarea>
+				</div>
+
+				<div class="mb-0 d-grid text-center">
+					<button class="btn btn-primary" type="submit">
+						Save
+					</button>
+				</div>
+			</form>
+		</div>
+	</th:block>
+
+	<th:block th:fragment="packageRating">
+		<div class="row" id="main">
+			<form th:action="@{/package-rating}" method="POST">
+				<input type="hidden" th:field="*{eventDTORating.eventId}" />
+				<input type="hidden" th:field="*{feedbackDTO.packageId}" />
+				<div class="mb-3">
+					<label for="packageRating" class="form-label">Package Rating</label>
+					<input type="range" min="0" max="5" step="0.5" id="backing3"
+						th:field="*{feedbackDTO.packageRating}">
+					<div class="rateit" data-rateit-mode="font" data-rateit-backingfld="#backing3">
+					</div>
+				</div>
+
+				<div class="mb-3">
+					<label for="description" class="form-label">Comments</label>
+					<textarea th:field="*{feedbackDTO.packageDescription}" class="form-control" id="example-textarea"
+						rows="5"></textarea>
+				</div>
+
+				<div class="mb-0 d-grid text-center">
+					<button class="btn btn-primary" type="submit">
+						Save
+					</button>
+				</div>
+			</form>
 		</div>
 	</th:block>
 </body>

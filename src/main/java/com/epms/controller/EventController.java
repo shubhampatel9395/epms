@@ -47,6 +47,7 @@ import com.epms.dto.EventBannerDTO;
 import com.epms.dto.EventDTO;
 import com.epms.dto.EventEmployeeMappingDTO;
 import com.epms.dto.EventVenueDetailsDTO;
+import com.epms.dto.FeedbackDTO;
 import com.epms.dto.PackageDetailsDTO;
 import com.epms.dto.PackageServiceProviderMappingDTO;
 import com.epms.dto.PackageTempDTO;
@@ -74,6 +75,7 @@ import com.epms.service.IEnuVenueTypeService;
 import com.epms.service.IEventBannerService;
 import com.epms.service.IEventEmployeeMappingService;
 import com.epms.service.IEventService;
+import com.epms.service.IFeedbackService;
 import com.epms.service.IInvoiceService;
 import com.epms.service.IPackageDetailsService;
 import com.epms.service.IPackageServiceProviderMappingService;
@@ -178,6 +180,9 @@ public class EventController {
 
 	@Autowired
 	IEnuServiceProviderWorkingStatusService enuServiceProviderWorkingStatusService;
+	
+	@Autowired
+	IFeedbackService feedbackService;
 
 	@GetMapping("/admin/list-event")
 	public ModelAndView listEvent() {
@@ -1411,6 +1416,158 @@ public class EventController {
 		// isactive false
 		// eventemployeemapping set isactive false
 		// eventbanner set isactive false
+		return modelandmap;
+	}
+	
+	@GetMapping("/customer/feedback/{eventId}")
+	public ModelAndView giveFeedback(@PathVariable("eventId")long eventId) {
+		ModelAndView modelandmap = new ModelAndView("customer/feedback");
+		EventDTO eventDTO = eventService.findById(eventId);
+		PackageDetailsDTO packageDetailsDTO = packageDetailsService.findById(eventDTO.getPackageId().longValue());
+		
+		List<PackageServiceProviderMappingDTO> packageServiceProviderMappings = packageServiceProviderMappingService
+				.findByNamedParameters(
+						new MapSqlParameterSource().addValue("packageId", packageDetailsDTO.getPackageDetailsId()));
+		Map<String, ServiceProviderDTO> serviceWithProviders = new HashMap<>();
+		for (PackageServiceProviderMappingDTO entry : packageServiceProviderMappings) {
+			String service = enuServiceTypeService.findById(entry.getServiceTypeId().longValue()).getService();
+			
+			if (entry.getServiceProviderId() != null) {
+				ServiceProviderDTO tempServiceProvider = serviceProviderService
+						.findById(entry.getServiceProviderId().longValue());
+				tempServiceProvider.setServiceProviderName(userDetailsService.findById(tempServiceProvider.getUserDetailsId().longValue())
+						.getServiceProviderName());
+				
+				serviceWithProviders.put(service, tempServiceProvider);
+			} else {
+				serviceWithProviders.put(service, null);
+			}
+		}
+		
+		modelandmap.addObject("eventDTO", eventDTO);
+		modelandmap.addObject("packageDetailsDTO", packageDetailsDTO);
+		modelandmap.addObject("serviceWithProviders", serviceWithProviders);
+		
+		return modelandmap;
+	}
+	
+	@GetMapping("/event-rating/{eventId}")
+	public ModelAndView eventRating(@PathVariable("eventId")long eventId) {
+		ModelAndView modelandmap = new ModelAndView("fragments :: eventRating");
+		List<FeedbackDTO> feedbackDTO = feedbackService.findByNamedParameters(new MapSqlParameterSource().addValue("eventId", eventId));
+		feedbackDTO = feedbackDTO.stream().filter(e -> e.getEventRating()!=null).collect(Collectors.toList());
+		if(feedbackDTO == null || feedbackDTO.size() == 0){
+			FeedbackDTO newFeedbackDTO = new FeedbackDTO();
+			newFeedbackDTO.setEventRating(0.0);
+			modelandmap.addObject("feedbackDTO", newFeedbackDTO);
+		} else {
+			modelandmap.addObject("feedbackDTO", feedbackDTO.get(0));
+		}
+		
+		EventDTO eventDTO = eventService.findById(eventId);
+		modelandmap.addObject("eventDTORating", eventDTO);
+		return modelandmap;
+	}
+	
+	@PostMapping("/event-rating")
+	public ModelAndView saveEventRating(@Valid @ModelAttribute("eventDTORating")EventDTO eventDTO,
+			@Valid @ModelAttribute("feedbackDTO")FeedbackDTO feedbackDTO) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/customer/feedback/" + eventDTO.getEventId());
+		FeedbackDTO oldFeedbackDTO = DataAccessUtils.singleResult(feedbackService.findByNamedParameters(new MapSqlParameterSource().addValue("eventId", eventDTO.getEventId())));
+		if(oldFeedbackDTO == null) {
+			feedbackDTO.setEventId(eventDTO.getEventId());
+			feedbackService.insert(feedbackDTO);
+		} else {
+			if(!(oldFeedbackDTO.getEventRating().equals(feedbackDTO.getEventRating()))) {
+				oldFeedbackDTO.setEventRating(feedbackDTO.getEventRating());
+			}
+			if(!(oldFeedbackDTO.getEventDescription().equals(feedbackDTO.getEventDescription()))) {
+				oldFeedbackDTO.setEventDescription(feedbackDTO.getEventDescription());
+			}
+			
+			feedbackService.update(oldFeedbackDTO);
+		}
+		
+		return modelandmap;
+	}
+	
+	@GetMapping("/serviceprovider-rating/{eventId}/{serviceproviderId}")
+	public ModelAndView serviceproviderRating(@PathVariable("eventId")long eventId,@PathVariable("serviceproviderId")long serviceproviderId) {
+		ModelAndView modelandmap = new ModelAndView("fragments :: serviceproviderRating");
+		FeedbackDTO feedbackDTO = DataAccessUtils.singleResult(feedbackService.findByNamedParameters(new MapSqlParameterSource().addValue("eventId", eventId).addValue("serviceProviderId", serviceproviderId)));
+		if(feedbackDTO == null) {
+			FeedbackDTO newFeedbackDTO = new FeedbackDTO();
+			newFeedbackDTO.setServiceProviderRating(0.0);
+			newFeedbackDTO.setServiceProviderId((int) serviceproviderId);
+			modelandmap.addObject("feedbackDTO", newFeedbackDTO);
+		} else {
+			modelandmap.addObject("feedbackDTO", feedbackDTO);
+		}
+		
+		EventDTO eventDTO = eventService.findById(eventId);
+		modelandmap.addObject("eventDTORating", eventDTO);
+		return modelandmap;
+	}
+	
+	@PostMapping("/serviceprovider-rating")
+	public ModelAndView saveServiceproviderRating(@Valid @ModelAttribute("eventDTORating")EventDTO eventDTO,
+			@Valid @ModelAttribute("feedbackDTO")FeedbackDTO feedbackDTO) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/customer/feedback/" + eventDTO.getEventId());
+		FeedbackDTO oldFeedbackDTO = DataAccessUtils.singleResult(feedbackService.findByNamedParameters(new MapSqlParameterSource().addValue("eventId", eventDTO.getEventId()).addValue("serviceProviderId", feedbackDTO.getServiceProviderId())));
+		if(oldFeedbackDTO == null) {
+			feedbackDTO.setEventId(eventDTO.getEventId());
+			feedbackService.insert(feedbackDTO);
+		} else {
+			if(!(oldFeedbackDTO.getServiceProviderRating().equals(feedbackDTO.getServiceProviderRating()))) {
+				oldFeedbackDTO.setServiceProviderRating(feedbackDTO.getServiceProviderRating());
+			}
+			if(!(oldFeedbackDTO.getServiceProviderDescription().equals(feedbackDTO.getServiceProviderDescription()))) {
+				oldFeedbackDTO.setServiceProviderDescription(feedbackDTO.getServiceProviderDescription());
+			}
+			
+			feedbackService.update(oldFeedbackDTO);
+		}
+		
+		return modelandmap;
+	}
+	
+	@GetMapping("/package-rating/{eventId}/{packageId}")
+	public ModelAndView packageRating(@PathVariable("eventId")long eventId,@PathVariable("packageId")long packageId) {
+		ModelAndView modelandmap = new ModelAndView("fragments :: packageRating");
+		FeedbackDTO feedbackDTO = DataAccessUtils.singleResult(feedbackService.findByNamedParameters(new MapSqlParameterSource().addValue("eventId", eventId).addValue("packageId", packageId)));
+		if(feedbackDTO == null) {
+			FeedbackDTO newFeedbackDTO = new FeedbackDTO();
+			newFeedbackDTO.setPackageRating(0.0);
+			newFeedbackDTO.setPackageId((int) packageId);
+			modelandmap.addObject("feedbackDTO", newFeedbackDTO);
+		} else {
+			modelandmap.addObject("feedbackDTO", feedbackDTO);
+		}
+		
+		EventDTO eventDTO = eventService.findById(eventId);
+		modelandmap.addObject("eventDTORating", eventDTO);
+		return modelandmap;
+	}
+	
+	@PostMapping("/package-rating")
+	public ModelAndView savePackageRating(@Valid @ModelAttribute("eventDTORating")EventDTO eventDTO,
+			@Valid @ModelAttribute("feedbackDTO")FeedbackDTO feedbackDTO) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/customer/feedback/" + eventDTO.getEventId());
+		FeedbackDTO oldFeedbackDTO = DataAccessUtils.singleResult(feedbackService.findByNamedParameters(new MapSqlParameterSource().addValue("eventId", eventDTO.getEventId()).addValue("packageId", feedbackDTO.getPackageId())));
+		if(oldFeedbackDTO == null) {
+			feedbackDTO.setEventId(eventDTO.getEventId());
+			feedbackService.insert(feedbackDTO);
+		} else {
+			if(!(oldFeedbackDTO.getPackageRating().equals(feedbackDTO.getPackageRating()))) {
+				oldFeedbackDTO.setPackageRating(feedbackDTO.getPackageRating());
+			}
+			if(!(oldFeedbackDTO.getPackageDescription().equals(feedbackDTO.getPackageDescription()))) {
+				oldFeedbackDTO.setPackageDescription(feedbackDTO.getPackageDescription());
+			}
+			
+			feedbackService.update(oldFeedbackDTO);
+		}
+		
 		return modelandmap;
 	}
 }
