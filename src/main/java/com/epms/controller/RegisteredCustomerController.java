@@ -95,6 +95,8 @@ public class RegisteredCustomerController {
 				Authentication authentication = applicationContext.getBean(AuthenticationConfiguration.class)
 						.getAuthenticationManager().authenticate(authToken);
 				SecurityContextHolder.getContext().setAuthentication(authentication);
+				modelandmap.addObject("eventNames",
+						enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 				return modelandmap;
 			} catch (Exception e) {
 				log.error("Exception while authentication {e}", e);
@@ -105,6 +107,8 @@ public class RegisteredCustomerController {
 		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
 			return new ModelAndView("redirect:/login");
 		} else {
+			modelandmap.addObject("eventNames",
+					enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 			return modelandmap;
 		}
 	}

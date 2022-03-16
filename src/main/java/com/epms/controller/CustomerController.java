@@ -41,6 +41,8 @@ import com.epms.dto.ContactUsDTO;
 import com.epms.dto.EnquiryDTO;
 import com.epms.dto.EnuCityDTO;
 import com.epms.dto.EnuStateDTO;
+import com.epms.dto.EventBannerDTO;
+import com.epms.dto.EventDTO;
 import com.epms.dto.PackageDetailsDTO;
 import com.epms.dto.PackageServiceProviderMappingDTO;
 import com.epms.dto.ServiceProviderDTO;
@@ -52,14 +54,25 @@ import com.epms.dto.VenueImageMappingDTO;
 import com.epms.email.configuration.IMailService;
 import com.epms.email.configuration.Mail;
 import com.epms.service.IAddressService;
+import com.epms.service.IEmployeeService;
 import com.epms.service.IEnquiryService;
 import com.epms.service.IEnuCityService;
 import com.epms.service.IEnuCountryService;
+import com.epms.service.IEnuEmployeeRoleService;
+import com.epms.service.IEnuEmployeeWorkingStatusService;
+import com.epms.service.IEnuEnquiryStatusService;
+import com.epms.service.IEnuEventStatusService;
 import com.epms.service.IEnuEventTypeService;
+import com.epms.service.IEnuServiceProviderWorkingStatusService;
 import com.epms.service.IEnuServiceTypeService;
 import com.epms.service.IEnuStateService;
 import com.epms.service.IEnuVenueFacilityService;
 import com.epms.service.IEnuVenueTypeService;
+import com.epms.service.IEventBannerService;
+import com.epms.service.IEventEmployeeMappingService;
+import com.epms.service.IEventService;
+import com.epms.service.IFeedbackService;
+import com.epms.service.IInvoiceService;
 import com.epms.service.IPackageDetailsService;
 import com.epms.service.IPackageServiceProviderMappingService;
 import com.epms.service.IServiceProviderService;
@@ -133,9 +146,48 @@ public class CustomerController {
 	@Autowired
 	Environment env;
 
+	@Autowired
+	IInvoiceService invoiceService;
+
+	@Autowired
+	IEnuServiceTypeService enuserviceTypeService;
+
+	@Autowired
+	IEmployeeService employeeService;
+
+	@Autowired
+	IEnuEmployeeRoleService enuEmployeeRoleService;
+
+	@Autowired
+	IEventService eventService;
+
+	@Autowired
+	IEnuEnquiryStatusService enquiryStatusService;
+
+	@Autowired
+	IEnuEventStatusService enuEventStatusService;
+
+	@Autowired
+	IEventBannerService eventBannerService;
+
+	@Autowired
+	IEventEmployeeMappingService eventEmployeeMappingService;
+
+	@Autowired
+	IEnuEmployeeWorkingStatusService enuEmployeeWorkingStatusService;
+
+	@Autowired
+	IEnuServiceProviderWorkingStatusService enuServiceProviderWorkingStatusService;
+
+	@Autowired
+	IFeedbackService feedbackService;
+
 	@GetMapping("home")
 	public ModelAndView homePage() {
-		return new ModelAndView("index");
+		ModelAndView modelandmap = new ModelAndView("index");
+		modelandmap.addObject("eventNames",
+				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		return modelandmap;
 	}
 
 	@GetMapping("getStates/{countryId}")
@@ -272,12 +324,84 @@ public class CustomerController {
 		return mv;
 	}
 
+	@GetMapping("getUpcomingEvents/{eventTypeId}")
+	public ModelAndView getUpcomingEvents(@PathVariable long eventTypeId) {
+		ModelAndView modelandmap = new ModelAndView();
+
+		List<EventDTO> events;
+		long statusId = DataAccessUtils
+				.singleResult(enuEventStatusService
+						.findByNamedParameters(new MapSqlParameterSource().addValue("status", "Verified")))
+				.getStatusId();
+		if (eventTypeId == -1) {
+			events = eventService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)
+					.addValue("eventStatusId", statusId).addValue("isPublic", true));
+		} else {
+			events = eventService.findByNamedParameters(
+					new MapSqlParameterSource().addValue("isActive", true).addValue("eventStatusId", statusId)
+							.addValue("isPublic", true).addValue("eventTypeId", eventTypeId));
+		}
+
+		if (events.size() == 0) {
+			modelandmap.setViewName("fragments :: noEvents");
+			return modelandmap;
+		} else {
+			modelandmap.setViewName("fragments :: upcomingEvents");
+		}
+
+		List<EventBannerDTO> banners = events.stream().map(event -> {
+			List<EventBannerDTO> tempBanner = eventBannerService.findByNamedParameters(
+					new MapSqlParameterSource().addValue("isActive", true).addValue("eventID", event.getEventId()));
+			if (tempBanner.size() == 0) {
+				return null;
+			} else {
+				return tempBanner.get(0);
+			}
+		}).collect(Collectors.toList());
+		
+		List<String> venueAddresses = events.stream().map(event -> {
+			VenueDTO tempVenueDTO = venueService.findById(packageDetailsService.findById(event.getPackageId().longValue()).getVenueId().longValue());
+			return tempVenueDTO.getVenueName() + ", " + getAddress(addressService.findById(tempVenueDTO.getAddressId().longValue()));
+		}).collect(Collectors.toList());
+		
+		List<String> eventTypes = events.stream().map(event -> {
+			return DataAccessUtils
+					.singleResult(enuEventTypeService.findByNamedParameters(
+							new MapSqlParameterSource().addValue("eventTypeId", event.getEventTypeId())))
+					.getEventType();
+		}).collect(Collectors.toList());
+		
+		List<UserDetailsDTO> customers = events.stream().map(event -> {
+			return DataAccessUtils
+					.singleResult(userDetailsService.findByNamedParameters(
+							new MapSqlParameterSource().addValue("userDetailsId", event.getUserDetailsId())));
+		}).collect(Collectors.toList());
+
+		modelandmap.addObject("events", events);
+		modelandmap.addObject("banners", banners);
+		modelandmap.addObject("venueAddresses", venueAddresses);
+		modelandmap.addObject("eventTypes", eventTypes);
+		modelandmap.addObject("customers", customers);
+
+		return modelandmap;
+	}
+
 	@GetMapping("events")
 	public ModelAndView events() {
-//		CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) SecurityContextHolder.getContext().getAuthentication()
-//				.getPrincipal();
-//		System.out.println(userDetails.getUserDetailsId());
 		final ModelAndView modelandmap = new ModelAndView("events");
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+			modelandmap.addObject("layoutPage", "_layout");
+		} else {
+			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) authentication.getPrincipal();
+			if (userDetails.getIsCustomer() == true) {
+				modelandmap.addObject("layoutPage", "customer/_layout");
+			} else {
+				modelandmap.addObject("layoutPage", "_layout");
+			}
+		}
+		modelandmap.addObject("eventNames",
+				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		return modelandmap;
 	}
 
@@ -439,7 +563,8 @@ public class CustomerController {
 		List<Map<String, String>> serviceWithProviders = packageDetailsDTO.stream().map(item -> {
 			Map<String, String> t = new HashMap<String, String>();
 			List<PackageServiceProviderMappingDTO> packageServiceProviderMappings = packageServiceProviderMappingService
-					.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true).addValue("packageId", item.getPackageDetailsId()));
+					.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true).addValue("packageId",
+							item.getPackageDetailsId()));
 			packageServiceProviderMappings.stream().map(item2 -> {
 				ServiceProviderDTO temp = serviceProviderService.findById(item2.getServiceProviderId().longValue());
 				return t.put(enuServiceTypeService.findById(temp.getServiceTypeId().longValue()).getService(),
