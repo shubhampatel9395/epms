@@ -134,7 +134,47 @@
 			</div>
 			<!-- end row -->
 
+			<div class="row">
+				<div class="col-8">
+					<div class="page-title-box">
+						<h4 class="page-title">Upcoming Events</h4>
+					</div>
+				</div>
+				<div class="col-4 mt-3">
+					<div class="text-sm-end">
+						<div class="mb-3 ms-1 d-flex align-items-center">
+							<label for="eventType-select" class="me-2">Event Type</label>
+							<select class="form-select" id="eventType-select" style="width: 70%;">
+								<option value="-1" selected readonly>All</option>
+								<option th:each="eventName : ${eventNames}" th:value="${eventName.eventTypeId}"
+									th:text="${eventName.eventType}"></option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row" id="main"></div>
 		</div>
+	</th:block>
+	
+	<th:block layout:fragment="script">
+		<script type="text/javascript">
+			$(document).ready(function () {
+				loadEvents($("#eventType-select").find(":selected").val());
+			});
+
+			$("#eventType-select").change(function () {
+				loadEvents($(this).find(":selected").val());
+			});
+			
+			function loadEvents(eventTypeId) {
+				var urlToCall = "/getUpcomingEvents/" + eventTypeId + '';
+				// console.log(value);
+				$.get(urlToCall).done(function (result) { // get from controller
+					$("#main").replaceWith(result); // update snippet of page
+				});
+			}
+		</script>
 	</th:block>
 </body>
 

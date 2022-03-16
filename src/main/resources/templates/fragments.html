@@ -111,7 +111,6 @@
 		</div>
 	</th:block>
 
-
 	<!-- Venues -->
 	<th:block th:fragment="resultsListVenue1" th:if="${#lists.isEmpty(venueDTOs)}">
 		<div class="row" id="main">
@@ -216,6 +215,7 @@
 		</div>
 	</th:block>
 
+	<!-- Events Ratings -->
 	<th:block th:fragment="eventRating">
 		<div class="row" id="main">
 			<form th:action="@{/event-rating}" method="POST">
@@ -296,6 +296,74 @@
 				</div>
 			</form>
 		</div>
+	</th:block>
+
+
+	<!-- Upcoming Events -->
+	<th:block th:fragment="noEvents" th:if="${#lists.isEmpty(events)}">
+		<div class="row" id="main">
+			<p> There are no upcoming events for selected event type.</p>
+		</div>
+	</th:block>
+
+	<th:block th:fragment="upcomingEvents" th:unless="${#lists.isEmpty(events)}">
+		<div class="row" id="main">
+			<div class="col-12">
+				<div class="row row-cols-1 row-cols-md-3 g-3">
+					<div class="col" th:each="event : ${events}">
+						<div class="card">
+							<img th:if="${banners[eventStat.index]} != null"
+								th:src="@{'/admin/banner/' + ${banners[eventStat.index].bannerId}}" class="card-img-top"
+								alt="Event Banner">
+							<div class="card-body">
+								<h5 class="card-title" th:text="${event.eventTitle}"></h5>
+								<div class="badge bg-success mb-3" th:text="${eventTypes[eventStat.index]}"></div>
+								<p class="card-text" th:text="${event.objective}"></p>
+								<b><span class="text-danger">
+										<p class="card-text mb-1"
+											th:text="|${#dates.format(event.startDate,'MMM dd, yyyy')}, ${event.startTime}|">
+										</p>
+									</span></b>
+								<div>
+									<p class="card-text mb-1">
+										<span class="pe-2 text-nowrap mb-1 d-inline-block">
+											<i class="mdi mdi-account"></i>
+											<b>Organizer Details</b>
+										</span>
+									<p
+										th:text="|Name: ${customers[eventStat.index].firstName} ${customers[eventStat.index].lastName}|">
+									</p>
+									<p
+										th:text="|Email: ${customers[eventStat.index].email}|">
+									</p>
+									</p>
+								</div>
+								<div>
+									<p class="card-text mb-1">
+										<span class="pe-2 text-nowrap mb-1 d-inline-block">
+											<i class="uil-map-pin-alt"></i>
+											<b>Venue Details</b>
+										</span>
+									<p th:text="${venueAddresses[eventStat.index]}"></p>
+									</p>
+								</div>
+								<div th:if="${event.isFree == false}">
+									<p class="card-text">
+										<span class="pe-2 text-nowrap d-inline-block">
+											<i class="dripicons-ticket"></i>
+											<b>Ticket Details</b>
+										</span>
+									<p class="card-text mb-1" th:text="'Registration Fee: ' + ${event.registrationFee}">
+									</p>
+									<p class="card-text mb-1"
+										th:text="'Total Registrations Available: ' + ${event.registrationAvailable}">
+									</p>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 	</th:block>
 </body>
 
