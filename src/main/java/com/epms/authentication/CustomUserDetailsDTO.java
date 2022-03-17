@@ -82,6 +82,11 @@ public class CustomUserDetailsDTO implements UserDetails {
 		return userDetailsDTO.getIsServiceProvider();
 	}
 	
+	public Boolean getIsAdmin()
+	{
+		return userDetailsDTO.getIsAdmin();
+	}
+	
 	public Boolean getIsEmployee()
 	{
 		return userDetailsDTO.getIsEmployee();

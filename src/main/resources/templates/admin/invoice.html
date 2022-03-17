@@ -1,5 +1,5 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{admin/_layout}">
+	layout:decorate="~{${layoutPage}}">
 
 <head>
 	<title>Event Bill</title>
@@ -28,8 +28,12 @@
 			<div class="row">
 				<div class="col-12">
 					<div class="page-title-box">
-						<div class="page-title-right d-print-none">
+						<!-- <span th:text="${layoutPage}"></span> -->
+						<div th:if="${layoutPage.contains('admin')}" class="page-title-right d-print-none">
 							<a th:href="@{/admin/list-event}" class="btn btn-secondary mb-2">Back</a>
+						</div>
+						<div th:if="${#strings.equals(layoutPage, 'customer/_layout')}" class="page-title-right d-print-none">
+							<a th:href="@{/customer/manage-events}" class="btn btn-secondary mb-2">Back</a>
 						</div>
 						<h4 class="page-title">Event Bill</h4>
 					</div>
@@ -51,7 +55,7 @@
 										<p><b>Hello, <span
 													th:text="${eventVenueDetails.firstName} + ' ' + ${eventVenueDetails.lastName}"></span></b>
 										</p>
-										<p class="text-muted font-13">Please find below a cost-breakdown for the Event.
+										<p class="text-muted font-13"><span>Please find below a bill for the Event. </span><b><span th:text="|(${eventVenueDetails.eventTitle})|"></span></b>
 										</p>
 										<p class="font-13"><strong>Mobile Number: </strong> <span
 												th:text="${eventVenueDetails.mobileNumber}"></span></p>
@@ -81,24 +85,26 @@
 										<thead>
 											<tr>
 												<th>#</th>
+												<th>Service</th>
 												<th>Description</th>
-												<th class="text-end">Cost</th>
 											</tr>
 										</thead>
 										<tbody>
 											<tr>
 												<td>1</td>
-												<td><span
-														th:text="${eventVenueDetails.venueName} + ', ' + ${venueAddress}"></span>
+												<td>Venue
 												</td>
-												<td class="text-end"><span th:text="${eventVenueDetails.cost}"></span>
+												<td>
+													<span
+														th:text="${eventVenueDetails.venueName} + ', ' + ${venueAddress}">
+													</span>
 												</td>
 											</tr>
 											<tr th:each="serviceProvider: ${serviceProviders}">
-												<td>1</td>
-												<td th:text="${serviceProvider.serviceProviderName}" />
-												<td th:text="${serviceProvider.cost}" />
-												
+												<td th:text="${serviceProviderStat.index + 2}"></td>
+												<td th:text="${serviceProvider.service}" />
+												<td
+													th:text="|${serviceProvider.serviceProviderName}, ${serviceProviderAddresses[serviceProviderStat.index]}|" />
 											</tr>
 										</tbody>
 									</table>
@@ -110,8 +116,10 @@
 						<div class="row">
 
 							<div class="col-sm-12">
-								<div class="float-end mt-3 mt-sm-0">
-									<h3><span th:text="${finalTotal}"></span> Rs</h3>
+								<div class="float-end mt-3 mt-sm-0" style="margin-right: 3rem;">
+									<h3><span>Total Amount : </span><i class="mdi mdi-currency-inr"
+											style="font-size: 24px;padding-right: 0.5rem;"></i><span
+											th:text="${finalTotal}"></span></h3>
 								</div>
 								<div class="clearfix"></div>
 							</div> <!-- end col -->

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventVenueDetailsDTO {
+	private Double totalCost;
     private String venueName;
 	private String venueType;
 	private Long addressId;

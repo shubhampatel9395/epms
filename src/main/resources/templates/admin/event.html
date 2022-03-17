@@ -155,7 +155,7 @@
 												</div>
 
 												<a th:if="${event.isActive} and ${eventStatuses[eventStat.index] == 'Completed'}"
-													th:href="@{'/admin/view_bill/' + ${event.eventId}}"
+													th:href="@{'/view_bill/' + ${event.eventId}}"
 													class="action-icon"><i class="mdi mdi-receipt"></i></a>
 
 												<div th:if="${event.isActive} and ${eventStatuses[eventStat.index] == 'Verified'}"

@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.epms.dao.IInvoiceDAO;
 import com.epms.dto.EventVenueDetailsDTO;
-import com.epms.dto.ServiceProviderDTO;
+import com.epms.dto.InvoiceServiceProviderDTO;
 import com.epms.service.IInvoiceService;
 
 import groovy.util.logging.Slf4j;
@@ -27,7 +27,7 @@ public class InvoiceService implements IInvoiceService{
 	}
 
 	@Override
-	public List<ServiceProviderDTO> getServiceProviderDetails(long eventId) {
+	public List<InvoiceServiceProviderDTO> getServiceProviderDetails(long eventId) {
 		return invoiceDAO.getServiceProviderDetails(eventId);
 	}
 

@@ -11,9 +11,8 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IInvoiceDAO;
-import com.epms.dto.EventDTO;
 import com.epms.dto.EventVenueDetailsDTO;
-import com.epms.dto.ServiceProviderDTO;
+import com.epms.dto.InvoiceServiceProviderDTO;
 
 import groovy.util.logging.Slf4j;
 
@@ -26,7 +25,7 @@ public class InvoiceDAO  implements IInvoiceDAO{
 	
 	@Override
 	public EventVenueDetailsDTO getEventVenueDetails(long eventId) {
-		String sql = "SELECT v.venueName" 
+		String sql = "SELECT e.totalCost,v.venueName" 
 						+ " , vt.venueType"  
 						+ " , v.addressId"
 						+ "	, v.cost" 
@@ -55,17 +54,18 @@ public class InvoiceDAO  implements IInvoiceDAO{
 	}
 
 	@Override
-	public List<ServiceProviderDTO> getServiceProviderDetails(long eventId) {
-		String sql = "SELECT s.cost,u.serviceProviderName" + 
+	public List<InvoiceServiceProviderDTO> getServiceProviderDetails(long eventId) {
+		String sql = "SELECT s.cost,u.serviceProviderName,u.addressId,st.service" + 
 				" FROM event e" + 
 				" join packageserviceprovidermapping pm on e.packageId = pm.packageId" + 
 				" join serviceprovider s on pm.serviceProviderId = s.serviceProviderId" + 
-				" join userdetails u on u.userDetailsId= e.userDetailsId where e.eventId = :eventId";
+				" join enuservicetype st on s.serviceTypeId = st.serviceTypeId" + 
+				" join userdetails u on u.userDetailsId= s.userDetailsId where e.eventId = :eventId";
 		SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("eventId", eventId);
 
 		try {
 			return jdbcTemplate.query(sql.toString(),namedParameters,
-					new BeanPropertyRowMapper<ServiceProviderDTO>(ServiceProviderDTO.class));
+					new BeanPropertyRowMapper<InvoiceServiceProviderDTO>(InvoiceServiceProviderDTO.class));
 		} catch (EmptyResultDataAccessException e) {
 			return null;
 		}
