@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IServiceProviderDAO;
 import com.epms.dto.ServiceProviderDTO;
+import com.epms.dto.ServiceProviderEventWorkDTO;
 
 import groovy.util.logging.Slf4j;
 
@@ -149,5 +150,83 @@ public class ServiceProviderDAO implements IServiceProviderDAO {
 		parameterSource.addValue("serviceProviderId", id);
 		jdbcTemplate.update("update serviceprovider set isActive=true where serviceProviderId=:serviceProviderId",
 				parameterSource);
+	}
+
+	@Override
+	public int getTotalParticipatedPackages(Long id) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("serviceProviderId", id);
+		return jdbcTemplate.queryForObject("SELECT count(1) from packagedetails p join packageserviceprovidermapping m on p.packageDetailsId=m.packageId where p.isStatic=1 and p.isActive=true and m.serviceProviderId=:serviceProviderId" ,namedParams , Integer.class);
+	}
+
+	@Override
+	public int getCompletedEvents(Long id) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("serviceProviderId", id);
+		return jdbcTemplate.queryForObject("SELECT count(1) from event e "
+				+ "join packagedetails p on e.packageId=p.packageDetailsId "
+				+ "join packageserviceprovidermapping m on p.packageDetailsId=m.packageId "
+				+ "where e.eventStatusId=(SELECT statusId from enueventstatus where status='Completed') and e.isActive=true and p.isActive=true and m.serviceProviderId=:serviceProviderId" ,namedParams , Integer.class);
+	}
+
+	@Override
+	public int getOngoingEvents(Long id) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("serviceProviderId", id);
+		return jdbcTemplate.queryForObject("SELECT count(1) from event e "
+				+ "join packagedetails p on e.packageId=p.packageDetailsId "
+				+ "join packageserviceprovidermapping m on p.packageDetailsId=m.packageId "
+				+ "where e.eventStatusId=(SELECT statusId from enueventstatus where status='Verified') and e.isActive=true and p.isActive=true and m.serviceProviderId=:serviceProviderId" ,namedParams , Integer.class);
+	}
+
+	@Override
+	public double getAverageRatings(Long id) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("serviceProviderId", id);
+		return jdbcTemplate.queryForObject("SELECT IFNULL(sum(serviceProviderRating) / 5, 0.0) from feedback f "
+				+ "join serviceprovider s on f.serviceProviderId=s.serviceProviderId "
+				+ "where f.isActive=true and s.serviceProviderId=:serviceProviderId" ,namedParams, Double.class);
+	}
+
+	@Override
+	public List<ServiceProviderEventWorkDTO> getCompletedEventsDetails(Long id) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("serviceProviderId", id);
+		return jdbcTemplate.query("SELECT e.eventId,e.eventTitle,e.objective,et.eventType,e.startDate,e.startTime,e.endDate,e.endTime,e.isPublic,\r\n"
+				+ "concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber,\r\n"
+				+ "(SELECT concat(firstName,' ',lastName) from userDetails where userDetailsId=emp.userDetailsId) as eventOrganizerName,\r\n"
+				+ "(SELECT email from userDetails where userDetailsId=emp.userDetailsId) as eventOrganizerEmail,\r\n"
+				+ "(SELECT mobileNumber from userDetails where userDetailsId=emp.userDetailsId) as eventOrganizerMobileNumber,\r\n"
+				+ "v.venueName,v.addressId,v.email as venueEmail,v.contactNumber \r\n"
+				+ "from event e\r\n"
+				+ "join packagedetails p on e.packageId=p.packageDetailsId\r\n"
+				+ "join packageserviceprovidermapping m on p.packageDetailsId=m.packageId\r\n"
+				+ "join venue v on p.venueId = v.venueId\r\n"
+				+ "join enueventtype et on et.eventTypeId = p.eventTypeId\r\n"
+				+ "join userdetails u on u.userDetailsId= e.userDetailsId\r\n"
+				+ "join employee emp on emp.employeeId=e.eventOrganizerId\r\n"
+				+ "where e.eventStatusId=(SELECT statusId from enueventstatus where status='Completed') and e.isActive=true and p.isActive=true and m.serviceProviderId=:serviceProviderId", namedParams,
+				new BeanPropertyRowMapper<ServiceProviderEventWorkDTO>(ServiceProviderEventWorkDTO.class));
+	}
+
+	@Override
+	public List<ServiceProviderEventWorkDTO> getOngoingEventsDetails(Long id) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("serviceProviderId", id);
+		return jdbcTemplate.query("SELECT e.eventId,e.eventTitle,e.objective,et.eventType,e.startDate,e.startTime,e.endDate,e.endTime,e.isPublic,\r\n"
+				+ "concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber,\r\n"
+				+ "(SELECT concat(firstName,' ',lastName) from userDetails where userDetailsId=emp.userDetailsId) as eventOrganizerName,\r\n"
+				+ "(SELECT email from userDetails where userDetailsId=emp.userDetailsId) as eventOrganizerEmail,\r\n"
+				+ "(SELECT mobileNumber from userDetails where userDetailsId=emp.userDetailsId) as eventOrganizerMobileNumber,\r\n"
+				+ "v.venueName,v.addressId,v.email as venueEmail,v.contactNumber\r\n"
+				+ "from event e\r\n"
+				+ "join packagedetails p on e.packageId=p.packageDetailsId\r\n"
+				+ "join packageserviceprovidermapping m on p.packageDetailsId=m.packageId\r\n"
+				+ "join venue v on p.venueId = v.venueId\r\n"
+				+ "join enueventtype et on et.eventTypeId = p.eventTypeId\r\n"
+				+ "join userdetails u on u.userDetailsId= e.userDetailsId\r\n"
+				+ "join employee emp on emp.employeeId=e.eventOrganizerId\r\n"
+				+ "where e.eventStatusId=(SELECT statusId from enueventstatus where status='Verified') and e.isActive=true and p.isActive=true and m.serviceProviderId=:serviceProviderId", namedParams,
+				new BeanPropertyRowMapper<ServiceProviderEventWorkDTO>(ServiceProviderEventWorkDTO.class));
 	}
 }

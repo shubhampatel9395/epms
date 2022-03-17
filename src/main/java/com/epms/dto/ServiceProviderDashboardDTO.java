@@ -11,5 +11,5 @@ public class ServiceProviderDashboardDTO {
 	public Integer ongoingEventCount;
 	public Integer participatedEventCount;
 	public Integer packageCount;
-	public Integer reviewCount;
+	public Double reviewCount;
 }

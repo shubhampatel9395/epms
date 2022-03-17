@@ -1,5 +1,7 @@
 package com.epms.controller;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -27,6 +29,7 @@ import com.epms.dto.EnuCityDTO;
 import com.epms.dto.EnuStateDTO;
 import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.ServiceProviderDashboardDTO;
+import com.epms.dto.ServiceProviderEventWorkDTO;
 import com.epms.dto.UserDetailsDTO;
 import com.epms.email.configuration.IMailService;
 import com.epms.service.IAddressService;
@@ -149,7 +152,21 @@ public class ServiceProviderController {
 					.getAuthentication().getPrincipal();
 			ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
 			
-			ServiceProviderDashboardDTO serviceProviderDashboardDTO = new ServiceProviderDashboardDTO();			
+			ServiceProviderDashboardDTO serviceProviderDashboardDTO = new ServiceProviderDashboardDTO();
+			serviceProviderDashboardDTO.setPackageCount(serviceProviderService.getTotalParticipatedPackages(currentUser.getServiceProviderId().longValue()));
+			serviceProviderDashboardDTO.setParticipatedEventCount(serviceProviderService.getCompletedEvents(currentUser.getServiceProviderId().longValue()));
+			serviceProviderDashboardDTO.setOngoingEventCount(serviceProviderService.getOngoingEvents(currentUser.getServiceProviderId().longValue()));
+			serviceProviderDashboardDTO.setReviewCount(serviceProviderService.getAverageRatings(currentUser.getServiceProviderId().longValue()));
+			modelandmap.addObject("serviceProviderDashboardDTO", serviceProviderDashboardDTO);
+			
+			List<ServiceProviderEventWorkDTO> ongoingEventWorkDTOs = serviceProviderService.getOngoingEventsDetails(currentUser.getServiceProviderId().longValue());
+			// ongoingEventWorkDTOs.sort(Collections.reverseOrder(Comparator.comparing(ServiceProviderEventWorkDTO::getUpdatedAt)));
+			modelandmap.addObject("ongoingEventWorkDTOs", ongoingEventWorkDTOs);
+			
+			List<ServiceProviderEventWorkDTO> completedEventWorkDTOs = serviceProviderService.getCompletedEventsDetails(currentUser.getServiceProviderId().longValue());
+			// completedEventWorkDTOs.sort(Collections.reverseOrder(Comparator.comparing(ServiceProviderEventWorkDTO::getUpdatedAt)));
+			modelandmap.addObject("completedEventWorkDTOs", completedEventWorkDTOs);
+			
 			return modelandmap;
 		}
 	}

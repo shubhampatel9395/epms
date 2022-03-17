@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.epms.dao.IServiceProviderDAO;
 import com.epms.dto.ServiceProviderDTO;
+import com.epms.dto.ServiceProviderEventWorkDTO;
 import com.epms.service.IServiceProviderService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -65,5 +66,35 @@ public class ServiceProviderService implements IServiceProviderService {
 	@Override
 	public void authenticate(Long id) {
 		serviceProviderDAO.authenticate(id);
+	}
+
+	@Override
+	public int getTotalParticipatedPackages(Long id) {
+		return serviceProviderDAO.getTotalParticipatedPackages(id);
+	}
+
+	@Override
+	public int getCompletedEvents(Long id) {
+		return serviceProviderDAO.getCompletedEvents(id);
+	}
+
+	@Override
+	public int getOngoingEvents(Long id) {
+		return serviceProviderDAO.getOngoingEvents(id);
+	}
+
+	@Override
+	public double getAverageRatings(Long id) {
+		return serviceProviderDAO.getAverageRatings(id);
+	}
+
+	@Override
+	public List<ServiceProviderEventWorkDTO> getCompletedEventsDetails(Long id) {
+		return serviceProviderDAO.getCompletedEventsDetails(id);
+	}
+
+	@Override
+	public List<ServiceProviderEventWorkDTO> getOngoingEventsDetails(Long id) {
+		return serviceProviderDAO.getOngoingEventsDetails(id);
 	}
 }
