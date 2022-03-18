@@ -68,10 +68,19 @@
 							<h4 class="header-title mb-2">Upcoming Events</h4>
 							<div data-simplebar style="max-height: 525px;">
 								<div class="timeline-alt pb-0">
-									<div class="timeline-item" th:each="upcomingEvent : ${ongoingEventWorkDTOs}">
+									<div class="timeline-item" th:if="${#lists.isEmpty(ongoingEventWorkDTOs)}">
+										<div class="timeline-item-info">
+											<span class="text-muted" style="display: block;">
+												There is no upcoming events for you.
+											</span>
+										</div>
+									</div>
+									<div class="timeline-item" th:unless="${#lists.isEmpty(ongoingEventWorkDTOs)}"
+										th:each="upcomingEvent : ${ongoingEventWorkDTOs}">
 										<i class="mdi mdi-calendar-sync bg-info-lighten text-info timeline-icon"></i>
 										<div class="timeline-item-info">
-											<a th:href="@{'/serviceprovider/view_event/' + ${upcomingEvent.eventId}}" class="text-info fw-bold mb-1 d-block"
+											<a th:href="@{'/serviceprovider/view_event/' + ${upcomingEvent.eventId}}"
+												class="text-info fw-bold mb-1 d-block"
 												th:text="|Event Title: ${upcomingEvent.eventTitle}|"></a>
 											<span style="display: block;"
 												th:text="|Venue: ${upcomingEvent.venueName}|"></span>
@@ -97,11 +106,20 @@
 							<h4 class="header-title mb-2">Participated Event History</h4>
 							<div data-simplebar style="max-height: 525px;">
 								<div class="timeline-alt pb-0">
-									<div class="timeline-item" th:each="completedEvent : ${completedEventWorkDTOs}">
+									<div class="timeline-item" th:if="${#lists.isEmpty(completedEventWorkDTOs)}">
+										<div class="timeline-item-info">
+											<span class="text-muted" style="display: block;">
+												You are yet to complete any event with us.
+											</span>
+										</div>
+									</div>
+									<div class="timeline-item" th:unless="${#lists.isEmpty(completedEventWorkDTOs)}"
+										th:each="completedEvent : ${completedEventWorkDTOs}">
 										<i
 											class="mdi mdi-calendar-check bg-success-lighten text-success timeline-icon"></i>
 										<div class="timeline-item-info">
-											<a th:href="@{'/serviceprovider/view_event/' + ${completedEvent.eventId}}" class="text-success fw-bold mb-1 d-block"
+											<a th:href="@{'/serviceprovider/view_event/' + ${completedEvent.eventId}}"
+												class="text-success fw-bold mb-1 d-block"
 												th:text="|Event Title: ${completedEvent.eventTitle}|"></a>
 											<span style="display: block;"
 												th:text="|Venue: ${completedEvent.venueName}|"></span>

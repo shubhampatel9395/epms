@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 import com.epms.dao.IServiceProviderDAO;
 import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.ServiceProviderEventWorkDTO;
+import com.epms.dto.ShowFeedbackDTO;
 
 import groovy.util.logging.Slf4j;
 
@@ -251,5 +252,30 @@ public class ServiceProviderDAO implements IServiceProviderDAO {
 				+ "join employee emp on emp.employeeId=e.eventOrganizerId\r\n"
 				+ "where e.eventId=:eventId and e.isActive=true and p.isActive=true and m.serviceProviderId=:serviceProviderId", namedParams,
 				new BeanPropertyRowMapper<ServiceProviderEventWorkDTO>(ServiceProviderEventWorkDTO.class)));
+	}
+	
+	@Override
+	public List<ShowFeedbackDTO> getFeedbackDetails(Long serviceProviderId) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("serviceProviderId", serviceProviderId);
+		return jdbcTemplate.query("SELECT e.eventId,e.eventTitle,e.objective,(SELECT bannerId from eventbanner where e.eventId=eventId and isActive=true) as bannerId,et.eventType,e.startDate,e.startTime,e.endDate,e.endTime,e.isPublic,e.updatedAt,\r\n"
+				+ "concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber,\r\n"
+				+ "(SELECT concat(firstName,' ',lastName) from userDetails where userDetailsId=emp.userDetailsId) as eventOrganizerName,\r\n"
+				+ "(SELECT email from userDetails where userDetailsId=emp.userDetailsId) as eventOrganizerEmail,\r\n"
+				+ "(SELECT mobileNumber from userDetails where userDetailsId=emp.userDetailsId) as eventOrganizerMobileNumber,\r\n"
+				+ "v.venueName,v.addressId,v.email as venueEmail,v.contactNumber,f.feedbackId,f.eventId, f.eventRating, f.eventDescription, f.venueId,f.venueRating, f.venueDescription, f.employeeId, f.employeeRating, f.employeeDescription, f.serviceProviderId, f.serviceProviderRating, f.serviceProviderDescription, f.packageId, f.packageRating, f.packageDescription, f.createdAt, f.updatedAt, f.isActive, f.createdBy, f.updatedBy \r\n"
+				+ "FROM feedback f\r\n"
+				+ "join event e on e.eventId=f.eventId\r\n"
+				+ "join serviceprovider sp on sp.serviceProviderId=f.serviceProviderId\r\n"
+				+ "join packagedetails p on e.packageId=p.packageDetailsId\r\n"
+				+ "join venue v on p.venueId = v.venueId\r\n"
+				+ "join enueventtype et on et.eventTypeId = e.eventTypeId\r\n"
+				+ "join userdetails u on u.userDetailsId= e.userDetailsId\r\n"
+				+ "join employee emp on emp.employeeId=e.eventOrganizerId\r\n"
+				+ "where sp.serviceProviderId=:serviceProviderId and e.eventId IN (SELECT e.eventId from event e\r\n"
+				+ "join packagedetails p on e.packageId=p.packageDetailsId\r\n"
+				+ "join packageserviceprovidermapping m on p.packageDetailsId=m.packageId\r\n"
+				+ "where e.eventStatusId=(SELECT statusId from enueventstatus where status='Completed') and e.isActive=true and p.isActive=true and m.serviceProviderId=:serviceProviderId)", namedParams,
+				new BeanPropertyRowMapper<ShowFeedbackDTO>(ShowFeedbackDTO.class));
 	}
 }

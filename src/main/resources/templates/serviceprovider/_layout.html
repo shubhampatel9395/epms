@@ -71,6 +71,13 @@
 						</a>
 					</li>
 					-->
+					
+					<li class="side-nav-item" th:classappend="${#request.getRequestURI().contains('/packages') ? 'active' : '' }">
+						<a th:href="@{/serviceprovider/packages}" class="side-nav-link">
+							<i class="mdi mdi-package-variant"></i>
+							<span> Packages </span>
+						</a>
+					</li>
 
 					<li class="side-nav-item"
 						th:classappend="${#request.getRequestURI().contains('/assigned-events') ? 'active' : '' }">

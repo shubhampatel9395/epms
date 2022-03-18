@@ -5,6 +5,7 @@ import java.util.List;
 import com.epms.core.ICRUDRepository;
 import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.ServiceProviderEventWorkDTO;
+import com.epms.dto.ShowFeedbackDTO;
 
 public interface IServiceProviderDAO extends ICRUDRepository<ServiceProviderDTO, Long> {
 	public List<ServiceProviderDTO> findAllActive();
@@ -16,4 +17,5 @@ public interface IServiceProviderDAO extends ICRUDRepository<ServiceProviderDTO,
 	public List<ServiceProviderEventWorkDTO> getCompletedEventsDetails(Long id);
 	public List<ServiceProviderEventWorkDTO> getOngoingEventsDetails(Long id);
 	public ServiceProviderEventWorkDTO getEventsDetails(Long eventId, Long serviceProviderId);
+	public List<ShowFeedbackDTO> getFeedbackDetails(Long serviceProviderId);
 }

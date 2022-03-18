@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.epms.dao.IServiceProviderDAO;
 import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.ServiceProviderEventWorkDTO;
+import com.epms.dto.ShowFeedbackDTO;
 import com.epms.service.IServiceProviderService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -101,5 +102,10 @@ public class ServiceProviderService implements IServiceProviderService {
 	@Override
 	public ServiceProviderEventWorkDTO getEventsDetails(Long eventId, Long serviceProviderId) {
 		return serviceProviderDAO.getEventsDetails(eventId, serviceProviderId);
+	}
+
+	@Override
+	public List<ShowFeedbackDTO> getFeedbackDetails(Long serviceProviderId) {
+		return serviceProviderDAO.getFeedbackDetails(serviceProviderId);
 	}
 }

@@ -19,7 +19,7 @@
 			<div class="row">
 				<div class="col-12">
 					<div class="page-title-box">
-						<h4 class="page-title">Feedback</h4>
+						<h4 class="page-title">Feedback of work</h4>
 					</div>
 				</div>
 			</div>
@@ -35,22 +35,20 @@
 										<tr>
 											<th>Event Title</th>
 											<th>Event Type</th>
-											<th>Venue</th>
-											<th>End Date</th>
-											<th>End Time</th>
+											<th>End Date-Time</th>
 											<th>Ratings</th>
 											<th>Description</th>
-											<th style="width: 85px; display:none;">Action</th>
+											<th style="width: 85px;">Action</th>
 										</tr>
 									</thead>
 									<tbody>
 										<tr th:each="completedEvent : ${completedEventWorkDTOs}">
 											<td th:text="${completedEvent.eventTitle}"></td>
 											<td th:text="${completedEvent.eventType}"></td>
-											<td th:text="${completedEvent.venueName}"></td>
-											<td th:text="${#dates.format(completedEvent.endDate,'MMM dd, yyyy')}"></td>
-											<td th:text="${completedEvent.endTime}"></td>
-											<td class="table-action" style="display:none;">
+											<td th:text="|${#dates.format(completedEvent.endDate,'MMM dd, yyyy')} ${completedEvent.endTime}|"></td>
+											<td th:text="|${completedEvent.serviceProviderRating}/5|"></td>
+											<td th:text="${completedEvent.serviceProviderDescription}"></td>
+											<td class="table-action">
 												<a th:href="@{'/serviceprovider/view_event/' + ${completedEvent.eventId}}"
 													class="action-icon"> <i class="mdi mdi-eye"></i></a>
 											</td>

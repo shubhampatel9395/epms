@@ -1,6 +1,5 @@
 package com.epms.controller;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -30,6 +29,7 @@ import com.epms.dto.EnuStateDTO;
 import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.ServiceProviderDashboardDTO;
 import com.epms.dto.ServiceProviderEventWorkDTO;
+import com.epms.dto.ShowFeedbackDTO;
 import com.epms.dto.UserDetailsDTO;
 import com.epms.email.configuration.IMailService;
 import com.epms.service.IAddressService;
@@ -242,6 +242,11 @@ public class ServiceProviderController {
 	@GetMapping("/feedbacks")
 	public ModelAndView feedback() {
 		ModelAndView modelandmap = new ModelAndView("/serviceprovider/feedbacks");
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
+		List<ShowFeedbackDTO> completedEventWorkDTOs = serviceProviderService.getFeedbackDetails(currentUser.getServiceProviderId().longValue());
+		modelandmap.addObject("completedEventWorkDTOs", completedEventWorkDTOs);
 		return modelandmap;
 	}
 	
