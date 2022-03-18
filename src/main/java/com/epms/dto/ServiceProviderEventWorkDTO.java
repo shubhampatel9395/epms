@@ -14,6 +14,7 @@ public class ServiceProviderEventWorkDTO {
 	private Long eventId;
 	private String eventTitle;
 	private String objective;
+	private Long bannerId;
 	private String eventType;
 	private Date startDate;
 	private Time startTime;

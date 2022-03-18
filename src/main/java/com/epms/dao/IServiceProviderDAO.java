@@ -15,4 +15,5 @@ public interface IServiceProviderDAO extends ICRUDRepository<ServiceProviderDTO,
 	public double getAverageRatings(Long id);
 	public List<ServiceProviderEventWorkDTO> getCompletedEventsDetails(Long id);
 	public List<ServiceProviderEventWorkDTO> getOngoingEventsDetails(Long id);
+	public ServiceProviderEventWorkDTO getEventsDetails(Long eventId, Long serviceProviderId);
 }

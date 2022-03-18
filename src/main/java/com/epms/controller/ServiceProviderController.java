@@ -160,11 +160,11 @@ public class ServiceProviderController {
 			modelandmap.addObject("serviceProviderDashboardDTO", serviceProviderDashboardDTO);
 			
 			List<ServiceProviderEventWorkDTO> ongoingEventWorkDTOs = serviceProviderService.getOngoingEventsDetails(currentUser.getServiceProviderId().longValue());
-			// ongoingEventWorkDTOs.sort(Collections.reverseOrder(Comparator.comparing(ServiceProviderEventWorkDTO::getUpdatedAt)));
+			ongoingEventWorkDTOs.sort(Comparator.comparing(ServiceProviderEventWorkDTO::getStartDate));
 			modelandmap.addObject("ongoingEventWorkDTOs", ongoingEventWorkDTOs);
 			
 			List<ServiceProviderEventWorkDTO> completedEventWorkDTOs = serviceProviderService.getCompletedEventsDetails(currentUser.getServiceProviderId().longValue());
-			// completedEventWorkDTOs.sort(Collections.reverseOrder(Comparator.comparing(ServiceProviderEventWorkDTO::getUpdatedAt)));
+			completedEventWorkDTOs.sort(Comparator.comparing(ServiceProviderEventWorkDTO::getEndDate));
 			modelandmap.addObject("completedEventWorkDTOs", completedEventWorkDTOs);
 			
 			return modelandmap;
@@ -184,15 +184,52 @@ public class ServiceProviderController {
 		return modelandmap;
 	}
 	
+	public String getAddress(AddressDTO addressDTO) {
+		String address;
+		address = addressDTO.getAddress1();
+		if (addressDTO.getAddress2() != null) {
+			address += ", " + addressDTO.getAddress2();
+		}
+		address += ",\n " + enuCityService.findById(addressDTO.getCityId().longValue()).getCity() + ", "
+				+ enuStateService.findById(addressDTO.getStateId().longValue()).getState() + ", "
+				+ enuCountryService.findById(addressDTO.getCountryId().longValue()).getCountry() + " - "
+				+ addressDTO.getPostalCode();
+		return address;
+	}
+	
+	@GetMapping("/view_event/{eventId}")
+	public ModelAndView viewEvent(@PathVariable long eventId) {
+		ModelAndView modelandmap = new ModelAndView("/serviceprovider/view_event");
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
+		ServiceProviderEventWorkDTO event = serviceProviderService.getEventsDetails(eventId,currentUser.getServiceProviderId().longValue());
+		modelandmap.addObject("addressVenue", getAddress(addressService.findById(event.getAddressId())));
+		modelandmap.addObject("event", event);
+		return modelandmap;
+	}
+	
 	@GetMapping("/assigned-events")
 	public ModelAndView assignedEvents() {
 		ModelAndView modelandmap = new ModelAndView("/serviceprovider/assigned-events");
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
+		List<ServiceProviderEventWorkDTO> ongoingEventWorkDTOs = serviceProviderService.getOngoingEventsDetails(currentUser.getServiceProviderId().longValue());
+		ongoingEventWorkDTOs.sort(Comparator.comparing(ServiceProviderEventWorkDTO::getStartDate));
+		modelandmap.addObject("ongoingEventWorkDTOs", ongoingEventWorkDTOs);
 		return modelandmap;
 	}
 	
 	@GetMapping("/event-history")
 	public ModelAndView eventHistory() {
 		ModelAndView modelandmap = new ModelAndView("/serviceprovider/event-history");
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
+		List<ServiceProviderEventWorkDTO> completedEventWorkDTOs = serviceProviderService.getCompletedEventsDetails(currentUser.getServiceProviderId().longValue());
+		completedEventWorkDTOs.sort(Comparator.comparing(ServiceProviderEventWorkDTO::getEndDate));
+		modelandmap.addObject("completedEventWorkDTOs", completedEventWorkDTOs);
 		return modelandmap;
 	}
 	

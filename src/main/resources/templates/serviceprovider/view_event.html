@@ -1,0 +1,157 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{serviceprovider/_layout}">
+
+<head>
+	<title>Event Details</title>
+	<style>
+		.page-title-box .page-title-right {
+			display: block;
+		}
+
+		#profileImage {
+			cursor: pointer;
+		}
+
+		#profile-container {
+			width: 400px;
+			height: 300px;
+			overflow: hidden;
+		}
+
+		#profile-container img {
+			width: 400px;
+			height: 300px;
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<div class="page-title-right">
+							<a th:href="@{/serviceprovider/dashboard}" class="btn btn-secondary mb-2">Back</a>
+						</div>
+						<h4 class="page-title">Event Details</h4>
+					</div>
+					<div class="col-12">
+						<div class="card">
+							<div class="card-body">
+								<div th:if="${event.bannerId} != null" class="mb-3" id="profile-container">
+									<img id="profileImage" class="img-fluid img-thumbnail"
+										th:src="@{'/admin/banner/' + ${event.bannerId}}" />
+								</div>
+
+								<dl class="row mb-0">
+									<dt class="col-sm-3">Event Title</dt>
+									<dd class="col-sm-9" th:text="${event.eventTitle}"></dd>
+
+									<dt class="col-sm-3">Objective</dt>
+									<dd class="col-sm-9" th:text="${event.objective}"></dd>
+
+									<dt class="col-sm-3">Event Type</dt>
+									<dd class="col-sm-9" th:utext="${event.eventType}"></dd>
+
+									<dt class="col-sm-3">Start Date</dt>
+									<dd class="col-sm-9" th:utext="${#dates.format(event.startDate, 'yyyy-MM-dd')}">
+									</dd>
+
+									<dt class="col-sm-3">Start Time</dt>
+									<dd class="col-sm-9" th:utext="${event.startTime}"></dd>
+
+									<dt class="col-sm-3">End Date</dt>
+									<dd class="col-sm-9" th:utext="${#dates.format(event.endDate, 'yyyy-MM-dd')}"></dd>
+
+									<dt class="col-sm-3">End Time</dt>
+									<dd class="col-sm-9" th:utext="${event.endTime}"></dd>
+
+									<dt class="col-sm-3">Is Public Event?</dt>
+									<dd class="col-sm-9" th:utext="${event.isPublic == true ? 'Yes' : 'No'}"></dd>
+								</dl>
+							</div>
+						</div>
+
+						<div class="page-title-box">
+							<h4 class="page-title"> Customer Details</h4>
+						</div>
+						<div class="col-12">
+							<div class="card">
+								<div class="card-body">
+									<dl class="row mb-0">
+										<dt class="col-sm-3">Name</dt>
+										<dd class="col-sm-9" th:utext="|${event.customerName}|">
+										</dd>
+
+										<dt class="col-sm-3">Email Address</dt>
+										<dd class="col-sm-9" th:utext="${event.email}">
+										</dd>
+
+										<dt class="col-sm-3">Mobile Number</dt>
+										<dd class="col-sm-9" th:utext="${event.mobileNumber}"></dd>
+									</dl>
+								</div>
+							</div>
+						</div>
+
+						<div class="page-title-box">
+							<h4 class="page-title"> Venue Details</h4>
+						</div>
+						<div class="col-12">
+							<div class="card">
+								<div class="card-body">
+									<dl class="row mb-0">
+										<dt class="col-sm-3">Name</dt>
+										<dd class="col-sm-9" th:text="${event.venueName}"></dd>
+
+										<dt class="col-sm-3">Address</dt>
+										<dd class="col-sm-9"
+											th:utext="${#strings.replace(addressVenue,'&#10;','&lt;br&gt;')}"></dd>
+
+										<dt class="col-sm-3">Email Address</dt>
+										<dd class="col-sm-9" th:text="${event.venueEmail}"></dd>
+
+										<dt class="col-sm-3">Contact Number</dt>
+										<dd class="col-sm-9" th:text="${event.contactNumber}"></dd>
+									</dl>
+								</div>
+							</div>
+						</div>
+
+						<div>
+							<div class="page-title-box">
+								<h4 class="page-title"> Event Organizer Details</h4>
+							</div>
+							<div class="col-12">
+								<div class="card">
+									<div class="card-body">
+										<dl class="row mb-0">
+											<dt class="col-sm-3">Name</dt>
+											<dd class="col-sm-9" th:utext="${event.eventOrganizerName}">
+											</dd>
+
+											<dt class="col-sm-3">Email Address</dt>
+											<dd class="col-sm-9" th:utext="${event.eventOrganizerEmail}">
+											</dd>
+
+											<dt class="col-sm-3">Mobile Number</dt>
+											<dd class="col-sm-9" th:utext="${event.eventOrganizerMobileNumber}"></dd>
+										</dl>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+	</th:block>
+</body>
+
+</html>

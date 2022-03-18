@@ -97,4 +97,9 @@ public class ServiceProviderService implements IServiceProviderService {
 	public List<ServiceProviderEventWorkDTO> getOngoingEventsDetails(Long id) {
 		return serviceProviderDAO.getOngoingEventsDetails(id);
 	}
+
+	@Override
+	public ServiceProviderEventWorkDTO getEventsDetails(Long eventId, Long serviceProviderId) {
+		return serviceProviderDAO.getEventsDetails(eventId, serviceProviderId);
+	}
 }
