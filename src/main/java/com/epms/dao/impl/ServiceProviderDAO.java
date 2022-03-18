@@ -15,8 +15,10 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IServiceProviderDAO;
+import com.epms.dto.AllServiceProvidersPackageDTO;
 import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.ServiceProviderEventWorkDTO;
+import com.epms.dto.ServiceProviderPackageDTO;
 import com.epms.dto.ShowFeedbackDTO;
 
 import groovy.util.logging.Slf4j;
@@ -277,5 +279,40 @@ public class ServiceProviderDAO implements IServiceProviderDAO {
 				+ "join packageserviceprovidermapping m on p.packageDetailsId=m.packageId\r\n"
 				+ "where e.eventStatusId=(SELECT statusId from enueventstatus where status='Completed') and e.isActive=true and p.isActive=true and m.serviceProviderId=:serviceProviderId)", namedParams,
 				new BeanPropertyRowMapper<ShowFeedbackDTO>(ShowFeedbackDTO.class));
+	}
+
+	@Override
+	public List<ServiceProviderPackageDTO> getPackageDetails(Long serviceProviderId) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("serviceProviderId", serviceProviderId);
+		return jdbcTemplate.query("SELECT p.packageDetailsId,p.title,p.description,et.eventType,p.guestAmount,p.totalCost,p.createdAt,\r\n"
+				+ "v.venueName,v.addressId,v.email as venueEmail,v.contactNumber\r\n"
+				+ "from packagedetails p\r\n"
+				+ "join packageserviceprovidermapping m on p.packageDetailsId=m.packageId\r\n"
+				+ "join enueventtype et on et.eventTypeId = p.eventTypeId\r\n"
+				+ "join venue v on p.venueId = v.venueId\r\n"
+				+ "join serviceprovider sp on m.serviceProviderId=sp.serviceProviderId\r\n"
+				+ "join enuservicetype est on sp.serviceTypeId=est.serviceTypeId\r\n"
+				+ "where p.isStatic=1 and p.isActive=true and m.serviceProviderId=:serviceProviderId", namedParams,
+				new BeanPropertyRowMapper<ServiceProviderPackageDTO>(ServiceProviderPackageDTO.class));
+	}
+
+	@Override
+	public List<AllServiceProvidersPackageDTO> getAllServiceProvidersPackageDetails(Long serviceProviderId) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("serviceProviderId", serviceProviderId);
+		return jdbcTemplate.query("SELECT p.packageDetailsId,\r\n"
+				+ "u.serviceProviderName,u.email,est.service\r\n"
+				+ "from packagedetails p\r\n"
+				+ "join packageserviceprovidermapping m on p.packageDetailsId=m.packageId\r\n"
+				+ "join serviceprovider sp on m.serviceProviderId=sp.serviceProviderId\r\n"
+				+ "join userdetails u on sp.userDetailsId=u.userDetailsId\r\n"
+				+ "join enuservicetype est on sp.serviceTypeId=est.serviceTypeId\r\n"
+				+ "where p.isStatic=1 and p.isActive=true \r\n"
+				+ "and p.packageDetailsId IN (SELECT p.packageDetailsId\r\n"
+				+ "from packagedetails p\r\n"
+				+ "join packageserviceprovidermapping m on p.packageDetailsId=m.packageId\r\n"
+				+ "where p.isStatic=1 and p.isActive=true and m.serviceProviderId=:serviceProviderId)", namedParams,
+				new BeanPropertyRowMapper<AllServiceProvidersPackageDTO>(AllServiceProvidersPackageDTO.class));
 	}
 }

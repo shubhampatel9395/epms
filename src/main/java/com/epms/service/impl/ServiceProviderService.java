@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.epms.dao.IServiceProviderDAO;
+import com.epms.dto.AllServiceProvidersPackageDTO;
 import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.ServiceProviderEventWorkDTO;
+import com.epms.dto.ServiceProviderPackageDTO;
 import com.epms.dto.ShowFeedbackDTO;
 import com.epms.service.IServiceProviderService;
 
@@ -107,5 +109,15 @@ public class ServiceProviderService implements IServiceProviderService {
 	@Override
 	public List<ShowFeedbackDTO> getFeedbackDetails(Long serviceProviderId) {
 		return serviceProviderDAO.getFeedbackDetails(serviceProviderId);
+	}
+
+	@Override
+	public List<ServiceProviderPackageDTO> getPackageDetails(Long serviceProviderId) {
+		return serviceProviderDAO.getPackageDetails(serviceProviderId);
+	}
+
+	@Override
+	public List<AllServiceProvidersPackageDTO> getAllServiceProvidersPackageDetails(Long serviceProviderId) {
+		return serviceProviderDAO.getAllServiceProvidersPackageDetails(serviceProviderId);
 	}
 }

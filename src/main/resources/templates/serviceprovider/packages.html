@@ -1,0 +1,110 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{serviceprovider/_layout}">
+
+<head>
+	<title>Participated Packages</title>
+	<!-- third party css -->
+	<link th:href="@{/assets/css/vendor/dataTables.bootstrap5.css}" rel="stylesheet" type="text/css" />
+	<link th:href="@{/assets/css/vendor/responsive.bootstrap5.css}" rel="stylesheet" type="text/css" />
+
+
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+
+			<!-- start page title -->
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<h4 class="page-title">Participated Packages</h4>
+					</div>
+				</div>
+			</div>
+			<!-- end page title -->
+
+			<div class="row">
+				<div class="col-12">
+					<div class="row" id="main">
+						<div class="col-md-6 col-xxl-3" th:each="package: ${participatedPackages}">
+							<!-- project card -->
+							<div class="card d-block">
+								<div class="card-body">
+									<!-- project title-->
+									<h4 class="mt-0">
+										<span class="text-title" style="cursor: pointer;"
+											th:text="${package.title}"></span>
+										<span class="float-end" th:text="${package.totalCost}"></span>
+										<i class="mdi mdi-currency-inr float-end" style="margin-right: 0.25rem;"></i>
+									</h4>
+									<div class="badge bg-success mb-3" th:text="${package.eventType}"></div>
+									<p th:if="${package.description != ''}" class="font-13 mb-3"
+										th:text="${package.description}">
+									</p>
+
+									<!-- project detail-->
+									<p class="mb-1">
+										<span class="pe-2 text-nowrap mb-1 d-inline-block">
+											<i class="uil-map-pin-alt text-muted"></i>
+											<b>Venue Details</b>
+										</span>
+									<p th:text="|${package.venueName}, ${venueAddresses[packageStat.index]}|"></p>
+									</p>
+									<p class="mb-1">
+										<span class="pe-2 text-nowrap mb-1 d-inline-block">
+											<i class="uil-phone text-muted"></i>
+											Contact Number
+											<p th:text="${package.contactNumber}"></p>
+										</span>
+									</p>
+
+									<p class="mb-1">
+										<span class="pe-2 text-nowrap mb-1 d-inline-block">
+											<i class="uil-envelopes text-muted"></i>
+											Email
+											<p th:text="${package.venueEmail}"></p>
+										</span>
+									</p>
+
+									<p class="mb-1">
+										<span class="pe-2 text-nowrap mb-1 d-inline-block">
+											<i class="uil-map-pin-alt text-muted"></i>
+											<b>Service Details</b>
+										</span>
+									<p class="mb-0" th:each="entry : ${allServiceProviders}">
+										<span th:if="${entry.packageDetailsId} == ${package.packageDetailsId}">
+											<b><span th:text="${entry.serviceProviderName}"></span></b>
+											<span
+												th:text="' - ' + ${entry.service} + '(' + ${entry.email} + ')'"></span>
+										</span>
+									</p>
+									</p>
+								</div> <!-- end card-body-->
+							</div> <!-- end card-->
+						</div> <!-- end col -->
+					</div>
+				</div> <!-- end col -->
+			</div>
+			<!-- end row -->
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+		<!-- third party js -->
+		<script th:src="@{/assets/js/vendor/jquery.dataTables.min.js}"></script>
+		<script th:src="@{/assets/js/vendor/dataTables.bootstrap5.js}"></script>
+		<script th:src="@{/assets/js/vendor/dataTables.responsive.min.js}"></script>
+		<script th:src="@{/assets/js/vendor/responsive.bootstrap5.min.js}"></script>
+
+		<!-- third party js ends -->
+
+		<!-- demo app -->
+		<script th:src="@{/assets/js/pages/demo.datatable-init.js}"></script>
+		<!-- end demo js-->
+	</th:block>
+</body>
+
+</html>

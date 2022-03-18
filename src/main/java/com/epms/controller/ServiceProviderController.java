@@ -2,6 +2,7 @@ package com.epms.controller;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -24,11 +25,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.epms.authentication.CustomUserDetailsDTO;
 import com.epms.dto.AddressDTO;
+import com.epms.dto.AllServiceProvidersPackageDTO;
 import com.epms.dto.EnuCityDTO;
 import com.epms.dto.EnuStateDTO;
 import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.ServiceProviderDashboardDTO;
 import com.epms.dto.ServiceProviderEventWorkDTO;
+import com.epms.dto.ServiceProviderPackageDTO;
 import com.epms.dto.ShowFeedbackDTO;
 import com.epms.dto.UserDetailsDTO;
 import com.epms.email.configuration.IMailService;
@@ -181,6 +184,23 @@ public class ServiceProviderController {
 	@GetMapping("/service-settings")
 	public ModelAndView serviceSettings() {
 		ModelAndView modelandmap = new ModelAndView("/serviceprovider/service-settings");
+		return modelandmap;
+	}
+	
+	@GetMapping("/packages")
+	public ModelAndView participatedPackages() {
+		ModelAndView modelandmap = new ModelAndView("/serviceprovider/packages");
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
+		List<ServiceProviderPackageDTO> participatedPackages = serviceProviderService.getPackageDetails(currentUser.getServiceProviderId().longValue());
+		List<String> venueAddresses = participatedPackages.stream().map(packageEntry -> {
+			return getAddress(addressService.findById(packageEntry.getAddressId()));
+		}).collect(Collectors.toList());
+		List<AllServiceProvidersPackageDTO> allServiceProviders = serviceProviderService.getAllServiceProvidersPackageDetails(currentUser.getServiceProviderId().longValue());
+		modelandmap.addObject("participatedPackages", participatedPackages);
+		modelandmap.addObject("venueAddresses", venueAddresses);
+		modelandmap.addObject("allServiceProviders", allServiceProviders);
 		return modelandmap;
 	}
 	
