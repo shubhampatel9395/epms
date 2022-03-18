@@ -10,14 +10,19 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.epms.authentication.CustomUserDetailsDTO;
+import com.epms.dto.AddressDTO;
+import com.epms.dto.AllServiceProvidersPackageDTO;
 import com.epms.dto.EmployeeDTO;
 import com.epms.dto.EmployeeDashboardDTO;
 import com.epms.dto.EmployeeEventWorkDTO;
+import com.epms.dto.EventOrganizerEventWorkDTO;
+import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.ServiceProviderEventWorkDTO;
 import com.epms.email.configuration.IMailService;
 import com.epms.service.IAddressService;
@@ -159,9 +164,9 @@ public class EmployeeController {
 						.getEventOrganizerCompletedEventCount(currentEmployee.getEmployeeId().longValue()));
 				employeeDashboardDTO.setUpcomingEventCount(employeeService
 						.getEventOrganizerUpcomingEventCount(currentEmployee.getEmployeeId().longValue()));
-				List<ServiceProviderEventWorkDTO> completedEventWorkDTOs = employeeService
+				List<EventOrganizerEventWorkDTO> completedEventWorkDTOs = employeeService
 						.getEventOrganizerCompletedEventDetails(currentEmployee.getEmployeeId().longValue());
-				List<ServiceProviderEventWorkDTO> upcomingEventWorkDTOs = employeeService
+				List<EventOrganizerEventWorkDTO> upcomingEventWorkDTOs = employeeService
 						.getEventOrganizerUpcomingEventDetails(currentEmployee.getEmployeeId().longValue());
 				modelandmap.addObject("layoutTitle", "Event Organizer");
 				modelandmap.addObject("completedEventWorkDTOs", completedEventWorkDTOs);
@@ -190,7 +195,7 @@ public class EmployeeController {
 			modelandmap.addObject("upcomingEventWorkDTOs", upcomingEventWorkDTOs);
 		}
 		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
-			List<ServiceProviderEventWorkDTO> upcomingEventWorkDTOs = employeeService
+			List<EventOrganizerEventWorkDTO> upcomingEventWorkDTOs = employeeService
 					.getEventOrganizerUpcomingEventDetails(currentEmployee.getEmployeeId().longValue());
 			modelandmap.addObject("layoutTitle", "Event Organizer");
 			modelandmap.addObject("upcomingEventWorkDTOs", upcomingEventWorkDTOs);
@@ -199,9 +204,69 @@ public class EmployeeController {
 		return modelandmap;
 	}
 
+	public String getAddress(AddressDTO addressDTO) {
+		String address;
+		address = addressDTO.getAddress1();
+		if (addressDTO.getAddress2() != null) {
+			address += ", " + addressDTO.getAddress2();
+		}
+		address += ",\n " + enuCityService.findById(addressDTO.getCityId().longValue()).getCity() + ", "
+				+ enuStateService.findById(addressDTO.getStateId().longValue()).getState() + ", "
+				+ enuCountryService.findById(addressDTO.getCountryId().longValue()).getCountry() + " - "
+				+ addressDTO.getPostalCode();
+		return address;
+	}
+
+	@GetMapping("/view_event/{eventId}")
+	public ModelAndView viewEvent(@PathVariable long eventId) {
+		ModelAndView modelandmap = new ModelAndView("/employee/view_event");
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		EmployeeDTO currentEmployee = DataAccessUtils.singleResult(employeeService.findByNamedParameters(
+				new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
+
+		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EMPLOYEE")) {
+			EmployeeEventWorkDTO event = employeeService.getEmployeeEventsDetails(eventId,
+					currentEmployee.getEmployeeId().longValue());
+			modelandmap.addObject("layoutTitle", "Employee");
+			modelandmap.addObject("event", event);
+			modelandmap.addObject("addressVenue", getAddress(addressService.findById(event.getAddressId())));
+		}
+		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
+			EventOrganizerEventWorkDTO event = employeeService.getEventOrganizerEventDetails(eventId,
+					currentEmployee.getEmployeeId().longValue());
+			List<AllServiceProvidersPackageDTO> allServiceProviders = employeeService
+					.getAllServiceProviderOnPackage(currentEmployee.getEmployeeId().longValue());
+			modelandmap.addObject("layoutTitle", "Event Organizer");
+			modelandmap.addObject("event", event);
+			modelandmap.addObject("addressVenue", getAddress(addressService.findById(event.getAddressId())));
+			modelandmap.addObject("allServiceProviders", allServiceProviders);
+		}
+		modelandmap.addObject("layoutPage", "employee/_layout");
+		return modelandmap;
+	}
+
 	@GetMapping("/event-history")
 	public ModelAndView eventHistory() {
 		ModelAndView modelandmap = new ModelAndView("employee/event-history");
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		EmployeeDTO currentEmployee = DataAccessUtils.singleResult(employeeService.findByNamedParameters(
+				new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
+
+		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EMPLOYEE")) {
+			List<EmployeeEventWorkDTO> completedEventWorkDTOs = employeeService
+					.getEmployeeCompletedEventDetails(currentEmployee.getEmployeeId().longValue());
+			modelandmap.addObject("layoutTitle", "Employee");
+			modelandmap.addObject("completedEventWorkDTOs", completedEventWorkDTOs);
+		}
+		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
+			List<EventOrganizerEventWorkDTO> completedEventWorkDTOs = employeeService
+					.getEventOrganizerCompletedEventDetails(currentEmployee.getEmployeeId().longValue());
+			modelandmap.addObject("layoutTitle", "Event Organizer");
+			modelandmap.addObject("completedEventWorkDTOs", completedEventWorkDTOs);
+		}
+		modelandmap.addObject("layoutPage", "employee/_layout");
 		return modelandmap;
 	}
 

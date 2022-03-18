@@ -1,5 +1,5 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{serviceprovider/_layout}">
+	layout:decorate="~{${layoutPage}}">
 
 <head>
 	<title>Event Details</title>
@@ -34,7 +34,7 @@
 				<div class="col-12">
 					<div class="page-title-box">
 						<div class="page-title-right">
-							<a th:href="@{/serviceprovider/dashboard}" class="btn btn-secondary mb-2">Back</a>
+							<a th:href="@{/employee/dashboard}" class="btn btn-secondary mb-2">Back</a>
 						</div>
 						<h4 class="page-title">Event Details</h4>
 					</div>
@@ -74,7 +74,7 @@
 
 									<dt class="col-sm-3" th:if="${layoutTitle} == 'Event Organizer'">Is Free Event?</dt>
 									<dd class="col-sm-9" th:if="${layoutTitle} == 'Event Organizer'"
-										th:utext="${eventDTO.isFree == true ? 'Yes' : 'No'}"></dd>
+										th:utext="${event.isFree == true ? 'Yes' : 'No'}"></dd>
 								</dl>
 							</div>
 						</div>
@@ -125,28 +125,50 @@
 							</div>
 						</div>
 
-						<div class="page-title-box" th:if="${layoutTitle} == 'Event Organizer'">
-							<h4 class="page-title"> Services Details</h4>
-						</div>
-						<div class="col-12" th:if="${layoutTitle} == 'Event Organizer'">
-							<div class="card">
-								<div class="card-body">
-									<dl class="row mb-0">
-										<dd class="col-sm-9">
-											<span th:each="entry : ${allServiceProviders}">
-												<span th:if="${entry.packageDetailsId} == ${package.packageDetailsId}">
-													<b><span th:text="${entry.serviceProviderName}"></span></b>
-													<span
-														th:text="' - ' + ${entry.service} + ' (' + ${entry.email} + ')'"></span>
+						<div th:if="${layoutTitle} == 'Employee'">
+							<div class="page-title-box">
+								<h4 class="page-title">Work Details</h4>
+							</div>
+							<div class="col-12">
+								<div class="card">
+									<div class="card-body">
+										<dl class="row mb-0">
+											<dd class="col-sm-9">
+												<span th:text="${event.workDescription}">
 												</span>
-											</span>
-										</dd>
-									</dl>
+											</dd>
+										</dl>
+									</div>
 								</div>
 							</div>
 						</div>
 
-						<div>
+						<div th:if="${layoutTitle} == 'Event Organizer'">
+							<div class="page-title-box">
+								<h4 class="page-title">Services Details</h4>
+							</div>
+							<div class="col-12">
+								<div class="card">
+									<div class="card-body">
+										<dl class="row mb-0">
+											<dd class="col-sm-9">
+												<span th:each="entry : ${allServiceProviders}">
+													<span
+														th:if="${entry.packageDetailsId} == ${event.packageId}">
+														<b><span th:text="${entry.serviceProviderName}"></span></b>
+														<span
+															th:text="' - ' + ${entry.service} + ' (' + ${entry.email} + ')'"></span>
+														<br />
+													</span>
+												</span>
+											</dd>
+										</dl>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div th:if="${layoutTitle} == 'Employee'">
 							<div class="page-title-box">
 								<h4 class="page-title"> Event Organizer Details</h4>
 							</div>

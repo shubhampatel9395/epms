@@ -1167,7 +1167,16 @@ public class EventController {
 		List<String> employeeWorkingStatuses = employees.stream().map(entry -> {
 			return enuEmployeeWorkingStatusService.findById(entry.getStatusId().longValue()).getStatus();
 		}).collect(Collectors.toList());
-
+		
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
+			modelandmap.addObject("layoutTitle", "Event Organizer");
+			modelandmap.addObject("layoutPage", "employee/_layout");
+		} else if(customUserDetailsDTO.getIsAdmin() == true) {
+			modelandmap.addObject("layoutPage", "admin/_layout");
+		}
+		
 		modelandmap.addObject("eventDTO", eventService.findById(eventId));
 		modelandmap.addObject("employees", employees);
 		modelandmap.addObject("employeeBasicDetails", employeeBasicDetails);
@@ -1188,6 +1197,14 @@ public class EventController {
 		modelandmap.addObject("employeeRole",
 				enuEmployeeRoleService.findById(employee.getEmployeeTypeId().longValue()).getRole());
 
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
+			modelandmap.addObject("layoutTitle", "Event Organizer");
+			modelandmap.addObject("layoutPage", "employee/_layout");
+		} else if(customUserDetailsDTO.getIsAdmin() == true) {
+			modelandmap.addObject("layoutPage", "admin/_layout");
+		}
 		return modelandmap;
 	}
 
@@ -1226,6 +1243,14 @@ public class EventController {
 		modelandmap.addObject("employee", new EventEmployeeMappingDTO());
 		modelandmap.addObject("employeeRoles",
 				enuEmployeeRoleService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
+			modelandmap.addObject("layoutTitle", "Event Organizer");
+			modelandmap.addObject("layoutPage", "employee/_layout");
+		} else if(customUserDetailsDTO.getIsAdmin() == true) {
+			modelandmap.addObject("layoutPage", "admin/_layout");
+		}
 		return modelandmap;
 	}
 
@@ -1260,6 +1285,14 @@ public class EventController {
 				enuEmployeeRoleService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		modelandmap.addObject("workingStatuses", enuEmployeeWorkingStatusService
 				.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
+			modelandmap.addObject("layoutTitle", "Event Organizer");
+			modelandmap.addObject("layoutPage", "employee/_layout");
+		} else if(customUserDetailsDTO.getIsAdmin() == true) {
+			modelandmap.addObject("layoutPage", "admin/_layout");
+		}
 		return modelandmap;
 	}
 

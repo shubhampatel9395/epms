@@ -11,7 +11,7 @@ import com.epms.dao.IEmployeeDAO;
 import com.epms.dto.AllServiceProvidersPackageDTO;
 import com.epms.dto.EmployeeDTO;
 import com.epms.dto.EmployeeEventWorkDTO;
-import com.epms.dto.ServiceProviderEventWorkDTO;
+import com.epms.dto.EventOrganizerEventWorkDTO;
 import com.epms.service.IEmployeeService;
 
 import groovy.util.logging.Slf4j;
@@ -84,12 +84,12 @@ public class EmployeeService implements IEmployeeService {
 	}
 
 	@Override
-	public List<ServiceProviderEventWorkDTO> getEventOrganizerCompletedEventDetails(Long eventOrganizerId) {
+	public List<EventOrganizerEventWorkDTO> getEventOrganizerCompletedEventDetails(Long eventOrganizerId) {
 		return employeeDAO.getEventOrganizerCompletedEventDetails(eventOrganizerId);
 	}
 
 	@Override
-	public List<ServiceProviderEventWorkDTO> getEventOrganizerUpcomingEventDetails(Long eventOrganizerId) {
+	public List<EventOrganizerEventWorkDTO> getEventOrganizerUpcomingEventDetails(Long eventOrganizerId) {
 		return employeeDAO.getEventOrganizerUpcomingEventDetails(eventOrganizerId);
 	}
 
@@ -106,5 +106,15 @@ public class EmployeeService implements IEmployeeService {
 	@Override
 	public List<AllServiceProvidersPackageDTO> getAllServiceProviderOnPackage(Long eventOrganizerId) {
 		return employeeDAO.getAllServiceProviderOnPackage(eventOrganizerId);
+	}
+
+	@Override
+	public EmployeeEventWorkDTO getEmployeeEventsDetails(long eventId, long employeeId) {
+		return employeeDAO.getEmployeeEventsDetails(eventId,employeeId);
+	}
+
+	@Override
+	public EventOrganizerEventWorkDTO getEventOrganizerEventDetails(long eventId, long eventOrganizerId) {
+		return employeeDAO.getEventOrganizerEventDetails(eventId,eventOrganizerId);
 	}
 }
