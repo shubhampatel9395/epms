@@ -8,7 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.epms.dao.IEmployeeDAO;
+import com.epms.dto.AllServiceProvidersPackageDTO;
 import com.epms.dto.EmployeeDTO;
+import com.epms.dto.EmployeeEventWorkDTO;
+import com.epms.dto.ServiceProviderEventWorkDTO;
 import com.epms.service.IEmployeeService;
 
 import groovy.util.logging.Slf4j;
@@ -60,4 +63,48 @@ public class EmployeeService implements IEmployeeService {
 		employeeDAO.activate(id);
 	}
 
+	@Override
+	public Integer getEventOrganizerCompletedEventCount(Long eventOrganizerId) {
+		return employeeDAO.getEventOrganizerCompletedEventCount(eventOrganizerId);
+	}
+
+	@Override
+	public Integer getEventOrganizerUpcomingEventCount(Long eventOrganizerId) {
+		return employeeDAO.getEventOrganizerUpcomingEventCount(eventOrganizerId);
+	}
+
+	@Override
+	public Integer getEmployeeCompletedEventCount(Long employeeId) {
+		return employeeDAO.getEmployeeCompletedEventCount(employeeId);
+	}
+
+	@Override
+	public Integer getEmployeeUpcomingEventCount(Long employeeId) {
+		return employeeDAO.getEmployeeUpcomingEventCount(employeeId);
+	}
+
+	@Override
+	public List<ServiceProviderEventWorkDTO> getEventOrganizerCompletedEventDetails(Long eventOrganizerId) {
+		return employeeDAO.getEventOrganizerCompletedEventDetails(eventOrganizerId);
+	}
+
+	@Override
+	public List<ServiceProviderEventWorkDTO> getEventOrganizerUpcomingEventDetails(Long eventOrganizerId) {
+		return employeeDAO.getEventOrganizerUpcomingEventDetails(eventOrganizerId);
+	}
+
+	@Override
+	public List<EmployeeEventWorkDTO> getEmployeeCompletedEventDetails(Long employeeId) {
+		return employeeDAO.getEmployeeCompletedEventDetails(employeeId);
+	}
+
+	@Override
+	public List<EmployeeEventWorkDTO> getEmployeeUpcomingEventDetails(Long employeeId) {
+		return employeeDAO.getEmployeeUpcomingEventDetails(employeeId);
+	}
+
+	@Override
+	public List<AllServiceProvidersPackageDTO> getAllServiceProviderOnPackage(Long eventOrganizerId) {
+		return employeeDAO.getAllServiceProviderOnPackage(eventOrganizerId);
+	}
 }

@@ -170,7 +170,7 @@ public class ServiceProviderDAO implements IServiceProviderDAO {
 		return jdbcTemplate.queryForObject("SELECT count(1) from event e "
 				+ "join packagedetails p on e.packageId=p.packageDetailsId "
 				+ "join packageserviceprovidermapping m on p.packageDetailsId=m.packageId "
-				+ "where e.eventStatusId=(SELECT statusId from enueventstatus where status='Completed') and e.isActive=true and p.isActive=true and m.serviceProviderId=:serviceProviderId" ,namedParams , Integer.class);
+				+ "where e.eventStatusId=(SELECT statusId from enueventstatus where status='Completed') and e.isActive=true and m.serviceProviderId=:serviceProviderId" ,namedParams , Integer.class);
 	}
 
 	@Override
@@ -180,7 +180,7 @@ public class ServiceProviderDAO implements IServiceProviderDAO {
 		return jdbcTemplate.queryForObject("SELECT count(1) from event e "
 				+ "join packagedetails p on e.packageId=p.packageDetailsId "
 				+ "join packageserviceprovidermapping m on p.packageDetailsId=m.packageId "
-				+ "where e.eventStatusId=(SELECT statusId from enueventstatus where status='Verified') and e.isActive=true and p.isActive=true and m.serviceProviderId=:serviceProviderId" ,namedParams , Integer.class);
+				+ "where e.eventStatusId=(SELECT statusId from enueventstatus where status='Verified') and e.isActive=true and m.serviceProviderId=:serviceProviderId" ,namedParams , Integer.class);
 	}
 
 	@Override
@@ -209,7 +209,7 @@ public class ServiceProviderDAO implements IServiceProviderDAO {
 				+ "join enueventtype et on et.eventTypeId = e.eventTypeId\r\n"
 				+ "join userdetails u on u.userDetailsId= e.userDetailsId\r\n"
 				+ "join employee emp on emp.employeeId=e.eventOrganizerId\r\n"
-				+ "where e.eventStatusId=(SELECT statusId from enueventstatus where status='Completed') and e.isActive=true and p.isActive=true and m.serviceProviderId=:serviceProviderId", namedParams,
+				+ "where e.eventStatusId=(SELECT statusId from enueventstatus where status='Completed') and e.isActive=true and m.serviceProviderId=:serviceProviderId", namedParams,
 				new BeanPropertyRowMapper<ServiceProviderEventWorkDTO>(ServiceProviderEventWorkDTO.class));
 	}
 
@@ -230,7 +230,7 @@ public class ServiceProviderDAO implements IServiceProviderDAO {
 				+ "join enueventtype et on et.eventTypeId = e.eventTypeId\r\n"
 				+ "join userdetails u on u.userDetailsId= e.userDetailsId\r\n"
 				+ "join employee emp on emp.employeeId=e.eventOrganizerId\r\n"
-				+ "where e.eventStatusId=(SELECT statusId from enueventstatus where status='Verified') and e.isActive=true and p.isActive=true and m.serviceProviderId=:serviceProviderId", namedParams,
+				+ "where e.eventStatusId=(SELECT statusId from enueventstatus where status='Verified') and e.isActive=true and m.serviceProviderId=:serviceProviderId", namedParams,
 				new BeanPropertyRowMapper<ServiceProviderEventWorkDTO>(ServiceProviderEventWorkDTO.class));
 	}
 	
@@ -252,7 +252,7 @@ public class ServiceProviderDAO implements IServiceProviderDAO {
 				+ "join enueventtype et on et.eventTypeId = e.eventTypeId\r\n"
 				+ "join userdetails u on u.userDetailsId= e.userDetailsId\r\n"
 				+ "join employee emp on emp.employeeId=e.eventOrganizerId\r\n"
-				+ "where e.eventId=:eventId and e.isActive=true and p.isActive=true and m.serviceProviderId=:serviceProviderId", namedParams,
+				+ "where e.eventId=:eventId and e.isActive=true and m.serviceProviderId=:serviceProviderId", namedParams,
 				new BeanPropertyRowMapper<ServiceProviderEventWorkDTO>(ServiceProviderEventWorkDTO.class)));
 	}
 	
@@ -277,7 +277,7 @@ public class ServiceProviderDAO implements IServiceProviderDAO {
 				+ "where sp.serviceProviderId=:serviceProviderId and e.eventId IN (SELECT e.eventId from event e\r\n"
 				+ "join packagedetails p on e.packageId=p.packageDetailsId\r\n"
 				+ "join packageserviceprovidermapping m on p.packageDetailsId=m.packageId\r\n"
-				+ "where e.eventStatusId=(SELECT statusId from enueventstatus where status='Completed') and e.isActive=true and p.isActive=true and m.serviceProviderId=:serviceProviderId)", namedParams,
+				+ "where e.eventStatusId=(SELECT statusId from enueventstatus where status='Completed') and e.isActive=true and m.serviceProviderId=:serviceProviderId)", namedParams,
 				new BeanPropertyRowMapper<ShowFeedbackDTO>(ShowFeedbackDTO.class));
 	}
 

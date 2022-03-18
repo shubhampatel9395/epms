@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="utf-8" />
-	<title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Employee</title>
+	<title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE" th:text="${layoutTitle}"></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
 	<meta content="Coderthemes" name="author" />
@@ -55,21 +55,32 @@
 
 					<li class="side-nav-title side-nav-item">Navigation</li>
 
-					<li class="side-nav-item" th:classappend="${#request.getRequestURI().contains('/dashboard') ? 'active' : '' }">
+					<li class="side-nav-item"
+						th:classappend="${#request.getRequestURI().contains('/dashboard') ? 'active' : '' }">
 						<a th:href="@{/employee/dashboard}" class="side-nav-link">
 							<i class="uil-home-alt"></i>
 							<span> Dashboard </span>
 						</a>
 					</li>
 
-					<li class="side-nav-item">
+					<li class="side-nav-item" th:if="${layoutTitle} == 'Employee'"
+						th:classappend="${#request.getRequestURI().contains('/assigned-work') ? 'active' : '' }">
 						<a th:href="@{/employee/assigned-work}" class="side-nav-link">
 							<i class="mdi mdi-clipboard-list-outline"></i>
 							<span> Assigned Work </span>
 						</a>
 					</li>
 
-					<li class="side-nav-item" th:classappend="${#request.getRequestURI().contains('event-history') || #request.getRequestURI().contains('payment-history') ? 'menuitem-active' : '' }">
+					<li class="side-nav-item" th:if="${layoutTitle} == 'Event Organizer'"
+						th:classappend="${#request.getRequestURI().contains('/assigned-events') ? 'active' : '' }">
+						<a th:href="@{/employee/assigned-work}" class="side-nav-link">
+							<i class="mdi mdi-clipboard-list-outline"></i>
+							<span> Assigned Events </span>
+						</a>
+					</li>
+
+					<li class="side-nav-item"
+						th:classappend="${#request.getRequestURI().contains('event-history') || #request.getRequestURI().contains('payment-history') ? 'menuitem-active' : '' }">
 						<a data-bs-toggle="collapse" href="#sidebarHistory" aria-expanded="false"
 							aria-controls="sidebarHistory" class="side-nav-link">
 							<i class="mdi mdi-history"></i>
@@ -78,22 +89,27 @@
 						</a>
 						<div class="collapse" id="sidebarHistory">
 							<ul class="side-nav-second-level">
-								<li th:classappend="${#request.getRequestURI().contains('event-history') ? 'active' : '' }">
+								<li
+									th:classappend="${#request.getRequestURI().contains('event-history') ? 'active' : '' }">
 									<a th:href="@{/employee/event-history}">Events</a>
 								</li>
-								<li th:classappend="${#request.getRequestURI().contains('payment-history') ? 'active' : '' }">
+								<li
+									th:classappend="${#request.getRequestURI().contains('payment-history') ? 'active' : '' }">
 									<a th:href="@{/employee/payment-history}">Payments</a>
 								</li>
 							</ul>
 						</div>
 					</li>
 
-					<li class="side-nav-item" th:classappend="${#request.getRequestURI().contains('feedbacks') ? 'active' : '' }">
+					<!--
+					<li class="side-nav-item"
+						th:classappend="${#request.getRequestURI().contains('feedbacks') ? 'active' : '' }">
 						<a th:href="@{/employee/feedbacks}" class="side-nav-link">
 							<i class="uil-feedback"></i>
 							<span> Feedbacks </span>
 						</a>
 					</li>
+					-->
 				</ul>
 				<!-- End Sidebar -->
 
@@ -119,7 +135,7 @@
 								href="#" role="button" aria-haspopup="false" aria-expanded="false">
 								<span>
 									<span sec:authentication="principal.fullName"></span>
-									<span class="account-position">Employee</span>
+									<span class="account-position" th:text="${layoutTitle}"></span>
 								</span>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end dropdown-menu-animated topbar-dropdown-menu profile-dropdown"
@@ -131,10 +147,12 @@
 								</div>
 
 								<!-- item-->
+								<!--
 								<a href="javascript:void(0);" class="dropdown-item notify-item">
 									<i class="mdi mdi-account-edit me-1"></i>
 									<span>Account Settings</span>
 								</a>
+								-->
 
 								<!-- item-->
 								<a th:href="@{/change-password}" class="dropdown-item notify-item">

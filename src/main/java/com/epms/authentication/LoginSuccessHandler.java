@@ -28,7 +28,8 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
 		} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_EMPLOYEE")) {
 			redirectURL = "employee/dashboard";
 		} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
-			redirectURL = "eventorganizer/dashboard";
+			redirectURL = "employee/dashboard";
+			// redirectURL = "eventorganizer/dashboard";
 		} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_SERVICEPROVIDER")) {
 			redirectURL = "serviceprovider/dashboard";
 		}

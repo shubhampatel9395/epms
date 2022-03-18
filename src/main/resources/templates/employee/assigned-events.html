@@ -1,5 +1,5 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{serviceprovider/_layout}">
+	layout:decorate="~{${layoutPage}}">
 
 <head>
 	<title>Assigned Events List</title>
@@ -40,15 +40,26 @@
 										</tr>
 									</thead>
 									<tbody>
-										<tr th:each="upcomingEvent : ${ongoingEventWorkDTOs}">
+										<tr th:each="upcomingEvent : ${upcomingEventWorkDTOs}">
 											<td th:text="${upcomingEvent.eventTitle}"></td>
 											<td th:text="${upcomingEvent.eventType}"></td>
 											<td th:text="${upcomingEvent.venueName}"></td>
 											<td th:text="${#dates.format(upcomingEvent.startDate,'MMM dd, yyyy')}"></td>
 											<td th:text="${upcomingEvent.startTime}"></td>
-											<td class="table-action">
-												<a th:href="@{'/serviceprovider/view_event/' + ${upcomingEvent.eventId}}"
+											<td th:if="${layoutTitle} == 'Employee'" class="table-action">
+												<a th:href="@{'/employee/view_event/' + ${upcomingEvent.eventId}}"
 													class="action-icon"> <i class="mdi mdi-eye"></i></a>
+											</td>
+											<td th:if="${layoutTitle} == 'Event Organizer'" class="table-action">
+												<a th:href="@{'/employee/view_event/' + ${upcomingEvent.eventId}}"
+													class="action-icon"> <i class="mdi mdi-eye"></i></a>
+												<div id="tooltip-container2" style="display: inline-block;">
+													<a th:href="@{'/assign_employee/' + ${upcomingEvent.eventId}}"
+														class="action-icon" data-bs-container="#tooltip-container2"
+														data-bs-toggle="tooltip" data-bs-placement="top"
+														title="Assign employee for the event"> <i
+															class="mdi mdi-account-tie"></i></a>
+												</div>
 											</td>
 										</tr>
 									</tbody>

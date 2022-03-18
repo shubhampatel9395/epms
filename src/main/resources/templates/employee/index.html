@@ -1,11 +1,121 @@
-<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{employee/_layout}">
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{${layoutPage}}">
+
 <head>
 	<title>Dashboard</title>
 </head>
+
 <body>
-	<div layout:fragment="content">
-		<p>Employee Dashboard</p>
-	</div>
+	<th:block layout:fragment="content">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<h4 class="page-title">Dashboard</h4>
+					</div>
+				</div>
+				<div class="col-xxl-6 col-lg-6">
+					<div class="card widget-flat bg-info text-white">
+						<div class="card-body">
+							<div class="float-end">
+								<i class="mdi mdi-calendar-sync widget-icon bg-white text-info"></i>
+							</div>
+							<h6 class="text-uppercase mt-0" title="Assigned Events">Assigned Events</h6>
+							<h3 class="mt-3 mb-3" th:text="${employeeDashboardDTO.upcomingEventCount}"></h3>
+						</div>
+					</div>
+				</div> <!-- end col-->
+
+				<div class="col-xxl-6 col-lg-6">
+					<div class="card widget-flat bg-info text-white">
+						<div class="card-body">
+							<div class="float-end">
+								<i class="mdi mdi-calendar-check widget-icon bg-white text-info"></i>
+							</div>
+							<h6 class="text-uppercase mt-0" title="Completed Events">Completed Events</h6>
+							<h3 class="mt-3 mb-3" th:text="${employeeDashboardDTO.participatedEventCount}"></h3>
+						</div>
+					</div>
+				</div> <!-- end col-->
+
+				<div class="col-xl-6">
+					<div class="card">
+						<div class="card-body">
+							<h4 class="header-title mb-2">Upcoming Assigned Events</h4>
+							<div data-simplebar style="max-height: 525px;">
+								<div class="timeline-alt pb-0">
+									<div class="timeline-item" th:if="${#lists.isEmpty(upcomingEventWorkDTOs)}">
+										<div class="timeline-item-info">
+											<span class="text-muted" style="display: block;">
+												There is no upcoming assigned events for you.
+											</span>
+										</div>
+									</div>
+									<div class="timeline-item" th:unless="${#lists.isEmpty(upcomingEventWorkDTOs)}"
+										th:each="upcomingEvent : ${upcomingEventWorkDTOs}">
+										<i class="mdi mdi-calendar-sync bg-info-lighten text-info timeline-icon"></i>
+										<div class="timeline-item-info">
+											<a th:href="@{'/employee/view_event/' + ${upcomingEvent.eventId}}"
+												class="text-info fw-bold mb-1 d-block"
+												th:text="|Event Title: ${upcomingEvent.eventTitle}|"></a>
+											<span style="display: block;"
+												th:text="|Venue: ${upcomingEvent.venueName}|"></span>
+											<span style="display: block;"
+												th:text="|Start Date: ${#dates.format(upcomingEvent.startDate,'MMM dd, yyyy')}, ${upcomingEvent.startTime}|">
+											</span>
+											<p class="mb-0 pb-2"></p>
+										</div>
+									</div>
+								</div>
+								<!-- end timeline -->
+							</div> <!-- end slimscroll -->
+						</div>
+						<!-- end card-body -->
+					</div>
+					<!-- end card-->
+				</div>
+				<!-- end col -->
+
+				<div class="col-xl-6">
+					<div class="card">
+						<div class="card-body">
+							<h4 class="header-title mb-2">Participated Events History</h4>
+							<div data-simplebar style="max-height: 525px;">
+								<div class="timeline-alt pb-0">
+									<div class="timeline-item" th:if="${#lists.isEmpty(completedEventWorkDTOs)}">
+										<div class="timeline-item-info">
+											<span class="text-muted" style="display: block;">
+												You are yet to complete any event with us.
+											</span>
+										</div>
+									</div>
+									<div class="timeline-item" th:unless="${#lists.isEmpty(completedEventWorkDTOs)}"
+										th:each="completedEvent : ${completedEventWorkDTOs}">
+										<i
+											class="mdi mdi-calendar-check bg-success-lighten text-success timeline-icon"></i>
+										<div class="timeline-item-info">
+											<a th:href="@{'/employee/view_event/' + ${completedEvent.eventId}}"
+												class="text-success fw-bold mb-1 d-block"
+												th:text="|Event Title: ${completedEvent.eventTitle}|"></a>
+											<span style="display: block;"
+												th:text="|Venue: ${completedEvent.venueName}|"></span>
+											<span style="display: block;"
+												th:text="|Completed Date: ${#dates.format(completedEvent.endDate,'MMM dd, yyyy')}, ${completedEvent.endTime}|">
+											</span>
+											<p class="mb-0 pb-2"></p>
+										</div>
+									</div>
+								</div>
+								<!-- end timeline -->
+							</div> <!-- end slimscroll -->
+						</div>
+						<!-- end card-body -->
+					</div>
+					<!-- end card-->
+				</div>
+				<!-- end col -->
+			</div>
+		</div>
+	</th:block>
 </body>
 
 </html>

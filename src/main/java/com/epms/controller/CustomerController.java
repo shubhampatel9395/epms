@@ -307,7 +307,8 @@ public class CustomerController {
 			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_EMPLOYEE")) {
 				return new ModelAndView("redirect:/employee/dashboard");
 			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
-				return new ModelAndView("redirect:/eventorganizer/dashboard");
+				return new ModelAndView("redirect:/employee/dashboard");
+				// return new ModelAndView("redirect:/eventorganizer/dashboard");
 			}
 		}
 		return new ModelAndView("index");
@@ -358,23 +359,24 @@ public class CustomerController {
 				return tempBanner.get(0);
 			}
 		}).collect(Collectors.toList());
-		
+
 		List<String> venueAddresses = events.stream().map(event -> {
-			VenueDTO tempVenueDTO = venueService.findById(packageDetailsService.findById(event.getPackageId().longValue()).getVenueId().longValue());
-			return tempVenueDTO.getVenueName() + ", " + getAddress(addressService.findById(tempVenueDTO.getAddressId().longValue()));
+			VenueDTO tempVenueDTO = venueService.findById(
+					packageDetailsService.findById(event.getPackageId().longValue()).getVenueId().longValue());
+			return tempVenueDTO.getVenueName() + ", "
+					+ getAddress(addressService.findById(tempVenueDTO.getAddressId().longValue()));
 		}).collect(Collectors.toList());
-		
+
 		List<String> eventTypes = events.stream().map(event -> {
 			return DataAccessUtils
 					.singleResult(enuEventTypeService.findByNamedParameters(
 							new MapSqlParameterSource().addValue("eventTypeId", event.getEventTypeId())))
 					.getEventType();
 		}).collect(Collectors.toList());
-		
+
 		List<UserDetailsDTO> customers = events.stream().map(event -> {
-			return DataAccessUtils
-					.singleResult(userDetailsService.findByNamedParameters(
-							new MapSqlParameterSource().addValue("userDetailsId", event.getUserDetailsId())));
+			return DataAccessUtils.singleResult(userDetailsService.findByNamedParameters(
+					new MapSqlParameterSource().addValue("userDetailsId", event.getUserDetailsId())));
 		}).collect(Collectors.toList());
 
 		modelandmap.addObject("events", events);
@@ -714,9 +716,14 @@ public class CustomerController {
 			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_SERVICEPROVIDER")) {
 				return new ModelAndView("serviceprovider/changePassword");
 			} else if (userDetails.getRoleName().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
-				return new ModelAndView("eventorganizer/changePassword");
+				ModelAndView modelandmap = new ModelAndView("employee/changePassword");
+				modelandmap.addObject("layoutTitle", "Event Organizer");
+				return modelandmap;
+				// return new ModelAndView("eventorganizer/changePassword");
 			} else {
-				return new ModelAndView("employee/changePassword");
+				ModelAndView modelandmap = new ModelAndView("employee/changePassword");
+				modelandmap.addObject("layoutTitle", "Employee");
+				return modelandmap;
 			}
 		}
 	}
@@ -733,11 +740,14 @@ public class CustomerController {
 			if (!passwordEncoder.matches(request.getParameter("oldPassword"), userDetails.getPassword())) {
 				rm.addFlashAttribute("error", "Please enter valid old password");
 				model.setViewName("redirect:/change-password");
+			} else if (passwordEncoder.matches(request.getParameter("newPassword"), userDetails.getPassword())) {
+				rm.addFlashAttribute("error", "Old password cannot be same as new password");
+				model.setViewName("redirect:/change-password");
 			} else {
 				String encodedPassword = passwordEncoder.encode(request.getParameter("newPassword"));
 				userDetailsService.updateUserPassword(userDetails.getUserDetailsId(), encodedPassword);
 				rm.addFlashAttribute("message", "your password is successfully changed.");
-				return new ModelAndView("login");
+				return new ModelAndView("redirect:/login");
 			}
 		}
 		return model;
@@ -756,9 +766,12 @@ public class CustomerController {
 			} else if (userDetails.getIsServiceProvider() == true) {
 				modelandmap.addObject("layoutPage", "serviceprovider/_layout");
 			} else if (userDetails.getRole().equals("ROLE_EVENTORGANIZER")) {
-				modelandmap.addObject("layoutPage", "eventorganizer/_layout");
+				modelandmap.addObject("layoutPage", "employee/_layout");
+				modelandmap.addObject("layoutTitle", "Event Organizer");
+				// modelandmap.addObject("layoutPage", "eventorganizer/_layout");
 			} else if (userDetails.getIsEmployee() == true) {
 				modelandmap.addObject("layoutPage", "employee/_layout");
+				modelandmap.addObject("layoutTitle", "Employee");
 			} else {
 				modelandmap.addObject("layoutPage", "_layout");
 			}
@@ -779,9 +792,12 @@ public class CustomerController {
 			} else if (userDetails.getIsServiceProvider() == true) {
 				modelandmap.addObject("layoutPage", "serviceprovider/_layout");
 			} else if (userDetails.getRole().equals("ROLE_EVENTORGANIZER")) {
-				modelandmap.addObject("layoutPage", "eventorganizer/_layout");
+				modelandmap.addObject("layoutTitle", "Event Organizer");
+				modelandmap.addObject("layoutPage", "employee/_layout");
+				// modelandmap.addObject("layoutPage", "eventorganizer/_layout");
 			} else if (userDetails.getIsEmployee() == true) {
 				modelandmap.addObject("layoutPage", "employee/_layout");
+				modelandmap.addObject("layoutTitle", "Employee");
 			} else {
 				modelandmap.addObject("layoutPage", "_layout");
 			}

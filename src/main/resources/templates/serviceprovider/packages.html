@@ -28,7 +28,10 @@
 			<div class="row">
 				<div class="col-12">
 					<div class="row" id="main">
-						<div class="col-md-6 col-xxl-3" th:each="package: ${participatedPackages}">
+						<div th:if="${#lists.isEmpty(participatedPackages)}">
+							You are currently not part of any package.
+						</div>
+						<div class="col-md-6 col-xxl-3" th:unless="${#lists.isEmpty(participatedPackages)}" th:each="package: ${participatedPackages}">
 							<!-- project card -->
 							<div class="card d-block">
 								<div class="card-body">
@@ -76,8 +79,7 @@
 									<p class="mb-0" th:each="entry : ${allServiceProviders}">
 										<span th:if="${entry.packageDetailsId} == ${package.packageDetailsId}">
 											<b><span th:text="${entry.serviceProviderName}"></span></b>
-											<span
-												th:text="' - ' + ${entry.service} + '(' + ${entry.email} + ')'"></span>
+											<span th:text="' - ' + ${entry.service} + '(' + ${entry.email} + ')'"></span>
 										</span>
 									</p>
 									</p>
