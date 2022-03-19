@@ -57,19 +57,27 @@
 							<label for="emailaddress" class="form-label">Email address</label>
 							<input class="form-control" th:field="*{userDetailsDTO.email}" type="email" id="email"
 								required placeholder="Enter your email">
-							<p th:if="${#fields.hasErrors('userDetailsDTO.email')}" class="label label-danger"
+							<p th:if="${#fields.hasErrors('userDetailsDTO.email')}" class="text-danger mt-1"
 								th:errors="*{userDetailsDTO.email}"></p>
 						</div>
 						<div class="mb-3">
 							<label for="password" class="form-label">Password</label>
-							<div class="input-group input-group-merge">
+							<div class="input-group input-group-merge mb-1">
 								<input class="form-control" th:field="*{userDetailsDTO.password}" type="password"
 									required id="password" placeholder="Enter your password">
-								<p th:if="${#fields.hasErrors('userDetailsDTO.password')}" class="label label-danger"
-									th:errors="*{userDetailsDTO.password}"></p>
 								<div class="input-group-text" data-password="false">
 									<span class="password-eye"></span>
 								</div>
+							</div>
+							<p th:if="${#fields.hasErrors('userDetailsDTO.password')}" class="text-danger mt-1"
+								th:errors="*{userDetailsDTO.password}"></p>
+							<div>
+								<p class="mb-1 text-muted"> &#8226; Password Rules: </p>
+								<p class="mb-1 text-muted">Your password must be, <br /> - at least 8 characters long,
+									<br /> - contain at least one number,
+									<br /> - contain at least one special character and <br /> - have a mixture of
+									uppercase and lowercase
+									letters.</pclass="mb-1">
 							</div>
 						</div>
 						<div class="mb-3">
@@ -77,7 +85,7 @@
 							<input type="text" class="form-control" th:field="*{userDetailsDTO.mobileNumber}"
 								id="mobileNumber" required placeholder="Enter your mobile number"
 								data-toggle="input-mask" data-mask-format="0000000000">
-							<p th:if="${#fields.hasErrors('userDetailsDTO.mobileNumber')}" class="label label-danger"
+							<p th:if="${#fields.hasErrors('userDetailsDTO.mobileNumber')}" class="text-danger mt-1"
 								th:errors="*{userDetailsDTO.mobileNumber}"></p>
 						</div>
 						<div class="mb-3">
@@ -104,17 +112,19 @@
 							</div>
 							<div class="mb-3 col-md-6">
 								<label for="inputState" class="form-label">State</label>
-								<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select" required
-									disabled>
-									<option value="">--Select State--</option>
+								<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select" required>
+									<option value="" hidden readonly>--Select State--</option>
+									<option th:each="state : ${states}" th:value="${state.stateId}"
+										th:text="${state.state}"></option>
 								</select>
 							</div>
 						</div>
 						<div class="mb-3">
 							<label for="inputCity" class="form-label">City</label>
-							<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select" required
-								disabled>
-								<option value="" readonly>--Select City--</option>
+							<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select" required>
+								<option value="" hidden readonly>--Select City--</option>
+								<option th:each="city : ${cities}" th:value="${city.cityId}" th:text="${city.city}">
+								</option>
 							</select>
 						</div>
 
@@ -168,6 +178,13 @@
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
 	<script th:src="@{/assets/js/app.min.js}"></script>
 	<script type="text/javascript">
+		$(document).ready(function () {
+			if ($("#inputCountry").find(":selected").val() === "") {
+				$("#inputState").prop('disabled', true);
+				$("#inputCity").prop('disabled', true);
+			}
+		});
+
 		$("#inputCountry").change(function () {
 			var selectedValue = $(this)
 				.find(":selected")
@@ -185,8 +202,11 @@
 				url: "/getStates/" + selectedValue + '',
 				success: function (result) {
 					$("#inputState").prop('disabled', false);
+					$("#inputCity").prop('disabled', true);
+					$("#inputCity").empty();
+					$("#inputCity").append($("<option hidden readonly></option>").val("").html("--Select City--"));
 					$("#inputState").empty();
-					$("#inputState").append($("<option></option>").val("").html("--Select State--"));
+					$("#inputState").append($("<option hidden readonly></option>").val("").html("--Select State--"));
 					$.each(result, function () {
 						$("#inputState").append($("<option></option>").val(this['stateId']).html(this['state']));
 					});
@@ -209,7 +229,7 @@
 				success: function (result) {
 					$("#inputCity").prop('disabled', false);
 					$("#inputCity").empty();
-					$("#inputCity").append($("<option></option>").val("").html("--Select City--"));
+					$("#inputCity").append($("<option hidden readonly></option>").val("").html("--Select City--"));
 					$.each(result, function () {
 						$("#inputCity").append($("<option></option>").val(this['cityId']).html(this['city']));
 					});

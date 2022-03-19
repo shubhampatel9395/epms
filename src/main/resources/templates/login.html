@@ -42,7 +42,11 @@
 					<!-- form -->
 					<form th:action="@{/login}" method="post">
 						<div th:if="${param.error}">
-							<p class="text-danger">[[${session.SPRING_SECURITY_LAST_EXCEPTION.message}]]</p>
+							<!--<p>[[${session.SPRING_SECURITY_LAST_EXCEPTION.message}]]</p>-->
+							<p class="text-danger"
+								th:if="${session.SPRING_SECURITY_LAST_EXCEPTION.message} == 'Bad credentials'"
+								text="Incorrect username or password.">
+								Incorrect username or password. Please double-check and try again.</p>
 						</div>
 						<div class="mb-3">
 							<label for="emailaddress" class="form-label">Email address</label>

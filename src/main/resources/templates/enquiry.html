@@ -1,4 +1,5 @@
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{${layoutPage}}">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{${layoutPage}}">
 
 <head>
 	<title>Inquiry</title>
@@ -37,7 +38,7 @@
 						<div class="mb-3 col-md-6">
 							<label for="eventType" class="form-label">Event Type</label>
 							<select id="eventType" class="form-select" th:field=*{enquiry.eventTypeId}>
-								<option value="" readonly>--Select Event Type--</option>
+								<option value="" hidden readonly>--Select Event Type--</option>
 								<option th:each="eventType : ${eventTypes}" th:value="${eventType.eventTypeId}"
 									th:text="${eventType.eventType}">
 								</option>
@@ -52,8 +53,8 @@
 									<span class="input-group-addon" style="background: #727cf5;"><i
 											class="mdi mdi-calendar"
 											style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
-									<input th:field="*{enquiry.startDate}" type="text" class="form-control"
-										data-provide="datepicker" data-date-autoclose="true"
+									<input id="startDate" th:field="*{enquiry.startDate}" type="text"
+										class="form-control" data-provide="datepicker" data-date-autoclose="true"
 										data-date-container="#datepicker4">
 								</div>
 							</div>
@@ -78,7 +79,7 @@
 									<span class="input-group-addon" style="background: #727cf5;"><i
 											class="mdi mdi-calendar"
 											style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
-									<input th:field="*{enquiry.endDate}" type="text" class="form-control"
+									<input id="endDate" th:field="*{enquiry.endDate}" type="text" class="form-control"
 										data-provide="datepicker" data-date-autoclose="true"
 										data-date-container="#datepicker4">
 								</div>
@@ -141,6 +142,12 @@
 		</div>
 	</th:block>
 	<th:block layout:fragment="script">
+		<script type="text/javascript">
+			$(document).ready(function () {
+				$("#startDate").datepicker({startDate: "+0d"});
+				$("#endDate").datepicker({startDate: "+0d"});
+			});
+		</script>
 		<!-- Timepicker -->
 		<script th:src="@{/assets/js/pages/demo.timepicker.js}"></script>
 	</th:block>

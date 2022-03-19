@@ -273,6 +273,13 @@ public class CustomerController {
 			modelandmap.addObject("userDetailsDTO", userDetailsDTO);
 			modelandmap.addObject("countries", enuCountryService.findAll());
 			modelandmap.addObject("addressDTO", addressDTO);
+			MapSqlParameterSource paramSourceCountry = new MapSqlParameterSource();
+			paramSourceCountry.addValue("countryId", addressDTO.getCountryId());
+			modelandmap.addObject("states", enuStateService.findByNamedParameters(paramSourceCountry));
+
+			MapSqlParameterSource paramSourceState = new MapSqlParameterSource();
+			paramSourceState.addValue("stateId", addressDTO.getStateId());
+			modelandmap.addObject("cities", enuCityService.findByNamedParameters(paramSourceState));
 			return modelandmap;
 		}
 
@@ -644,7 +651,7 @@ public class CustomerController {
 				rm.addFlashAttribute("error", "Error while sending email");
 			}
 		} else {
-			rm.addFlashAttribute("error", "Email is not register in the system.");
+			rm.addFlashAttribute("error", "Email address is not registered in the system.");
 		}
 		model.setViewName("redirect:/forgot-password");
 		return model;
@@ -668,7 +675,7 @@ public class CustomerController {
 			LocalDateTime now = LocalDateTime.now();
 			long minutes = ChronoUnit.MINUTES.between(userDetailsDTO.getResetPasswordTokenTime(), now);
 			if (minutes >= 5) {
-				model.addObject("error", "Please try forgot password again because link is expired.");
+				model.addObject("error", "Please try again because link is expired.");
 			} else {
 				model.addObject("token", token);
 			}

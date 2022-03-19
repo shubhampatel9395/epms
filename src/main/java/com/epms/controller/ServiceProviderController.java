@@ -2,6 +2,8 @@ package com.epms.controller;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -14,6 +16,8 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -290,6 +294,52 @@ public class ServiceProviderController {
 		paramSource.addValue("stateId", stateId);
 		return enuCityService.findByNamedParameters(paramSource);
 	}
+	
+	public BindingResult checkCustomerResults(@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
+			BindingResult userResult) {
+		// Valid Email
+		final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$",
+				Pattern.CASE_INSENSITIVE);
+		Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(userDetailsDTO.getEmail());
+		boolean isValidEmail = matcher.find();
+		if (isValidEmail == false) {
+			userResult.addError(new FieldError("userDetailsDTO", "email", "Please enter valid email address."));
+		}
+
+		// Unique Email
+		List<UserDetailsDTO> emailDTO = userDetailsService.isUniqueEmail(userDetailsDTO.getEmail());
+		if (emailDTO.isEmpty() != true) {
+			if (emailDTO.get(0).getIsActive() == true) {
+				userResult.addError(new FieldError("userDetailsDTO", "email", "Email address is already registered."));
+			} else {
+				userResult.addError(new FieldError("userDetailsDTO", "email",
+						"Email address is already registered and account is deactivated.\nPlease contact us to active it."));
+			}
+		}
+
+		// Password Rules
+		String pattern = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}";
+		boolean isValidPassword = userDetailsDTO.getPassword().matches(pattern);
+		if (isValidPassword == false) {
+			userResult.addError(
+					new FieldError("userDetailsDTO", "password", "Please enter password according to rules."));
+		}
+
+		// Unique Mobile Number
+		List<UserDetailsDTO> mobileNumberDTO = userDetailsService
+				.isUniqueMobileNumber(userDetailsDTO.getMobileNumber());
+		if (mobileNumberDTO.isEmpty() != true) {
+			if (mobileNumberDTO.get(0).getIsActive() == true) {
+				userResult.addError(
+						new FieldError("userDetailsDTO", "mobileNumber", "Mobile Number is already registered."));
+			} else {
+				userResult.addError(new FieldError("userDetailsDTO", "mobileNumber",
+						"Mobile Number is already registered and account is deactivated.\nPlease contact us to active it."));
+			}
+		}
+
+		return userResult;
+	}
 
 	@GetMapping("/serviceprovider-registration")
 	public ModelAndView loadServiceProviderRegistrationPage() {
@@ -304,9 +354,27 @@ public class ServiceProviderController {
 
 	@PostMapping("/serviceprovider-registration")
 	public ModelAndView submitServiceProviderRegistration(
-			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO,
-			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO,
+			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO, BindingResult userResult,
+			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO, BindingResult addressResult,
 			ModelAndView modelandmap,RedirectAttributes rm) {
+		userResult = checkCustomerResults(serviceProviderDTO, userResult);
+		if (userResult.hasErrors() == true) {
+			modelandmap = new ModelAndView("serviceProviderRegistration");
+			modelandmap.addObject("serviceTypes", enuServiceTypeService.findAllActive());
+			modelandmap.addObject("serviceProviderDTO", serviceProviderDTO);
+			modelandmap.addObject("countries", enuCountryService.findAll());
+			modelandmap.addObject("addressDTO", addressDTO);
+			
+			MapSqlParameterSource paramSourceCountry = new MapSqlParameterSource();
+			paramSourceCountry.addValue("countryId", addressDTO.getCountryId());
+			modelandmap.addObject("states", enuStateService.findByNamedParameters(paramSourceCountry));
+
+			MapSqlParameterSource paramSourceState = new MapSqlParameterSource();
+			paramSourceState.addValue("stateId", addressDTO.getStateId());
+			modelandmap.addObject("cities", enuCityService.findByNamedParameters(paramSourceState));
+			return modelandmap;
+		}
+		
 		AddressDTO insertAddressDTO = addressService.insert(addressDTO);
 		serviceProviderDTO.setAddressId(insertAddressDTO.getAddressId());
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
