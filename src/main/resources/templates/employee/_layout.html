@@ -64,7 +64,7 @@
 					</li>
 
 					<li class="side-nav-item" th:if="${layoutTitle} == 'Employee'"
-						th:classappend="${#request.getRequestURI().contains('/assigned-work') ? 'active' : '' }">
+						th:classappend="${#request.getRequestURI().contains('/assigned-work') || #request.getRequestURI().contains('edit_work_details') ? 'menuitem-active' : '' }">
 						<a th:href="@{/employee/assigned-work}" class="side-nav-link">
 							<i class="mdi mdi-clipboard-list-outline"></i>
 							<span> Assigned Work </span>
@@ -72,7 +72,7 @@
 					</li>
 
 					<li class="side-nav-item" th:if="${layoutTitle} == 'Event Organizer'"
-						th:classappend="${#request.getRequestURI().contains('/assigned-events') ? 'active' : '' }">
+						th:classappend="${#request.getRequestURI().contains('/assigned-events') || #request.getRequestURI().contains('assign') ? 'menuitem-active' : '' }">
 						<a th:href="@{/employee/assigned-work}" class="side-nav-link">
 							<i class="mdi mdi-clipboard-list-outline"></i>
 							<span> Assigned Events </span>

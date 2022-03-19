@@ -2,6 +2,8 @@ package com.epms.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.support.DataAccessUtils;
@@ -10,7 +12,9 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
@@ -21,9 +25,12 @@ import com.epms.dto.AllServiceProvidersPackageDTO;
 import com.epms.dto.EmployeeDTO;
 import com.epms.dto.EmployeeDashboardDTO;
 import com.epms.dto.EmployeeEventWorkDTO;
+import com.epms.dto.EventDTO;
+import com.epms.dto.EventEmployeeMappingDTO;
 import com.epms.dto.EventOrganizerEventWorkDTO;
 import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.ServiceProviderEventWorkDTO;
+import com.epms.dto.UserDetailsDTO;
 import com.epms.email.configuration.IMailService;
 import com.epms.service.IAddressService;
 import com.epms.service.IEmployeeService;
@@ -31,6 +38,7 @@ import com.epms.service.IEnquiryService;
 import com.epms.service.IEnuCityService;
 import com.epms.service.IEnuCountryService;
 import com.epms.service.IEnuEmployeeRoleService;
+import com.epms.service.IEnuEmployeeWorkingStatusService;
 import com.epms.service.IEnuEnquiryStatusService;
 import com.epms.service.IEnuEventStatusService;
 import com.epms.service.IEnuEventTypeService;
@@ -39,6 +47,7 @@ import com.epms.service.IEnuStateService;
 import com.epms.service.IEnuVenueFacilityService;
 import com.epms.service.IEnuVenueTypeService;
 import com.epms.service.IEventBannerService;
+import com.epms.service.IEventEmployeeMappingService;
 import com.epms.service.IEventService;
 import com.epms.service.IPackageDetailsService;
 import com.epms.service.IPackageServiceProviderMappingService;
@@ -132,6 +141,12 @@ public class EmployeeController {
 
 	@Autowired
 	Environment env;
+	
+	@Autowired
+	IEventEmployeeMappingService eventEmployeeMappingService;
+
+	@Autowired
+	IEnuEmployeeWorkingStatusService enuEmployeeWorkingStatusService;
 
 	@GetMapping("/dashboard")
 	public ModelAndView homePage() {
@@ -203,6 +218,59 @@ public class EmployeeController {
 		modelandmap.addObject("layoutPage", "employee/_layout");
 		return modelandmap;
 	}
+	
+	@GetMapping("/edit_work_details/{eventId}")
+	public ModelAndView editWorkDetails(@PathVariable Long eventId) {
+		// ModelAndView modelandmap = new ModelAndView("employee/assigned-work");
+		ModelAndView modelandmap = new ModelAndView("employee/edit_work_details");
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		EmployeeDTO currentEmployee = DataAccessUtils.singleResult(employeeService.findByNamedParameters(
+				new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
+
+		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EMPLOYEE")) {
+			EventEmployeeMappingDTO employee = DataAccessUtils.singleResult(eventEmployeeMappingService.findByNamedParameters(new MapSqlParameterSource().addValue("eventId", eventId).addValue("employeeId", currentEmployee.getEmployeeId())));
+
+			MapSqlParameterSource namedParams = new MapSqlParameterSource();
+			namedParams.addValue("employeeRoleId", employee.getEmployeeTypeId());
+			namedParams.addValue("isActive", true);
+			List<EmployeeDTO> employees = employeeService.findByNamedParameters(namedParams);
+			employees.forEach(e -> {
+				UserDetailsDTO user = userDetailsService.findById(e.getUserDetailsId().longValue());
+				e.setFirstName(user.getFirstName());
+				e.setLastName(user.getLastName());
+			});
+
+			modelandmap.addObject("eventDTO", eventService.findById(employee.getEventId().longValue()));
+			modelandmap.addObject("employee", employee);
+			modelandmap.addObject("selectedEmployees", employees);
+			modelandmap.addObject("employeeRoles",
+					enuEmployeeRoleService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+			modelandmap.addObject("workingStatuses", enuEmployeeWorkingStatusService
+					.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+			modelandmap.addObject("layoutTitle", "Employee");
+		}
+		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
+			modelandmap.addObject("layoutTitle", "Event Organizer");
+		}
+		modelandmap.addObject("layoutPage", "employee/_layout");
+		return modelandmap;
+	}
+	
+	@PostMapping("/edit_work_details")
+	public ModelAndView saveEditedEmployeeWorkDetails(@Valid @ModelAttribute("eventDTO") EventDTO eventDTO,
+			@Valid @ModelAttribute("employee") EventEmployeeMappingDTO eventEmployeeMappingDTO) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/employee/assigned-work");
+		EventEmployeeMappingDTO oldEventEmployeeMappingDTO = eventEmployeeMappingService
+				.findById(eventEmployeeMappingDTO.getEventEmployeeMappingId().longValue());
+
+		if (!oldEventEmployeeMappingDTO.getStatusId().equals(eventEmployeeMappingDTO.getStatusId())) {
+			oldEventEmployeeMappingDTO.setStatusId(eventEmployeeMappingDTO.getStatusId());
+		}
+
+		eventEmployeeMappingService.update(oldEventEmployeeMappingDTO);
+		return modelandmap;
+	}
 
 	public String getAddress(AddressDTO addressDTO) {
 		String address;
@@ -231,6 +299,7 @@ public class EmployeeController {
 			modelandmap.addObject("layoutTitle", "Employee");
 			modelandmap.addObject("event", event);
 			modelandmap.addObject("addressVenue", getAddress(addressService.findById(event.getAddressId())));
+			modelandmap.addObject("allEmployees", eventService.getAllAssignedEmployees(eventId));
 		}
 		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
 			EventOrganizerEventWorkDTO event = employeeService.getEventOrganizerEventDetails(eventId,
@@ -241,6 +310,7 @@ public class EmployeeController {
 			modelandmap.addObject("event", event);
 			modelandmap.addObject("addressVenue", getAddress(addressService.findById(event.getAddressId())));
 			modelandmap.addObject("allServiceProviders", allServiceProviders);
+			modelandmap.addObject("allEmployees", eventService.getAllAssignedEmployees(eventId));
 		}
 		modelandmap.addObject("layoutPage", "employee/_layout");
 		return modelandmap;
@@ -273,6 +343,18 @@ public class EmployeeController {
 	@GetMapping("/payment-history")
 	public ModelAndView paymentHistory() {
 		ModelAndView modelandmap = new ModelAndView("employee/payment-history");
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		EmployeeDTO currentEmployee = DataAccessUtils.singleResult(employeeService.findByNamedParameters(
+				new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
+
+		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EMPLOYEE")) {
+			modelandmap.addObject("layoutTitle", "Employee");
+		}
+		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
+			modelandmap.addObject("layoutTitle", "Event Organizer");
+		}
+		modelandmap.addObject("layoutPage", "employee/_layout");
 		return modelandmap;
 	}
 

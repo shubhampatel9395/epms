@@ -34,7 +34,7 @@
 				<div class="col-12">
 					<div class="page-title-box">
 						<div class="page-title-right">
-							<a th:href="@{/employee/dashboard}" class="btn btn-secondary mb-2">Back</a>
+							<a onclick="history.go(-1)" class="btn btn-secondary mb-2">Back</a>
 						</div>
 						<h4 class="page-title">Event Details</h4>
 					</div>
@@ -153,8 +153,7 @@
 										<dl class="row mb-0">
 											<dd class="col-sm-9">
 												<span th:each="entry : ${allServiceProviders}">
-													<span
-														th:if="${entry.packageDetailsId} == ${event.packageId}">
+													<span th:if="${entry.packageDetailsId} == ${event.packageId}">
 														<b><span th:text="${entry.serviceProviderName}"></span></b>
 														<span
 															th:text="' - ' + ${entry.service} + ' (' + ${entry.email} + ')'"></span>
@@ -186,6 +185,35 @@
 
 											<dt class="col-sm-3">Mobile Number</dt>
 											<dd class="col-sm-9" th:utext="${event.eventOrganizerMobileNumber}"></dd>
+										</dl>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div>
+							<div class="page-title-box">
+								<h4 class="page-title">Assigned Employees Details</h4>
+							</div>
+							<div class="col-12">
+								<div class="card">
+									<div class="card-body">
+										<dl class="row mb-0">
+											<dd class="col-sm-9" th:if="${#lists.isEmpty(allEmployees)}">
+												<span class="text-muted"> There is no employees assigned for the event.
+												</span>
+											</dd>
+											<dd class="col-sm-9" th:unless="${#lists.isEmpty(allEmployees)}">
+												<span th:each="entry : ${allEmployees}">
+													<b><span
+															th:text="|${entryStat.index + 1}). ${entry.employeeName}|"></span></b>
+													<span th:text="| - ${entry.employeeRole}|"></span>
+													<br />
+													<span
+														th:text="| (Email: ${entry.email}) (Contact Number:  ${entry.mobileNumber})|"></span>
+													<br />
+												</span>
+											</dd>
 										</dl>
 									</div>
 								</div>

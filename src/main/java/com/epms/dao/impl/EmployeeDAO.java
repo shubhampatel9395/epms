@@ -178,7 +178,7 @@ public class EmployeeDAO implements IEmployeeDAO {
 		namedParams.addValue("employeeId", employeeId);
 		return jdbcTemplate.queryForObject("SELECT count(1) from event e\r\n"
 				+ "join eventemployeemapping em on em.eventId=e.eventId\r\n"
-				+ "where em.employeeId=:employeeId and em.isActive=true and e.eventStatusId=(SELECT statusId from enueventstatus where status='Verified');",namedParams, Integer.class);
+				+ "where em.employeeId=:employeeId and em.isActive=true and e.eventStatusId=(SELECT statusId from enueventstatus where status='Completed');",namedParams, Integer.class);
 	}
 
 	@Override
@@ -187,7 +187,7 @@ public class EmployeeDAO implements IEmployeeDAO {
 		namedParams.addValue("employeeId", employeeId);
 		return jdbcTemplate.queryForObject("SELECT count(1) from event e\r\n"
 				+ "join eventemployeemapping em on em.eventId=e.eventId\r\n"
-				+ "where em.employeeId=:employeeId and em.isActive=true and e.eventStatusId=(SELECT statusId from enueventstatus where status='Completed');",namedParams, Integer.class);
+				+ "where em.employeeId=:employeeId and em.isActive=true and e.eventStatusId=(SELECT statusId from enueventstatus where status='Verified');",namedParams, Integer.class);
 	}
 
 	@Override

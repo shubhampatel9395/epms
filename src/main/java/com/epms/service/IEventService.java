@@ -6,6 +6,7 @@ import javax.validation.Valid;
 
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
+import com.epms.dto.AssignedEmployeesInEventDTO;
 import com.epms.dto.EventDTO;
 import com.epms.dto.PackageDetailsDTO;
 
@@ -26,4 +27,5 @@ public interface IEventService {
 	public void complete(long eventId);
 	public EventDTO updateByAdmin(EventDTO entity);
 	public EventDTO insertByCustomer(@Valid EventDTO eventDTO);
+	public List<AssignedEmployeesInEventDTO> getAllAssignedEmployees(Long eventId);
 }

@@ -33,9 +33,11 @@
 										<tr>
 											<th>Event Title</th>
 											<th>Event Type</th>
-											<th>Venue</th>
-											<th>Start Date</th>
-											<th>Start Time</th>
+											<th th:if="${layoutTitle} == 'Event Organizer'">Venue</th>
+											<th th:if="${layoutTitle} == 'Event Organizer'">Start Date</th>
+											<th th:if="${layoutTitle} == 'Event Organizer'">Start Time</th>
+											<th th:if="${layoutTitle} == 'Employee'">Work Description</th>
+											<th th:if="${layoutTitle} == 'Employee'">Status</th>
 											<th style="width: 85px;">Action</th>
 										</tr>
 									</thead>
@@ -43,12 +45,27 @@
 										<tr th:each="upcomingEvent : ${upcomingEventWorkDTOs}">
 											<td th:text="${upcomingEvent.eventTitle}"></td>
 											<td th:text="${upcomingEvent.eventType}"></td>
-											<td th:text="${upcomingEvent.venueName}"></td>
-											<td th:text="${#dates.format(upcomingEvent.startDate,'MMM dd, yyyy')}"></td>
-											<td th:text="${upcomingEvent.startTime}"></td>
+											<td th:if="${layoutTitle} == 'Event Organizer'" th:text="${upcomingEvent.venueName}"></td>
+											<td th:if="${layoutTitle} == 'Event Organizer'" th:text="${#dates.format(upcomingEvent.startDate,'MMM dd, yyyy')}"></td>
+											<td th:if="${layoutTitle} == 'Event Organizer'" th:text="${upcomingEvent.startTime}"></td>
+											<td th:if="${layoutTitle} == 'Employee'" th:text="${upcomingEvent.workDescription}"></td>
+											<td th:if="${layoutTitle} == 'Employee' and ${upcomingEvent.status == 'Assigned'}">
+												<span class="badge bg-primary"
+													th:text="${upcomingEvent.status}"></span>
+											</td>
+											<td th:if="${layoutTitle} == 'Employee' and ${upcomingEvent.status == 'In Progress'}">
+												<span class="badge bg-danger"
+													th:text="${upcomingEvent.status}"></span>
+											</td>
+											<td th:if="${layoutTitle} == 'Employee' and ${upcomingEvent.status == 'Completed'}">
+												<span class="badge bg-success"
+													th:text="${upcomingEvent.status}"></span>
+											</td>
 											<td th:if="${layoutTitle} == 'Employee'" class="table-action">
 												<a th:href="@{'/employee/view_event/' + ${upcomingEvent.eventId}}"
 													class="action-icon"> <i class="mdi mdi-eye"></i></a>
+												<a th:href="@{'/employee/edit_work_details/' + ${upcomingEvent.eventId}}"
+													class="action-icon"> <i class="mdi mdi-square-edit-outline"></i></a>
 											</td>
 											<td th:if="${layoutTitle} == 'Event Organizer'" class="table-action">
 												<a th:href="@{'/employee/view_event/' + ${upcomingEvent.eventId}}"

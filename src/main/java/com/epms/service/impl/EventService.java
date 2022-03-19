@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.epms.dao.IEventDAO;
+import com.epms.dto.AssignedEmployeesInEventDTO;
 import com.epms.dto.EventDTO;
 import com.epms.dto.PackageDetailsDTO;
 import com.epms.service.IEventService;
@@ -102,6 +103,11 @@ public class EventService implements IEventService {
 	@Override
 	public EventDTO insertByCustomer(@Valid EventDTO eventDTO) {
 		return eventDAO.insertByCustomer(eventDTO);
+	}
+
+	@Override
+	public List<AssignedEmployeesInEventDTO> getAllAssignedEmployees(Long eventId) {
+		return eventDAO.getAllAssignedEmployees(eventId);
 	}
 
 }

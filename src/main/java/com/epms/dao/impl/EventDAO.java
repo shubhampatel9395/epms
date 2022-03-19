@@ -16,6 +16,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IEventDAO;
+import com.epms.dto.AssignedEmployeesInEventDTO;
 import com.epms.dto.EventDTO;
 import com.epms.dto.PackageDetailsDTO;
 
@@ -253,5 +254,18 @@ public class EventDAO implements IEventDAO {
 				namedParams, keyHolder, new String[] { "eventId" });
 
 		return findById(keyHolder.getKey().longValue());
+	}
+
+	@Override
+	public List<AssignedEmployeesInEventDTO> getAllAssignedEmployees(Long eventId) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("eventId", eventId);
+		return jdbcTemplate.query("SELECT em.eventEmployeemappingId,concat(u.firstName,' ',u.lastName) as employeeName,er.role as employeeRole,u.email,u.mobileNumber,em.workDescription,emws.status as workingStatus from event e\r\n"
+				+ "join eventemployeemapping em on em.eventId=e.eventId\r\n"
+				+ "join enuemployeeworkingstatus emws on emws.statusId=em.statusId\r\n"
+				+ "join employee emp on emp.employeeId=em.employeeId\r\n"
+				+ "join enuemployeerole er on emp.employeeRoleId=er.employeeRoleId\r\n"
+				+ "join userdetails u on emp.userDetailsId=u.userDetailsId\r\n"
+				+ "where e.isActive=true and e.eventId=:eventId and em.isActive=true", namedParams, new BeanPropertyRowMapper<AssignedEmployeesInEventDTO>(AssignedEmployeesInEventDTO.class));
 	}
 }

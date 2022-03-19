@@ -2,7 +2,7 @@
 	layout:decorate="~{${layoutPage}}">
 
 <head>
-	<title>Edit Assigned Employee</title>
+	<title>Edit Work Details</title>
 	<style>
 		.page-title-box .page-title-right {
 			display: block;
@@ -18,25 +18,25 @@
 				<div class="col-12">
 					<div class="page-title-box">
 						<div class="page-title-right">
-							<a th:href="@{'/assign_employee/' + ${eventDTO.eventId}}"
-								class="btn btn-secondary mb-2">Back</a>
+							<a th:href="@{/employee/assigned-work}" class="btn btn-secondary mb-2">Back</a>
 						</div>
-						<h4 class="page-title">Edit Assigned Employee</h4>
+						<h4 class="page-title">Edit Work Details</h4>
 					</div>
 				</div>
 				<div class="col-12">
 					<div class="card">
 						<div class="card-body">
-							<form th:action="@{/edit_assigned_employee}" method="post">
+							<form th:action="@{/employee/edit_work_details}" method="post">
 								<input type="hidden" id="selectedEventId" th:field="*{eventDTO.eventId}" />
 								<input type="hidden" th:field="*{employee.eventEmployeeMappingId}" />
-								
+
 								<div class="row g-2">
 									<div class="mb-3">
-									<label for="eventTitle" class="form-label">Event Title</label>
-									<input type="text" class="form-control" th:value="${eventDTO.eventTitle}" readonly/>
-								</div>
-								
+										<label for="eventTitle" class="form-label">Event Title</label>
+										<input type="text" class="form-control" th:value="${eventDTO.eventTitle}"
+											readonly />
+									</div>
+
 									<div class="mb-3 col-md-6">
 										<label for="inputEmployeeRole" class="form-label">Employee Role</label>
 										<select id="inputEmployeeRole" th:field="*{employee.employeeTypeId}"
@@ -62,28 +62,28 @@
 										</select>
 									</div>
 								</div>
-								
-								<div class="mb-3">
-										<label for="inputEmployeeWorkingStatus" class="form-label">Employee Working Status</label>
-										<select id="inputEmployeeWorkingStatus" th:field="*{employee.statusId}" class="form-select"
-											required>
-											<option value="" hidden readonly>--Select Current Status --</option>
-											<option th:each="workingStatus : ${workingStatuses}"
-												th:value="${workingStatus.statusId}"
-												th:text="${workingStatus.status}">
-											</option>
-										</select>
-									</div>
 
 								<div class="mb-3">
 									<label for="description" class="form-label">Work Description</label>
 									<textarea th:field="*{employee.workDescription}" class="form-control"
-										id="example-textarea" rows="5" required></textarea>
+										id="example-textarea" rows="5" readonly></textarea>
+								</div>
+
+								<div class="mb-3">
+									<label for="inputEmployeeWorkingStatus" class="form-label">Employee Working
+										Status</label>
+									<select id="inputEmployeeWorkingStatus" th:field="*{employee.statusId}"
+										class="form-select" required>
+										<option value="" hidden readonly>--Select Current Status --</option>
+										<option th:each="workingStatus : ${workingStatuses}"
+											th:value="${workingStatus.statusId}" th:text="${workingStatus.status}">
+										</option>
+									</select>
 								</div>
 
 								<div class="mb-0 d-grid text-center">
 									<button class="btn btn-primary" type="submit">
-										Save Employee
+										Edit Details
 									</button>
 								</div>
 								<!-- social-->
