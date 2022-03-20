@@ -1,6 +1,8 @@
 package com.epms.controller;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,7 +58,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/customer")
 @Slf4j
 public class RegisteredCustomerController {
-	
+
 	@Autowired
 	IEnuCityService enuCityService;
 
@@ -64,10 +67,10 @@ public class RegisteredCustomerController {
 
 	@Autowired
 	IEnuStateService enuStateService;
-	
+
 	@Autowired
 	IAddressService addressService;
-	
+
 	@Autowired
 	IEnuEventTypeService enuEventTypeService;
 
@@ -76,10 +79,9 @@ public class RegisteredCustomerController {
 
 	@Autowired
 	private ApplicationContext applicationContext;
-	
+
 	@Autowired
 	IUserDetailsService userDetailsService;
-
 
 	@GetMapping("/index")
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -95,8 +97,8 @@ public class RegisteredCustomerController {
 				Authentication authentication = applicationContext.getBean(AuthenticationConfiguration.class)
 						.getAuthenticationManager().authenticate(authToken);
 				SecurityContextHolder.getContext().setAuthentication(authentication);
-				modelandmap.addObject("eventNames",
-						enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+				modelandmap.addObject("eventNames", enuEventTypeService
+						.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 				return modelandmap;
 			} catch (Exception e) {
 				log.error("Exception while authentication {e}", e);
@@ -189,15 +191,74 @@ public class RegisteredCustomerController {
 			final BindingResult bindingResult) {
 		return 1;
 	}
-	
+
+	public BindingResult checkCustomerResults(@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
+			BindingResult userResult) {
+		// Valid Email
+		final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$",
+				Pattern.CASE_INSENSITIVE);
+		Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(userDetailsDTO.getEmail());
+		boolean isValidEmail = matcher.find();
+		if (isValidEmail == false) {
+			userResult.addError(new FieldError("userDetailsDTO", "email", "Please enter valid email address."));
+		}
+
+		// Unique Email
+		List<UserDetailsDTO> emailDTO = userDetailsService.isUniqueEmail(userDetailsDTO.getEmail());
+		if (emailDTO.isEmpty() != true) {
+			if (!(emailDTO.get(0).getUserDetailsId().equals(userDetailsDTO.getUserDetailsId()))) {
+				if (emailDTO.get(0).getIsActive() == true) {
+					userResult.addError(
+							new FieldError("userDetailsDTO", "email", "Email address is already registered."));
+				} else {
+					userResult.addError(new FieldError("userDetailsDTO", "email",
+							"Email address is already registered and account is deactivated.\nPlease contact us to active it."));
+				}
+			}
+		}
+
+		// Password Rules
+		String pattern = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}";
+		boolean isValidPassword = userDetailsDTO.getPassword().matches(pattern);
+		if (isValidPassword == false) {
+			userResult.addError(
+					new FieldError("userDetailsDTO", "password", "Please enter password according to rules."));
+		}
+
+		// 10 digit Mobile Number
+		if (userDetailsDTO.getMobileNumber().length() != 10) {
+			userResult
+					.addError(new FieldError("userDetailsDTO", "mobileNumber", "Please enter 10 digit mobile number."));
+		}
+
+		// Unique Mobile Number
+		List<UserDetailsDTO> mobileNumberDTO = userDetailsService
+				.isUniqueMobileNumber(userDetailsDTO.getMobileNumber());
+		if (mobileNumberDTO.isEmpty() != true) {
+			if (!(mobileNumberDTO.get(0).getUserDetailsId().equals(userDetailsDTO.getUserDetailsId()))) {
+				if (mobileNumberDTO.get(0).getIsActive() == true) {
+					userResult.addError(
+							new FieldError("userDetailsDTO", "mobileNumber", "Mobile Number is already registered."));
+				} else {
+					userResult.addError(new FieldError("userDetailsDTO", "mobileNumber",
+							"Mobile Number is already registered and account is deactivated.\nPlease contact us to active it."));
+				}
+			}
+		}
+
+		return userResult;
+	}
+
 	@GetMapping("/edit_profile")
 	public ModelAndView editCustomer() {
-		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
 		ModelAndView modelandmap = new ModelAndView("customer/edit_customer");
 		// modelandmap.addObject("cities", enuCountryService.findAll());
 
 		// TODO make form object
-		UserDetailsDTO userDetailsDTO = userDetailsService.findById(customUserDetailsDTO.getUserDetailsId().longValue());
+		UserDetailsDTO userDetailsDTO = userDetailsService
+				.findById(customUserDetailsDTO.getUserDetailsId().longValue());
 		AddressDTO addressDTO = addressService.findById(userDetailsDTO.getAddressId().longValue());
 
 		modelandmap.addObject("userDetailsDTOEdit", userDetailsDTO);
@@ -227,11 +288,10 @@ public class RegisteredCustomerController {
 		return address;
 	}
 
-	
 	@PostMapping("/edit_customer")
 	public ModelAndView updateCustomer(@Valid @ModelAttribute("userDetailsDTOEdit") UserDetailsDTO userDetailsDTO,
-			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
-		final ModelAndView modelandmap = new ModelAndView("redirect:/customer/index");
+			BindingResult userResult, @Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/customer/index");
 		UserDetailsDTO oldUserDetailsDTO = userDetailsService.findById(userDetailsDTO.getUserDetailsId().longValue());
 		AddressDTO oldAddressDTO = addressService.findById(addressDTO.getAddressId().longValue());
 
@@ -275,9 +335,25 @@ public class RegisteredCustomerController {
 			oldAddressDTO.setPostalCode(addressDTO.getPostalCode());
 		}
 
+		userResult = checkCustomerResults(oldUserDetailsDTO, userResult);
+		if (userResult.hasErrors() == true) {
+			modelandmap = new ModelAndView("customer/edit_customer");
+			modelandmap.addObject("userDetailsDTOEdit", userDetailsDTO);
+			modelandmap.addObject("addressDTO", addressDTO);
+
+			MapSqlParameterSource paramSource = new MapSqlParameterSource();
+			modelandmap.addObject("countries", enuCountryService.findAll());
+			paramSource.addValue("countryId", addressDTO.getCountryId());
+			modelandmap.addObject("states", enuStateService.findByNamedParameters(paramSource));
+
+			paramSource = new MapSqlParameterSource();
+			paramSource.addValue("stateId", addressDTO.getStateId());
+			modelandmap.addObject("cities", enuCityService.findByNamedParameters(paramSource));
+			return modelandmap;
+		}
+
 		addressService.update(oldAddressDTO);
 		userDetailsService.update(oldUserDetailsDTO);
 		return modelandmap;
 	}
-
 }

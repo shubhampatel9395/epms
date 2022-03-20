@@ -1539,20 +1539,22 @@ public class EventController {
 	public ModelAndView saveEventRating(@Valid @ModelAttribute("eventDTORating") EventDTO eventDTO,
 			@Valid @ModelAttribute("feedbackDTO") FeedbackDTO feedbackDTO) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/customer/feedback/" + eventDTO.getEventId());
-		FeedbackDTO oldFeedbackDTO = DataAccessUtils.singleResult(feedbackService
-				.findByNamedParameters(new MapSqlParameterSource().addValue("eventId", eventDTO.getEventId())));
+		List<FeedbackDTO> oldFeedbackDTO = feedbackService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("eventId", eventDTO.getEventId()));
+		oldFeedbackDTO = oldFeedbackDTO.stream().filter(e -> e.getEventRating() != null).collect(Collectors.toList());
 		if (oldFeedbackDTO == null) {
 			feedbackDTO.setEventId(eventDTO.getEventId());
 			feedbackService.insert(feedbackDTO);
 		} else {
-			if (!(oldFeedbackDTO.getEventRating().equals(feedbackDTO.getEventRating()))) {
-				oldFeedbackDTO.setEventRating(feedbackDTO.getEventRating());
+			FeedbackDTO testFeedbackDTO = oldFeedbackDTO.get(0);
+			if (!(testFeedbackDTO.getEventRating().equals(feedbackDTO.getEventRating()))) {
+				testFeedbackDTO.setEventRating(feedbackDTO.getEventRating());
 			}
-			if (!(oldFeedbackDTO.getEventDescription().equals(feedbackDTO.getEventDescription()))) {
-				oldFeedbackDTO.setEventDescription(feedbackDTO.getEventDescription());
+			if (!(testFeedbackDTO.getEventDescription().equals(feedbackDTO.getEventDescription()))) {
+				testFeedbackDTO.setEventDescription(feedbackDTO.getEventDescription());
 			}
 
-			feedbackService.update(oldFeedbackDTO);
+			feedbackService.update(testFeedbackDTO);
 		}
 
 		return modelandmap;

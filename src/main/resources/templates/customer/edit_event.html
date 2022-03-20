@@ -52,6 +52,7 @@
 								<input type="hidden" th:field="*{eventDTO.eventId}" />
 								<input type="hidden" th:field="*{packageDetailsDTO.packageDetailsId}" />
 								<input type="hidden" th:field="*{eventDTO.eventStatusId}" />
+								<input th:if="${eventStatus} == 'Verified'" type="hidden" th:field="*{eventDTO.eventTypeId}" />
 								<div>
 									<i class="mdi mdi-information-outline"
 										style="font-size: 24px;padding-right: 0.5rem;"></i>
@@ -60,7 +61,7 @@
 									</h6>
 								</div>
 
-								<div class="form-floating mb-3">
+								<div th:if="${eventStatus} == 'Registered'" class="form-floating mb-3">
 									<select id="inputEventType" class="form-select" th:field="*{eventDTO.eventTypeId}"
 										required>
 										<option value="-1" selected hidden readonly>--Select Event Type --
@@ -70,6 +71,7 @@
 										</option>
 									</select>
 									<label for="floatingSelect">Event Type</label>
+									<p id="eventTypeError" class="text-danger mt-1"></p>
 								</div>
 
 								<div class="mb-3">
@@ -103,7 +105,8 @@
 
 								<div class="form-floating mb-3">
 									<input th:field="*{eventDTO.estimatedGuest}" type="text" id="example-helping"
-										class="form-control" placeholder="Helping text" required>
+										class="form-control" placeholder="Helping text" min="0"
+										oninput="validity.valid || (value='');" required>
 									<label for="floatingInput">Estimated Guests</label>
 								</div>
 
@@ -119,6 +122,7 @@
 													data-provide="datepicker" data-date-autoclose="true"
 													data-date-container="#datepicker4" required>
 											</div>
+											<p id="startDateError" class="text-danger mt-1"></p>
 										</div>
 									</div>
 									<div class="col-md-6">
@@ -131,8 +135,8 @@
 												class="form-control" data-provide='timepicker' data-minute-step="5"
 												data-show-meridian="false" required>
 										</div>
+										<p id="startTimeError" class="text-danger mt-1"></p>
 									</div>
-
 								</div>
 								<div class="mb-3 row g-2">
 									<div class="col-md-6">
@@ -146,6 +150,7 @@
 													data-provide="datepicker" data-date-autoclose="true"
 													data-date-container="#datepicker4" required>
 											</div>
+											<p id="endDateError" class="text-danger mt-1"></p>
 										</div>
 									</div>
 									<div class="col-md-6">
@@ -158,6 +163,7 @@
 												class="form-control" data-provide='timepicker' data-minute-step="5"
 												data-show-meridian="false" required>
 										</div>
+										<p id="endTimeError" class="text-danger mt-1"></p>
 									</div>
 								</div>
 
@@ -270,6 +276,7 @@
 													style="font-size: 0.75rem; color:  #808080; margin-left: 0.5rem;">(Extra
 													charges applied)</small></label>
 											<input type="number" id="inputRegFee" th:field="*{eventDTO.registrationFee}"
+												required min="0" oninput="validity.valid || (value='');"
 												class="form-control" placeholder="Enter registration fee for event">
 										</div>
 										<div class="mb-3 col-md-6">
@@ -277,7 +284,8 @@
 												Available</label>
 											<input type="number" id="inputRegAvailable"
 												th:field="*{eventDTO.registrationAvailable}" class="form-control"
-												required placeholder="Enter total registration available for event">
+												required placeholder="Enter total registration available for event"
+												min="0" oninput="validity.valid || (value='');">
 										</div>
 									</div>
 								</div>
@@ -317,6 +325,14 @@
 			});
 
 			$(document).ready(function () {
+				$("#eventTypeError").css('display', 'none');
+				$("#startDate").datepicker({startDate: "+5d"});
+				$("#endDate").datepicker({startDate: "+5d"});
+				$("#startDateError").css('display', 'none');
+				$("#startTimeError").css('display', 'none');
+				$("#endDateError").css('display', 'none');
+				$("#endTimeError").css('display', 'none');
+
 				$("#startDate").val(new Date(document.getElementById("startDate").value).toLocaleDateString().substring(0, 10));
 				$("#endDate").val(new Date(document.getElementById("endDate").value).toLocaleDateString().substring(0, 10));
 
@@ -347,7 +363,7 @@
 				$(document).ajaxSend(function (e, xhr, options) {
 					xhr.setRequestHeader(header, token);
 				});
-				
+
 				if ($("#isFree").prop('checked')) {
 					$("#regDiv *").prop('disabled', true);
 				}
@@ -418,6 +434,60 @@
 			});
 
 			$("form").submit(function () {
+				var isValid = true;
+				$("#eventTypeError").css('display', 'none');
+				$("#startDateError").css('display', 'none');
+				$("#startTimeError").css('display', 'none');
+				$("#endDateError").css('display', 'none');
+				$("#endTimeError").css('display', 'none');
+				$("#errorDiv").css('display', 'none');
+
+				if ($("#inputEventType").find(":selected").val() === "-1") {
+					isValid = false;
+					$("#eventTypeError").css('display', 'block');
+					$("#eventTypeError").text('Please select event type.');
+				}
+
+				if (isNaN(Date.parse($("#startDate").val()))) {
+					isValid = false;
+					$("#startDateError").css('display', 'block');
+					$("#startDateError").text('Please enter valid start date.');
+				}
+
+				if (isNaN(Date.parse($("#endDate").val()))) {
+					isValid = false;
+					$("#endDateError").css('display', 'block');
+					$("#endDateError").text('Please enter valid start date.');
+				}
+
+				if ($("#startDate").val() > $("#endDate").val()) {
+					isValid = false;
+					$("#endDateError").css('display', 'block');
+					$("#endDateError").text('End date should be greater than start date.');
+				}
+				// console.log(new Date($("#startDate").val() + ' ' + $("#timepicker2").val()));
+
+				if ($("#startDate").val() === $("#endDate").val()) {
+					if (new Date($("#startDate").val() + ' ' + $("#timepicker2").val()) >= new Date($("#endDate").val() + ' ' + $("#timepicker3").val())) {
+						isValid = false;
+						$("#endTimeError").css('display', 'block');
+						$("#endTimeError").text('End time should be greater than start time.');
+					}
+				}
+
+				if ($('input[type="radio"][name="isStatic"]:checked').val() === "true") {
+					if ($("#inputPackage").find(":selected").val() === "") {
+						$("#errorTxt").text("Please select package.");
+						$("#errorDiv").css('display', 'block');
+						return false;
+					}
+				}
+
+				// console.log(isValid);
+				if (isValid === false) {
+					return isValid;
+				}
+
 				if ($("#eventStatus").val() == "Registered") {
 					if ($('input[type="radio"][name="isStatic"]:checked').val() === "true") {
 						if ($("#inputPackage").find(":selected").val() === "") {

@@ -454,8 +454,8 @@ public class CustomerController {
 		if (isValidEmail == false) {
 			result.addError(new FieldError("enquiry", "email", "Please enter valid email address."));
 		}
-		
-		if(result.hasErrors() == true) {
+
+		if (result.hasErrors() == true) {
 			final ModelAndView modelandmap = new ModelAndView("enquiry");
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
@@ -736,6 +736,15 @@ public class CustomerController {
 		UserDetailsDTO userDetailsDTO = DataAccessUtils
 				.singleResult(userDetailsService.findByNamedParameters(parameterSource));
 
+		// Password Rules
+		String pattern = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}";
+		boolean isValidPassword = password.matches(pattern);
+		if (isValidPassword == false) {
+			rm.addFlashAttribute("error", "Please enter password according to rules.");
+			model.setViewName("redirect:/reset-password?token=" + token);
+			return model;
+		}
+
 		if (userDetailsDTO == null) {
 			rm.addFlashAttribute("error", "Invalid Token");
 			model.setViewName("redirect:/reset-password?token=" + token);
@@ -781,6 +790,15 @@ public class CustomerController {
 		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
 			return new ModelAndView("redirect:/login");
 		} else {
+			// Password Rules
+			String pattern = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}";
+			boolean isValidPassword = request.getParameter("newPassword").matches(pattern);
+			if (isValidPassword == false) {
+				rm.addFlashAttribute("error", "Please enter password according to rules.");
+				model.setViewName("redirect:/change-password");
+				return model;
+			}
+			
 			CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
 					.getAuthentication().getPrincipal();
 			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -794,7 +812,7 @@ public class CustomerController {
 				String encodedPassword = passwordEncoder.encode(request.getParameter("newPassword"));
 				userDetailsService.updateUserPassword(userDetails.getUserDetailsId(), encodedPassword);
 				rm.addFlashAttribute("message", "your password is successfully changed.");
-				return new ModelAndView("redirect:/login");
+				return new ModelAndView("redirect:/logout");
 			}
 		}
 		return model;

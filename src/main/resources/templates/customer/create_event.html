@@ -64,6 +64,7 @@
 										</option>
 									</select>
 									<label for="floatingSelect">Event Type</label>
+									<p id="eventTypeError" class="text-danger mt-1"></p>
 								</div>
 
 								<div class="mb-3">
@@ -93,8 +94,9 @@
 								</div>
 
 								<div class="form-floating mb-3">
-									<input th:field="*{eventDTO.estimatedGuest}" type="text" id="example-helping"
-										class="form-control" placeholder="Helping text" required>
+									<input th:field="*{eventDTO.estimatedGuest}" type="number" id="example-helping"
+										class="form-control" placeholder="Helping text" min="0"
+										oninput="validity.valid || (value='');" required>
 									<label for="floatingInput">Estimated Guests</label>
 								</div>
 
@@ -110,6 +112,7 @@
 													data-provide="datepicker" data-date-autoclose="true"
 													data-date-container="#datepicker4" required>
 											</div>
+											<p id="startDateError" class="text-danger mt-1"></p>
 										</div>
 									</div>
 									<div class="col-md-6">
@@ -122,8 +125,8 @@
 												class="form-control" data-provide='timepicker' data-minute-step="5"
 												data-show-meridian="false" required>
 										</div>
+										<p id="startTimeError" class="text-danger mt-1"></p>
 									</div>
-
 								</div>
 								<div class="mb-3 row g-2">
 									<div class="col-md-6">
@@ -137,6 +140,7 @@
 													data-provide="datepicker" data-date-autoclose="true"
 													data-date-container="#datepicker4" required>
 											</div>
+											<p id="endDateError" class="text-danger mt-1"></p>
 										</div>
 									</div>
 									<div class="col-md-6">
@@ -149,6 +153,7 @@
 												class="form-control" data-provide='timepicker' data-minute-step="5"
 												data-show-meridian="false" required>
 										</div>
+										<p id="endTimeError" class="text-danger mt-1"></p>
 									</div>
 								</div>
 
@@ -254,14 +259,17 @@
 													style="font-size: 0.75rem; color:  #808080; margin-left: 0.5rem;">(Extra
 													charges applied)</small></label>
 											<input type="number" id="inputRegFee" th:field="*{eventDTO.registrationFee}"
-												class="form-control" placeholder="Enter registration fee for event">
+												required class="form-control"
+												placeholder="Enter registration fee for event" min="0"
+												oninput="validity.valid || (value='');">
 										</div>
 										<div class="mb-3 col-md-6">
 											<label for="inputRegAvailable" class="form-label">Maximum Registration
 												Available</label>
 											<input type="number" id="inputRegAvailable"
 												th:field="*{eventDTO.registrationAvailable}" class="form-control"
-												required placeholder="Enter total registration available for event">
+												required placeholder="Enter total registration available for event"
+												min="0" oninput="validity.valid || (value='');">
 										</div>
 									</div>
 								</div>
@@ -302,6 +310,14 @@
 			});
 
 			$(document).ready(function () {
+				$("#eventTypeError").css('display', 'none');
+				$("#startDate").datepicker({startDate: "+5d"});
+				$("#endDate").datepicker({startDate: "+5d"});
+				$("#startDateError").css('display', 'none');
+				$("#startTimeError").css('display', 'none');
+				$("#endDateError").css('display', 'none');
+				$("#endTimeError").css('display', 'none');
+
 				$("#individual").find("input[type='checkbox']").prop('disabled', true);
 				$("#inputVenueType").prop('disabled', true);
 				$("#regDiv *").prop('disabled', true);
@@ -393,6 +409,47 @@
 			});
 
 			$("form").submit(function () {
+				var isValid = true;
+				$("#eventTypeError").css('display', 'none');
+				$("#startDateError").css('display', 'none');
+				$("#startTimeError").css('display', 'none');
+				$("#endDateError").css('display', 'none');
+				$("#endTimeError").css('display', 'none');
+				$("#errorDiv").css('display', 'none');
+
+				if ($("#inputEventType").find(":selected").val() === "-1") {
+					isValid = false;
+					$("#eventTypeError").css('display', 'block');
+					$("#eventTypeError").text('Please select event type.');
+				}
+
+				if (isNaN(Date.parse($("#startDate").val()))) {
+					isValid = false;
+					$("#startDateError").css('display', 'block');
+					$("#startDateError").text('Please enter valid start date.');
+				}
+
+				if (isNaN(Date.parse($("#endDate").val()))) {
+					isValid = false;
+					$("#endDateError").css('display', 'block');
+					$("#endDateError").text('Please enter valid start date.');
+				}
+
+				if ($("#startDate").val() > $("#endDate").val()) {
+					isValid = false;
+					$("#endDateError").css('display', 'block');
+					$("#endDateError").text('End date should be greater than start date.');
+				}
+				// console.log(new Date($("#startDate").val() + ' ' + $("#timepicker2").val()));
+
+				if ($("#startDate").val() === $("#endDate").val()) {
+					if (new Date($("#startDate").val() + ' ' + $("#timepicker2").val()) >= new Date($("#endDate").val() + ' ' + $("#timepicker3").val())) {
+						isValid = false;
+						$("#endTimeError").css('display', 'block');
+						$("#endTimeError").text('End time should be greater than start time.');
+					}
+				}
+
 				if ($('input[type="radio"][name="isStatic"]:checked').val() === "true") {
 					if ($("#inputPackage").find(":selected").val() === "") {
 						$("#errorTxt").text("Please select package.");
@@ -408,7 +465,11 @@
 						return false;
 					}
 				}
-				$("#errorDiv").css('display', 'none');
+
+				// console.log(isValid);
+				if (isValid === false) {
+					return isValid;
+				}
 
 				// 1000 Advance Fixed
 				var messageConfirm = "You have to pay 1000 advance to confirm the event.\nDo you want to continue?";
