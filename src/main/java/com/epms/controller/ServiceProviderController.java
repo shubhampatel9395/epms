@@ -409,6 +409,55 @@ public class ServiceProviderController {
 		rm.addFlashAttribute("fullname", serviceProviderDTO.getServiceProviderName());
 		return modelandmap;
 	}
+	
+	public BindingResult checkCustomerResultsEdit(@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
+			BindingResult userResult) {
+		// Valid Email
+		final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$",
+				Pattern.CASE_INSENSITIVE);
+		Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(userDetailsDTO.getEmail());
+		boolean isValidEmail = matcher.find();
+		if (isValidEmail == false) {
+			userResult.addError(new FieldError("userDetailsDTO", "email", "Please enter valid email address."));
+		}
+
+		// Unique Email
+		List<UserDetailsDTO> emailDTO = userDetailsService.isUniqueEmail(userDetailsDTO.getEmail());
+		if (emailDTO.isEmpty() != true) {
+			if (!(emailDTO.get(0).getUserDetailsId().equals(userDetailsDTO.getUserDetailsId()))) {
+				if (emailDTO.get(0).getIsActive() == true) {
+					userResult.addError(
+							new FieldError("userDetailsDTO", "email", "Email address is already registered."));
+				} else {
+					userResult.addError(new FieldError("userDetailsDTO", "email",
+							"Email address is already registered and account is deactivated.\nPlease contact us to active it."));
+				}
+			}
+		}
+
+		// 10 digit Mobile Number
+		if (userDetailsDTO.getMobileNumber().length() != 10) {
+			userResult
+					.addError(new FieldError("userDetailsDTO", "mobileNumber", "Please enter 10 digit mobile number."));
+		}
+
+		// Unique Mobile Number
+		List<UserDetailsDTO> mobileNumberDTO = userDetailsService
+				.isUniqueMobileNumber(userDetailsDTO.getMobileNumber());
+		if (mobileNumberDTO.isEmpty() != true) {
+			if (!(mobileNumberDTO.get(0).getUserDetailsId().equals(userDetailsDTO.getUserDetailsId()))) {
+				if (mobileNumberDTO.get(0).getIsActive() == true) {
+					userResult.addError(
+							new FieldError("userDetailsDTO", "mobileNumber", "Mobile Number is already registered."));
+				} else {
+					userResult.addError(new FieldError("userDetailsDTO", "mobileNumber",
+							"Mobile Number is already registered and account is deactivated.\nPlease contact us to active it."));
+				}
+			}
+		}
+
+		return userResult;
+	}
 
 	@GetMapping("/edit_profile")
 	public ModelAndView editServiceProvider() {
@@ -448,8 +497,9 @@ public class ServiceProviderController {
 	public ModelAndView updateServiceProvider(
 			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO,
 			@Valid @ModelAttribute("userDetailsDTOEdit") UserDetailsDTO userDetailsDTO,
+			BindingResult userResult,
 			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
-		final ModelAndView modelandmap = new ModelAndView("redirect:/serviceprovider/dashboard");
+		ModelAndView modelandmap = new ModelAndView("redirect:/serviceprovider/dashboard");
 
 		ServiceProviderDTO oldserviceProviderDTO = serviceProviderService
 				.findById(serviceProviderDTO.getServiceProviderId().longValue());
@@ -501,6 +551,26 @@ public class ServiceProviderController {
 
 		if (!(addressDTO.getPostalCode().equals(oldAddressDTO.getPostalCode()))) {
 			oldAddressDTO.setPostalCode(addressDTO.getPostalCode());
+		}
+		
+		userResult = checkCustomerResultsEdit(oldserviceProviderDTO , userResult);
+		if (userResult.hasErrors() == true) {
+			modelandmap = new ModelAndView("serviceprovider/edit_serviceprovider");
+			modelandmap.addObject("serviceProviderDTO", serviceProviderDTO);
+			modelandmap.addObject("userDetailsDTOEdit", userDetailsDTO);
+			modelandmap.addObject("serviceTypes", enuServiceTypeService.findAllActive());
+			modelandmap.addObject("addressDTO", addressDTO);
+
+			modelandmap.addObject("countries", enuCountryService.findAll());
+
+			MapSqlParameterSource paramSourceCountry = new MapSqlParameterSource();
+			paramSourceCountry.addValue("countryId", addressDTO.getCountryId());
+			modelandmap.addObject("states", enuStateService.findByNamedParameters(paramSourceCountry));
+
+			MapSqlParameterSource paramSourceState = new MapSqlParameterSource();
+			paramSourceState.addValue("stateId", addressDTO.getStateId());
+			modelandmap.addObject("cities", enuCityService.findByNamedParameters(paramSourceState));
+			return modelandmap;
 		}
 
 		addressService.update(oldAddressDTO);

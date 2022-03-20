@@ -50,29 +50,30 @@
 					<div class="col-lg-6 offset-md-1 col-md-6">
 						<form method="POST" th:action="@{/contact-us}">
 							<div class="form-floating mb-3">
-								<input th:field="*{contactUs.email}" type="text" id="example-helping"
+								<input th:field="*{contactUs.email}" type="email" id="email" required
 									class="form-control" placeholder="Helping text">
 								<label for="floatingInput">Email</label>
+								<p id="emailError" class="text-danger mt-1"></p>
 							</div>
-							
+
 							<div class="form-floating mb-3">
-								<input th:field="*{contactUs.subject}" type="text" id="example-helping"
+								<input th:field="*{contactUs.subject}" type="text" id="example-helping" required
 									class="form-control" placeholder="Helping text">
 								<label for="floatingInput">Subject</label>
 							</div>
 
 							<div class="form-floating mb-3">
 								<textarea th:field="*{contactUs.message}" class="form-control" rows="5"
-									placeholder="Leave a comment here" id="floatingTextarea"
-									style="height: 150px;"></textarea>
+									placeholder="Leave a comment here" id="floatingTextarea" style="height: 150px;"
+									required></textarea>
 								<label for="floatingTextarea">Message</label>
 							</div>
-							
+
 							<div class="mb-0 d-grid text-center">
-									<button class="btn btn-primary" type="submit">
-										Send
-									</button>
-								</div>
+								<button class="btn btn-primary" type="submit">
+									Send
+								</button>
+							</div>
 						</form>
 					</div>
 				</div>
@@ -82,6 +83,25 @@
 		<!-- END FEATURES 2 -->
 	</th:block>
 	<th:block layout:fragment="script">
+		<script type="text/javascript">
+			$(document).ready(function () {
+				$('#emailError').css('display', 'none');
+			});
+
+			$("form").submit(function () {
+				$('#emailError').css('display', 'none');
+				var emailAddress = $("#email").val();
+				var pattern = /\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/;
+				// console.log(pattern.test(emailAddress));
+				if (pattern.test(emailAddress) === false) {
+					$('#emailError').css('display', 'block');
+					$('#emailError').text('Please enter valid email address.');
+					return false;
+				}
+
+				return true;
+			});
+		</script>
 	</th:block>
 </body>
 

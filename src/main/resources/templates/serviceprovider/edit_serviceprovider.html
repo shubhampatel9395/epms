@@ -38,6 +38,8 @@
 									<label for="emailaddress" class="form-label">Email address</label>
 									<input class="form-control" th:field="*{userDetailsDTOEdit.email}" type="email"
 										id="email" required placeholder="Enter your email">
+									<p th:if="${#fields.hasErrors('userDetailsDTOEdit.email')}" class="text-danger mt-1"
+										th:errors="*{userDetailsDTOEdit.email}"></p>
 								</div>
 								<div class="mb-3">
 									<label for="mobileNumber" class="form-label">Mobile Number</label>
@@ -45,12 +47,14 @@
 										th:field="*{userDetailsDTOEdit.mobileNumber}" id="mobileNumber" required
 										placeholder="Enter your mobile number" data-toggle="input-mask"
 										data-mask-format="0000000000">
+									<p th:if="${#fields.hasErrors('userDetailsDTOEdit.mobileNumber')}"
+										class="text-danger mt-1" th:errors="*{userDetailsDTOEdit.mobileNumber}"></p>
 								</div>
 								<div class="mb-3">
 									<label for="inputServiceType" class="form-label">Service Type</label>
 									<select id="inputServiceType" th:field="*{serviceProviderDTO.serviceTypeId}"
 										class="form-select" required>
-										<option value="" readonly>--Select Service Type--</option>
+										<option value="" hidden readonly>--Select Service Type--</option>
 										<option th:each="serviceType : ${serviceTypes}"
 											th:value="${serviceType.serviceTypeId}" th:text="${serviceType.service}">
 										</option>
@@ -59,7 +63,8 @@
 								<div class="mb-3">
 									<label for="inputServiceCost" class="form-label">Service Cost</label>
 									<input type="number" th:field="*{serviceProviderDTO.cost}" id="inputServiceCost"
-										class="form-control" required placeholder="Enter your service cost">
+										class="form-control" required placeholder="Enter your service cost" min="0"
+										oninput="validity.valid || (value='');">
 								</div>
 								<div class="mb-3">
 									<label for="inputAddress" class="form-label">Address</label>
@@ -76,17 +81,18 @@
 								<div class="row g-2">
 									<div class="mb-3 col-md-6">
 										<label for="inputCountry" class="form-label">Country</label>
-										<select id="inputCountry" th:field="*{addressDTO.countryId}"
-											class="form-select" required>
-											<option value="" readonly>--Select Country--</option>
+										<select id="inputCountry" th:field="*{addressDTO.countryId}" class="form-select"
+											required>
+											<option value="" hidden readonly>--Select Country--</option>
 											<option th:each="country : ${countries}" th:value="${country.countryId}"
 												th:text="${country.country}"></option>
 										</select>
 									</div>
 									<div class="mb-3 col-md-6">
 										<label for="inputState" class="form-label">State</label>
-										<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select" required>
-											<option value="">--Select State--</option>
+										<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select"
+											required>
+											<option value="" hidden readonly>--Select State--</option>
 											<option th:each="state : ${states}" th:value="${state.stateId}"
 												th:text="${state.state}"></option>
 										</select>
@@ -95,9 +101,9 @@
 								<div class="mb-3">
 									<label for="inputCity" class="form-label">City</label>
 									<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select" required>
-										<option value="" readonly>--Select City--</option>
+										<option value="" hidden readonly>--Select City--</option>
 										<option th:each="city : ${cities}" th:value="${city.cityId}"
-												th:text="${city.city}"></option>
+											th:text="${city.city}"></option>
 									</select>
 								</div>
 
@@ -124,6 +130,12 @@
 
 	<th:block layout:fragment="script">
 		<script type="text/javascript">
+			$(document).ready(function () {
+				if ($("#inputCountry").find(":selected").val() === "") {
+					$("#inputState").prop('disabled', true);
+					$("#inputCity").prop('disabled', true);
+				}
+			});
 
 			$("#inputCountry").change(function () {
 				var selectedValue = $(this)
@@ -142,8 +154,11 @@
 					url: "/getStates/" + selectedValue + '',
 					success: function (result) {
 						$("#inputState").prop('disabled', false);
+						$("#inputCity").prop('disabled', true);
+						$("#inputCity").empty();
+						$("#inputCity").append($("<option hidden readonly></option>").val("").html("--Select City--"));
 						$("#inputState").empty();
-						$("#inputState").append($("<option></option>").val("").html("--Select State--"));
+						$("#inputState").append($("<option hidden readonly></option>").val("").html("--Select State--"));
 						$.each(result, function () {
 							$("#inputState").append($("<option></option>").val(this['stateId']).html(this['state']));
 						});
@@ -166,7 +181,7 @@
 					success: function (result) {
 						$("#inputCity").prop('disabled', false);
 						$("#inputCity").empty();
-						$("#inputCity").append($("<option></option>").val("").html("--Select City--"));
+						$("#inputCity").append($("<option hidden readonly></option>").val("").html("--Select City--"));
 						$.each(result, function () {
 							$("#inputCity").append($("<option></option>").val(this['cityId']).html(this['city']));
 						});
