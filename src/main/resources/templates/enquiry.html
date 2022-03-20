@@ -15,7 +15,7 @@
 					</div>
 				</div>
 				<!-- form -->
-				<form th:action="@{/enquiry}" method="post">
+				<form th:action="@{/inquiry}" method="post">
 					<div class="row g-2">
 						<div class="mb-3 col-md-6">
 							<label for="name" class="form-label">Name</label>
@@ -26,6 +26,8 @@
 							<label for="email" class="form-label">Email address</label>
 							<input class="form-control" type="email" th:field="*{enquiry.email}" id="email" required
 								placeholder="Enter your email">
+							<p th:if="${#fields.hasErrors('enquiry.email')}" class="text-danger mt-1"
+								th:errors="*{enquiry.email}"></p>
 						</div>
 					</div>
 					<div class="row g-2">
@@ -34,10 +36,11 @@
 							<input type="text" class="form-control" th:field="*{enquiry.mobileNumber}" id="mobileNumber"
 								required placeholder="Enter your mobile number" data-toggle="input-mask"
 								data-mask-format="0000000000">
+							<p id="mobileNumberError" class="text-danger mt-1"></p>
 						</div>
 						<div class="mb-3 col-md-6">
 							<label for="eventType" class="form-label">Event Type</label>
-							<select id="eventType" class="form-select" th:field=*{enquiry.eventTypeId}>
+							<select id="eventType" class="form-select" th:field=*{enquiry.eventTypeId} required>
 								<option value="" hidden readonly>--Select Event Type--</option>
 								<option th:each="eventType : ${eventTypes}" th:value="${eventType.eventTypeId}"
 									th:text="${eventType.eventType}">
@@ -55,8 +58,9 @@
 											style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
 									<input id="startDate" th:field="*{enquiry.startDate}" type="text"
 										class="form-control" data-provide="datepicker" data-date-autoclose="true"
-										data-date-container="#datepicker4">
+										data-date-container="#datepicker4" required>
 								</div>
+								<p id="startDateError" class="text-danger mt-1"></p>
 							</div>
 						</div>
 						<div class="mb-3 col-md-6">
@@ -66,8 +70,9 @@
 										class="mdi mdi-clock-outline"
 										style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
 								<input th:field="*{enquiry.startTime}" id="timepicker2" type="text" class="form-control"
-									data-provide='timepicker' data-minute-step="5" data-show-meridian="false">
+									data-provide='timepicker' data-minute-step="5" data-show-meridian="false" required>
 							</div>
+							<p id="startTimeError" class="text-danger mt-1"></p>
 						</div>
 
 					</div>
@@ -81,8 +86,9 @@
 											style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
 									<input id="endDate" th:field="*{enquiry.endDate}" type="text" class="form-control"
 										data-provide="datepicker" data-date-autoclose="true"
-										data-date-container="#datepicker4">
+										data-date-container="#datepicker4" required>
 								</div>
+								<p id="endDateError" class="text-danger mt-1"></p>
 							</div>
 						</div>
 						<div class="mb-3 col-md-6">
@@ -92,25 +98,31 @@
 										class="mdi mdi-clock-outline"
 										style="font-size: 24px; padding: 0.5rem 0.5rem; color: #fff; text-align: center;"></i></span>
 								<input th:field="*{enquiry.endTime}" id="timepicker4" type="text" class="form-control"
-									data-provide='timepicker' data-minute-step="5" data-show-meridian="false">
+									data-provide='timepicker' data-minute-step="5" data-show-meridian="false" required>
 							</div>
+							<p id="endTimeError" class="text-danger mt-1"></p>
 						</div>
 					</div>
 					<div class="row g-2">
 						<div class="mb-3 col-md-6">
 							<label for="inputGuest" class="form-label">Maximum Guest Allowed</label>
 							<input type="number" th:field="*{enquiry.estimatedGuest}" id="estimatedGuest"
-								class="form-control" required placeholder="Enter maximum guest allowed for the event">
+								class="form-control" required placeholder="Enter maximum guest allowed for the event"
+								min="0" oninput="validity.valid || (value='');">
 						</div>
 						<div class="mb-3 col-md-3">
 							<label for="inputMinBudget" class="form-label">Minimum Budget</label>
 							<input type="number" th:field="*{enquiry.minBudget}" id="minBudget" class="form-control"
-								required placeholder="Enter minimum budget for event">
+								required placeholder="Enter minimum budget for event" min="0"
+								oninput="validity.valid || (value='');">
+							<p id="minBudgetError" class="text-danger mt-1"></p>
 						</div>
 						<div class="mb-3 col-md-3">
 							<label for="inputMaxBudget" class="form-label">Maximum Budget</label>
 							<input type="number" th:field="*{enquiry.maxBudget}" id="maxBudget" class="form-control"
-								required placeholder="Enter maximum budget for event">
+								required placeholder="Enter maximum budget for event" min="0"
+								oninput="validity.valid || (value='');">
+							<p id="maxBudgetError" class="text-danger mt-1"></p>
 						</div>
 					</div>
 
@@ -119,17 +131,15 @@
 						<textarea th:field="${enquiry.description}" class="form-control" id="example-textarea"
 							rows="3"></textarea>
 					</div>
-					<div class="row g-2">
-						<div class="mb-3 col-md-2">
-							<input type="checkbox" th:field="*{enquiry.isPublic}" class="form-check-input" id="isPublic"
-								checked>
-							<label class="form-check-label" for="isPublic">Is Public Event?</label>
-						</div>
-						<div class="mb-3 col-md-2">
-							<input type="checkbox" th:field="*{enquiry.isFree}" class="form-check-input" id="isFree"
-								checked>
-							<label class="form-check-label" for="isPublic">Is Free Event?</label>
-						</div>
+					<div class="mb-3 col-md-2">
+						<input type="checkbox" th:field="*{enquiry.isPublic}" class="form-check-input" id="isPublic"
+							checked>
+						<label class="form-check-label" for="isPublic">Is Public Event?</label>
+					</div>
+					<div class="mb-3 col-md-2">
+						<input type="checkbox" th:field="*{enquiry.isFree}" class="form-check-input" id="isFree"
+							checked>
+						<label class="form-check-label" for="isFree">Is Free Event?</label>
 					</div>
 					<div class="mb-0 d-grid text-center">
 						<button class="btn btn-primary" type="submit">
@@ -144,8 +154,69 @@
 	<th:block layout:fragment="script">
 		<script type="text/javascript">
 			$(document).ready(function () {
-				$("#startDate").datepicker({startDate: "+0d"});
-				$("#endDate").datepicker({startDate: "+0d"});
+				$("#startDate").datepicker({startDate: "+5d"});
+				$("#endDate").datepicker({startDate: "+5d"});
+				$("#mobileNumberError").css('display', 'none');
+				$("#startDateError").css('display', 'none');
+				$("#startTimeError").css('display', 'none');
+				$("#endDateError").css('display', 'none');
+				$("#endTimeError").css('display', 'none');
+				$("#minBudgetError").css('display', 'none');
+				$("#maxBudgetError").css('display', 'none');
+			});
+
+			$("form").submit(function () {
+				var isValid = true;
+				$("#mobileNumberError").css('display', 'none');
+				$("#startDateError").css('display', 'none');
+				$("#startTimeError").css('display', 'none');
+				$("#endDateError").css('display', 'none');
+				$("#endTimeError").css('display', 'none');
+				$("#minBudgetError").css('display', 'none');
+				$("#maxBudgetError").css('display', 'none');
+
+				if (isNaN(Date.parse($("#startDate").val()))) {
+					isValid = false;
+					$("#startDateError").css('display', 'block');
+					$("#startDateError").text('Please enter valid start date.');
+				}
+
+				if (isNaN(Date.parse($("#endDate").val()))) {
+					isValid = false;
+					$("#endDateError").css('display', 'block');
+					$("#endDateError").text('Please enter valid start date.');
+				}
+
+				if ($("#startDate").val() > $("#endDate").val()) {
+					isValid = false;
+					$("#endDateError").css('display', 'block');
+					$("#endDateError").text('End date should be greater than start date.');
+				}
+				// console.log(new Date($("#startDate").val() + ' ' + $("#timepicker2").val()));
+
+				if ($("#startDate").val() === $("#endDate").val()) {
+					if (new Date($("#startDate").val() + ' ' + $("#timepicker2").val()) >= new Date($("#endDate").val() + ' ' + $("#timepicker4").val())) {
+						isValid = false;
+						$("#endTimeError").css('display', 'block');
+						$("#endTimeError").text('End time should be greater than start time.');
+					}
+				}
+
+				// console.log(parseInt($("#minBudget").val(), 10));
+				// console.log(parseInt($("#maxBudget").val(), 10));
+				if (parseInt($("#minBudget").val(), 10) >= parseInt($("#maxBudget").val(), 10)) {
+					isValid = false;
+					$("#maxBudgetError").css('display', 'block');
+					$("#maxBudgetError").text('Maximum budget should be greater than minimum budget.');
+				}
+
+				// console.log($("#mobileNumber").val().length);
+				if ($("#mobileNumber").val().length != 10) {
+					isValid = false;
+					$("#mobileNumberError").css('display', 'block');
+					$("#mobileNumberError").text('Please enter 10 digit mobile number.');
+				}
+				return isValid;
 			});
 		</script>
 		<!-- Timepicker -->

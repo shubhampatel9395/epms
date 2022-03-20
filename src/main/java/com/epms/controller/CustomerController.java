@@ -246,6 +246,12 @@ public class CustomerController {
 					new FieldError("userDetailsDTO", "password", "Please enter password according to rules."));
 		}
 
+		// 10 digit Mobile Number
+		if (userDetailsDTO.getMobileNumber().length() != 10) {
+			userResult
+					.addError(new FieldError("userDetailsDTO", "mobileNumber", "Please enter 10 digit mobile number."));
+		}
+
 		// Unique Mobile Number
 		List<UserDetailsDTO> mobileNumberDTO = userDetailsService
 				.isUniqueMobileNumber(userDetailsDTO.getMobileNumber());
@@ -435,8 +441,42 @@ public class CustomerController {
 		return modelandmap;
 	}
 
-	@PostMapping("enquiry")
-	public ModelAndView addEnquiry(@Valid @ModelAttribute("enquiry") EnquiryDTO enquiry) {
+	@PostMapping("inquiry")
+	public ModelAndView addEnquiry(@Valid @ModelAttribute("enquiry") EnquiryDTO enquiry, BindingResult result) {
+		// Valid Email
+//		final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@" 
+//		        + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$",
+//				Pattern.CASE_INSENSITIVE);
+		final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$",
+				Pattern.CASE_INSENSITIVE);
+		Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(enquiry.getEmail());
+		boolean isValidEmail = matcher.find();
+		if (isValidEmail == false) {
+			result.addError(new FieldError("enquiry", "email", "Please enter valid email address."));
+		}
+		
+		if(result.hasErrors() == true) {
+			final ModelAndView modelandmap = new ModelAndView("enquiry");
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+				modelandmap.addObject("layoutPage", "_layout");
+			} else {
+				CustomUserDetailsDTO userDetails = (CustomUserDetailsDTO) authentication.getPrincipal();
+				if (userDetails.getIsCustomer() == true) {
+					modelandmap.addObject("layoutPage", "customer/_layout");
+				} else {
+					modelandmap.addObject("layoutPage", "_layout");
+				}
+			}
+
+			enquiry.setStartDate(null);
+			enquiry.setEndDate(null);
+			modelandmap.addObject("eventTypes",
+					enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+			modelandmap.addObject("enquiry", enquiry);
+			return modelandmap;
+		}
+
 		EnquiryDTO enquiryDTO = enquiryService.insert(enquiry);
 		Mail mail = new Mail();
 		mail.setMailTo(enquiryDTO.getEmail());
@@ -446,7 +486,7 @@ public class CustomerController {
 				+ "</b> <br/><br/>"
 				+ "We have received your message and would like to thank you for writing to us. If your inquiry is urgent, "
 				+ "please use the telephone number listed in website to talk to one of our staff members. "
-				+ "<br/><br/> Otherwise, we will reply by email as soon as possible." + "Talk to you soon, Unico";
+				+ "<br/> Otherwise, we will reply by email as soon as possible." + "<br/>Talk to you soon<br/>, Unico";
 		mail.setMailContent(content);
 		mailService.sendEmail(mail);
 		return new ModelAndView("redirect:/home");

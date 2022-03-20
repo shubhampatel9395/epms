@@ -90,13 +90,13 @@ public class ServiceProviderController {
 
 	@Autowired
 	IServiceProviderService serviceProviderService;
-	
+
 	@Autowired
 	IEnquiryService enquiryService;
 
 	@Autowired
 	IEnuServiceTypeService enuserviceTypeService;
-	
+
 	@Autowired
 	IEmployeeService employeeService;
 
@@ -144,7 +144,7 @@ public class ServiceProviderController {
 
 	@Autowired
 	IEventBannerService eventBannerService;
-	
+
 	@Autowired
 	Environment env;
 
@@ -157,57 +157,67 @@ public class ServiceProviderController {
 		} else {
 			CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
 					.getAuthentication().getPrincipal();
-			ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
-			
+			ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(
+					new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
+
 			ServiceProviderDashboardDTO serviceProviderDashboardDTO = new ServiceProviderDashboardDTO();
-			serviceProviderDashboardDTO.setPackageCount(serviceProviderService.getTotalParticipatedPackages(currentUser.getServiceProviderId().longValue()));
-			serviceProviderDashboardDTO.setParticipatedEventCount(serviceProviderService.getCompletedEvents(currentUser.getServiceProviderId().longValue()));
-			serviceProviderDashboardDTO.setOngoingEventCount(serviceProviderService.getOngoingEvents(currentUser.getServiceProviderId().longValue()));
-			serviceProviderDashboardDTO.setReviewCount(serviceProviderService.getAverageRatings(currentUser.getServiceProviderId().longValue()));
+			serviceProviderDashboardDTO.setPackageCount(serviceProviderService
+					.getTotalParticipatedPackages(currentUser.getServiceProviderId().longValue()));
+			serviceProviderDashboardDTO.setParticipatedEventCount(
+					serviceProviderService.getCompletedEvents(currentUser.getServiceProviderId().longValue()));
+			serviceProviderDashboardDTO.setOngoingEventCount(
+					serviceProviderService.getOngoingEvents(currentUser.getServiceProviderId().longValue()));
+			serviceProviderDashboardDTO.setReviewCount(
+					serviceProviderService.getAverageRatings(currentUser.getServiceProviderId().longValue()));
 			modelandmap.addObject("serviceProviderDashboardDTO", serviceProviderDashboardDTO);
-			
-			List<ServiceProviderEventWorkDTO> ongoingEventWorkDTOs = serviceProviderService.getOngoingEventsDetails(currentUser.getServiceProviderId().longValue());
+
+			List<ServiceProviderEventWorkDTO> ongoingEventWorkDTOs = serviceProviderService
+					.getOngoingEventsDetails(currentUser.getServiceProviderId().longValue());
 			ongoingEventWorkDTOs.sort(Comparator.comparing(ServiceProviderEventWorkDTO::getStartDate));
 			modelandmap.addObject("ongoingEventWorkDTOs", ongoingEventWorkDTOs);
-			
-			List<ServiceProviderEventWorkDTO> completedEventWorkDTOs = serviceProviderService.getCompletedEventsDetails(currentUser.getServiceProviderId().longValue());
+
+			List<ServiceProviderEventWorkDTO> completedEventWorkDTOs = serviceProviderService
+					.getCompletedEventsDetails(currentUser.getServiceProviderId().longValue());
 			completedEventWorkDTOs.sort(Comparator.comparing(ServiceProviderEventWorkDTO::getEndDate));
 			modelandmap.addObject("completedEventWorkDTOs", completedEventWorkDTOs);
-			
+
 			return modelandmap;
 		}
 	}
-	
+
 	@GetMapping("/authentication-remaining")
 	public ModelAndView waitForAuthentication(@ModelAttribute("fullname") String fullname) {
 		ModelAndView modelandmap = new ModelAndView("authentication-remaining");
-		modelandmap.addObject("serviceproviderName",fullname);
+		modelandmap.addObject("serviceproviderName", fullname);
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/service-settings")
 	public ModelAndView serviceSettings() {
 		ModelAndView modelandmap = new ModelAndView("/serviceprovider/service-settings");
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/packages")
 	public ModelAndView participatedPackages() {
 		ModelAndView modelandmap = new ModelAndView("/serviceprovider/packages");
 		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
 				.getAuthentication().getPrincipal();
-		ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
-		List<ServiceProviderPackageDTO> participatedPackages = serviceProviderService.getPackageDetails(currentUser.getServiceProviderId().longValue());
+		ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(
+				new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
+		List<ServiceProviderPackageDTO> participatedPackages = serviceProviderService
+				.getPackageDetails(currentUser.getServiceProviderId().longValue());
 		List<String> venueAddresses = participatedPackages.stream().map(packageEntry -> {
 			return getAddress(addressService.findById(packageEntry.getAddressId()));
 		}).collect(Collectors.toList());
-		List<AllServiceProvidersPackageDTO> allServiceProviders = serviceProviderService.getAllServiceProvidersPackageDetails(currentUser.getServiceProviderId().longValue());
+		List<AllServiceProvidersPackageDTO> allServiceProviders = serviceProviderService
+				.getAllServiceProvidersPackageDetails(currentUser.getServiceProviderId().longValue());
 		modelandmap.addObject("participatedPackages", participatedPackages);
 		modelandmap.addObject("venueAddresses", venueAddresses);
 		modelandmap.addObject("allServiceProviders", allServiceProviders);
 		return modelandmap;
 	}
-	
+
 	public String getAddress(AddressDTO addressDTO) {
 		String address;
 		address = addressDTO.getAddress1();
@@ -220,60 +230,68 @@ public class ServiceProviderController {
 				+ addressDTO.getPostalCode();
 		return address;
 	}
-	
+
 	@GetMapping("/view_event/{eventId}")
 	public ModelAndView viewEvent(@PathVariable long eventId) {
 		ModelAndView modelandmap = new ModelAndView("/serviceprovider/view_event");
 		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
 				.getAuthentication().getPrincipal();
-		ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
-		ServiceProviderEventWorkDTO event = serviceProviderService.getEventsDetails(eventId,currentUser.getServiceProviderId().longValue());
+		ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(
+				new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
+		ServiceProviderEventWorkDTO event = serviceProviderService.getEventsDetails(eventId,
+				currentUser.getServiceProviderId().longValue());
 		modelandmap.addObject("addressVenue", getAddress(addressService.findById(event.getAddressId())));
 		modelandmap.addObject("event", event);
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/assigned-events")
 	public ModelAndView assignedEvents() {
 		ModelAndView modelandmap = new ModelAndView("/serviceprovider/assigned-events");
 		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
 				.getAuthentication().getPrincipal();
-		ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
-		List<ServiceProviderEventWorkDTO> ongoingEventWorkDTOs = serviceProviderService.getOngoingEventsDetails(currentUser.getServiceProviderId().longValue());
+		ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(
+				new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
+		List<ServiceProviderEventWorkDTO> ongoingEventWorkDTOs = serviceProviderService
+				.getOngoingEventsDetails(currentUser.getServiceProviderId().longValue());
 		ongoingEventWorkDTOs.sort(Comparator.comparing(ServiceProviderEventWorkDTO::getStartDate));
 		modelandmap.addObject("ongoingEventWorkDTOs", ongoingEventWorkDTOs);
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/event-history")
 	public ModelAndView eventHistory() {
 		ModelAndView modelandmap = new ModelAndView("/serviceprovider/event-history");
 		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
 				.getAuthentication().getPrincipal();
-		ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
-		List<ServiceProviderEventWorkDTO> completedEventWorkDTOs = serviceProviderService.getCompletedEventsDetails(currentUser.getServiceProviderId().longValue());
+		ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(
+				new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
+		List<ServiceProviderEventWorkDTO> completedEventWorkDTOs = serviceProviderService
+				.getCompletedEventsDetails(currentUser.getServiceProviderId().longValue());
 		completedEventWorkDTOs.sort(Comparator.comparing(ServiceProviderEventWorkDTO::getEndDate));
 		modelandmap.addObject("completedEventWorkDTOs", completedEventWorkDTOs);
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/payment-history")
 	public ModelAndView paymentHistory() {
 		ModelAndView modelandmap = new ModelAndView("/serviceprovider/payment-history");
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/feedbacks")
 	public ModelAndView feedback() {
 		ModelAndView modelandmap = new ModelAndView("/serviceprovider/feedbacks");
 		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
 				.getAuthentication().getPrincipal();
-		ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
-		List<ShowFeedbackDTO> completedEventWorkDTOs = serviceProviderService.getFeedbackDetails(currentUser.getServiceProviderId().longValue());
+		ServiceProviderDTO currentUser = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(
+				new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
+		List<ShowFeedbackDTO> completedEventWorkDTOs = serviceProviderService
+				.getFeedbackDetails(currentUser.getServiceProviderId().longValue());
 		modelandmap.addObject("completedEventWorkDTOs", completedEventWorkDTOs);
 		return modelandmap;
 	}
-	
+
 	@GetMapping("logout")
 	public ModelAndView logoutPage() {
 		return new ModelAndView("redirect:/login");
@@ -294,7 +312,7 @@ public class ServiceProviderController {
 		paramSource.addValue("stateId", stateId);
 		return enuCityService.findByNamedParameters(paramSource);
 	}
-	
+
 	public BindingResult checkCustomerResults(@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
 			BindingResult userResult) {
 		// Valid Email
@@ -323,6 +341,12 @@ public class ServiceProviderController {
 		if (isValidPassword == false) {
 			userResult.addError(
 					new FieldError("userDetailsDTO", "password", "Please enter password according to rules."));
+		}
+
+		// 10 digit Mobile Number
+		if (userDetailsDTO.getMobileNumber().length() != 10) {
+			userResult
+					.addError(new FieldError("userDetailsDTO", "mobileNumber", "Please enter 10 digit mobile number."));
 		}
 
 		// Unique Mobile Number
@@ -354,9 +378,9 @@ public class ServiceProviderController {
 
 	@PostMapping("/serviceprovider-registration")
 	public ModelAndView submitServiceProviderRegistration(
-			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO, BindingResult userResult,
-			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO, BindingResult addressResult,
-			ModelAndView modelandmap,RedirectAttributes rm) {
+			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO,
+			BindingResult userResult, @Valid @ModelAttribute("addressDTO") AddressDTO addressDTO,
+			BindingResult addressResult, ModelAndView modelandmap, RedirectAttributes rm) {
 		userResult = checkCustomerResults(serviceProviderDTO, userResult);
 		if (userResult.hasErrors() == true) {
 			modelandmap = new ModelAndView("serviceProviderRegistration");
@@ -364,7 +388,7 @@ public class ServiceProviderController {
 			modelandmap.addObject("serviceProviderDTO", serviceProviderDTO);
 			modelandmap.addObject("countries", enuCountryService.findAll());
 			modelandmap.addObject("addressDTO", addressDTO);
-			
+
 			MapSqlParameterSource paramSourceCountry = new MapSqlParameterSource();
 			paramSourceCountry.addValue("countryId", addressDTO.getCountryId());
 			modelandmap.addObject("states", enuStateService.findByNamedParameters(paramSourceCountry));
@@ -374,7 +398,7 @@ public class ServiceProviderController {
 			modelandmap.addObject("cities", enuCityService.findByNamedParameters(paramSourceState));
 			return modelandmap;
 		}
-		
+
 		AddressDTO insertAddressDTO = addressService.insert(addressDTO);
 		serviceProviderDTO.setAddressId(insertAddressDTO.getAddressId());
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -385,19 +409,22 @@ public class ServiceProviderController {
 		rm.addFlashAttribute("fullname", serviceProviderDTO.getServiceProviderName());
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/edit_profile")
 	public ModelAndView editServiceProvider() {
-		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
 		MapSqlParameterSource paramSource = new MapSqlParameterSource();
 		paramSource.addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId().longValue());
-		//paramSource.addValue("isServiceProvider", true);
+		// paramSource.addValue("isServiceProvider", true);
 		ModelAndView modelandmap = new ModelAndView("serviceprovider/edit_serviceprovider");
 
 		// TODO make form object
-		ServiceProviderDTO serviceProviderDTO = DataAccessUtils.singleResult(serviceProviderService.findByNamedParameters(paramSource));
+		ServiceProviderDTO serviceProviderDTO = DataAccessUtils
+				.singleResult(serviceProviderService.findByNamedParameters(paramSource));
 		// Need it to show details
-		UserDetailsDTO userDetailsDTO = userDetailsService.findById(customUserDetailsDTO.getUserDetailsId().longValue());
+		UserDetailsDTO userDetailsDTO = userDetailsService
+				.findById(customUserDetailsDTO.getUserDetailsId().longValue());
 		AddressDTO addressDTO = addressService.findById(userDetailsDTO.getAddressId().longValue());
 
 		modelandmap.addObject("serviceProviderDTO", serviceProviderDTO);
@@ -427,7 +454,6 @@ public class ServiceProviderController {
 		ServiceProviderDTO oldserviceProviderDTO = serviceProviderService
 				.findById(serviceProviderDTO.getServiceProviderId().longValue());
 		AddressDTO oldAddressDTO = addressService.findById(addressDTO.getAddressId().longValue());
-
 
 		serviceProviderDTO.setServiceProviderName(userDetailsDTO.getServiceProviderName());
 		serviceProviderDTO.setMobileNumber(userDetailsDTO.getMobileNumber());
