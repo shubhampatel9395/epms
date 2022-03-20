@@ -27,38 +27,39 @@
 					<div class="card">
 						<div class="card-body">
 							<form th:action="@{/admin/add_employee}" method="post">
-								<div class="row g-2">
-									<div class="mb-3 col-md-6">
+								<div class="mb-3 row g-2">
+									<div class="col-md-6">
 										<label for="firstname" class="form-label">First Name</label>
 										<input class="form-control" th:field="*{employeeDTO.firstName}" type="text"
 											id="firstname" placeholder="Enter your First name" required>
 									</div>
-									<div class="mb-3 col-md-6">
+									<div class="col-md-6">
 										<label for="lastname" class="form-label">Last Name</label>
 										<input class="form-control" th:field="*{employeeDTO.lastName}" type="text"
 											id="lastname" placeholder="Enter your Last name" required>
 									</div>
 								</div>
 
-								<div class="row g-2">
-									<div class="mb-3 col-md-6">
+								<div class="mb-3 row g-2">
+									<div class="col-md-6">
 										<label for="emailaddress" class="form-label">Email address</label>
 										<input class="form-control" th:field="*{employeeDTO.email}" type="email"
 											id="email" required placeholder="Enter your email">
 									</div>
-									<div class="mb-3 col-md-6">
+									<div class="col-md-6">
 										<label for="password" class="form-label">Password</label>
 										<div class="input-group input-group-merge">
-										<input class="form-control" th:field="*{employeeDTO.password}" type="password"
-												required id="password" placeholder="Enter your password">
-										<div class="input-group-text" data-password="false">
-											<span class="password-eye"></span>
+											<input class="form-control" th:field="*{employeeDTO.password}"
+												type="password" required id="password"
+												placeholder="Enter your password">
+											<div class="input-group-text" data-password="false">
+												<span class="password-eye"></span>
+											</div>
 										</div>
 									</div>
 								</div>
-
-								<div class="row g-2">
-									<div class="mb-3 col-md-6">
+								<div class="mb-3 row g-2">
+									<div class="col-md-6">
 										<label for="inputEmployeeRole" class="form-label">Employee Role</label>
 										<select id="inputEmployeeRole" th:field="*{employeeDTO.employeeRoleId}"
 											class="form-select">
@@ -70,15 +71,15 @@
 										</select>
 									</div>
 
-									<div class="mb-3 col-md-6">
+									<div class="col-md-6">
 										<label for="inputSalary" class="form-label">Salary</label>
 										<input type="number" th:field="*{employeeDTO.salary}" id="inputSalary"
 											class="form-control" required placeholder="Enter salary of the employee">
 									</div>
 								</div>
 
-								<div class="row g-2">
-									<div class="mb-3 col-md-6 position-relative" id="datepicker4">
+								<div class="mb-3 row g-2">
+									<div class="col-md-6 position-relative" id="datepicker4">
 										<label class="form-label">Hiring Date</label>
 										<div class="input-group">
 											<span class="input-group-addon" style="background: #727cf5;"><i
@@ -89,17 +90,16 @@
 												data-date-container="#datepicker4">
 										</div>
 									</div>
-									<div class="mb-3 col-md-6">
+									<div class="col-md-6">
 										<label for="mobileNumber" class="form-label">Mobile Number</label>
 										<input type="text" class="form-control" th:field="*{employeeDTO.mobileNumber}"
 											id="mobileNumber" required placeholder="Enter your mobile number"
 											data-toggle="input-mask" data-mask-format="0000000000">
 									</div>
-
 								</div>
 
-								<div class="row g-2">
-									<div class="mb-3 col-md-6 position-relative" id="datepicker4">
+								<div class="mb-3 row g-2">
+									<div class="col-md-6 position-relative" id="datepicker4">
 										<label class="form-label">Date of Birth</label>
 										<div class="input-group">
 											<span class="input-group-addon" style="background: #727cf5;"><i
@@ -110,14 +110,12 @@
 												data-date-container="#datepicker4">
 										</div>
 									</div>
-									<div class="mb-3 col-md-6">
+									<div class="col-md-6">
 										<label for="gender" class="form-label">Gender</label>
-
 										<div class="form-check">
 											<input checked th:field="*{employeeDTO.gender}" th:value="Male" type="radio"
 												id="customRadio1" name="customRadio" class="form-check-input">
 											<label class="form-check-label" for="customRadio1">Male</label>
-
 										</div>
 										<div class="form-check">
 											<input th:field="*{employeeDTO.gender}" th:value="Female" type="radio"

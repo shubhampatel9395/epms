@@ -29,7 +29,7 @@
 							<form th:action="@{/admin/edit_customer}" method="post">
 								<input type="hidden" th:field="*{userDetailsDTO.userDetailsId}" />
 								<input type="hidden" th:field="*{userDetailsDTO.addressId}" />
-								
+
 								<div class="mb-3">
 									<label for="firstname" class="form-label">First Name</label>
 									<input class="form-control" th:field="*{userDetailsDTO.firstName}" type="text"
@@ -44,19 +44,22 @@
 									<label for="emailaddress" class="form-label">Email address</label>
 									<input class="form-control" th:field="*{userDetailsDTO.email}" type="email"
 										id="email" required placeholder="Enter your email">
+									<p th:if="${#fields.hasErrors('userDetailsDTO.email')}" class="text-danger mt-1"
+										th:errors="*{userDetailsDTO.email}"></p>
 								</div>
 								<div class="mb-3">
 									<label for="mobileNumber" class="form-label">Mobile Number</label>
 									<input type="text" class="form-control" th:field="*{userDetailsDTO.mobileNumber}"
 										id="mobileNumber" required placeholder="Enter your mobile number"
 										data-toggle="input-mask" data-mask-format="0000000000">
+									<p th:if="${#fields.hasErrors('userDetailsDTO.mobileNumber')}"
+										class="text-danger mt-1" th:errors="*{userDetailsDTO.mobileNumber}"></p>
 								</div>
 								<div class="mb-3">
 									<label for="inputAddress" class="form-label">Address</label>
 									<input type="text" class="form-control" th:field="*{addressDTO.address1}"
-										id="inputAddress" placeholder="1234 Main St">
+										id="inputAddress" placeholder="1234 Main St" required>
 								</div>
-
 								<div class="mb-3">
 									<label for="inputAddress2" class="form-label">Address 2</label>
 									<input type="text" class="form-control" th:field="*{addressDTO.address2}"
@@ -66,17 +69,18 @@
 								<div class="row g-2">
 									<div class="mb-3 col-md-6">
 										<label for="inputCountry" class="form-label">Country</label>
-										<select id="inputCountry" th:field="*{addressDTO.countryId}"
-											class="form-select">
-											<option value="" readonly>--Select Country--</option>
+										<select id="inputCountry" th:field="*{addressDTO.countryId}" class="form-select"
+											required>
+											<option value="" hidden readonly>--Select Country--</option>
 											<option th:each="country : ${countries}" th:value="${country.countryId}"
 												th:text="${country.country}"></option>
 										</select>
 									</div>
 									<div class="mb-3 col-md-6">
 										<label for="inputState" class="form-label">State</label>
-										<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select">
-											<option value="">--Select State--</option>
+										<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select"
+											required>
+											<option hidden readonly value="">--Select State--</option>
 											<option th:each="state : ${states}" th:value="${state.stateId}"
 												th:text="${state.state}"></option>
 										</select>
@@ -84,17 +88,17 @@
 								</div>
 								<div class="mb-3">
 									<label for="inputCity" class="form-label">City</label>
-									<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select">
-										<option value="" readonly>--Select City--</option>
+									<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select" required>
+										<option hidden value="" readonly>--Select City--</option>
 										<option th:each="city : ${cities}" th:value="${city.cityId}"
-												th:text="${city.city}"></option>
+											th:text="${city.city}"></option>
 									</select>
 								</div>
 
 								<div class="mb-3">
 									<label for="inputZip" class="form-label">ZIP Code</label>
 									<input type="text" class="form-control" th:field="*{addressDTO.postalCode}"
-										id="inputZip" data-toggle="input-mask" data-mask-format="000000">
+										id="inputZip" data-toggle="input-mask" data-mask-format="000000" required>
 								</div>
 								<div class="mb-0 d-grid text-center">
 									<button class="btn btn-primary" type="submit">
@@ -114,6 +118,12 @@
 
 	<th:block layout:fragment="script">
 		<script type="text/javascript">
+			$(document).ready(function () {
+				if ($("#inputCountry").find(":selected").val() === "") {
+					$("#inputState").prop('disabled', true);
+					$("#inputCity").prop('disabled', true);
+				}
+			});
 
 			$("#inputCountry").change(function () {
 				var selectedValue = $(this)
@@ -132,8 +142,11 @@
 					url: "/getStates/" + selectedValue + '',
 					success: function (result) {
 						$("#inputState").prop('disabled', false);
+						$("#inputCity").prop('disabled', true);
+						$("#inputCity").empty();
+						$("#inputCity").append($("<option hidden readonly></option>").val("").html("--Select City--"));
 						$("#inputState").empty();
-						$("#inputState").append($("<option></option>").val("").html("--Select State--"));
+						$("#inputState").append($("<option hidden readonly></option>").val("").html("--Select State--"));
 						$.each(result, function () {
 							$("#inputState").append($("<option></option>").val(this['stateId']).html(this['state']));
 						});
@@ -156,7 +169,7 @@
 					success: function (result) {
 						$("#inputCity").prop('disabled', false);
 						$("#inputCity").empty();
-						$("#inputCity").append($("<option></option>").val("").html("--Select City--"));
+						$("#inputCity").append($("<option hidden readonly></option>").val("").html("--Select City--"));
 						$.each(result, function () {
 							$("#inputCity").append($("<option></option>").val(this['cityId']).html(this['city']));
 						});
