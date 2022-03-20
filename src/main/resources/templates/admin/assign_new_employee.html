@@ -101,7 +101,7 @@
 					success: function (result) {
 						$("#inputEmployee").prop('disabled', false);
 						$("#inputEmployee").empty();
-						$("#inputEmployee").append($("<option hidden></option>").val("").html("--Select Employee--"));
+						$("#inputEmployee").append($("<option hidden readonly></option>").val("").html("--Select Employee--"));
 						$.each(result, function () {
 							$("#inputEmployee").append($("<option></option>").val(this['employeeId']).html(this['firstName'] + ' ' + this['lastName']));
 						});
