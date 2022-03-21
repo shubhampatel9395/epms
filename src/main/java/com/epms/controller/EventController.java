@@ -827,6 +827,17 @@ public class EventController {
 				}
 			}
 		}
+		if (oldEventDTO.getIsFree() == true) {
+			oldEventDTO.setRegistrationFee(0.0);
+			oldEventDTO.setRegistrationAvailable(0);
+		} else {
+			if (!eventDTO.getRegistrationFee().equals(oldEventDTO.getRegistrationFee())) {
+				oldEventDTO.setRegistrationFee(eventDTO.getRegistrationFee());
+			}
+			if (!eventDTO.getRegistrationAvailable().equals(oldEventDTO.getRegistrationAvailable())) {
+				oldEventDTO.setRegistrationAvailable(eventDTO.getRegistrationAvailable());
+			}
+		}
 		if (!eventDTO.getIsPublic().equals(oldEventDTO.getIsPublic())) {
 			oldEventDTO.setIsPublic(eventDTO.getIsPublic());
 		}
@@ -1167,16 +1178,16 @@ public class EventController {
 		List<String> employeeWorkingStatuses = employees.stream().map(entry -> {
 			return enuEmployeeWorkingStatusService.findById(entry.getStatusId().longValue()).getStatus();
 		}).collect(Collectors.toList());
-		
+
 		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
 				.getAuthentication().getPrincipal();
 		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
 			modelandmap.addObject("layoutTitle", "Event Organizer");
 			modelandmap.addObject("layoutPage", "employee/_layout");
-		} else if(customUserDetailsDTO.getIsAdmin() == true) {
+		} else if (customUserDetailsDTO.getIsAdmin() == true) {
 			modelandmap.addObject("layoutPage", "admin/_layout");
 		}
-		
+
 		modelandmap.addObject("eventDTO", eventService.findById(eventId));
 		modelandmap.addObject("employees", employees);
 		modelandmap.addObject("employeeBasicDetails", employeeBasicDetails);
@@ -1202,7 +1213,7 @@ public class EventController {
 		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
 			modelandmap.addObject("layoutTitle", "Event Organizer");
 			modelandmap.addObject("layoutPage", "employee/_layout");
-		} else if(customUserDetailsDTO.getIsAdmin() == true) {
+		} else if (customUserDetailsDTO.getIsAdmin() == true) {
 			modelandmap.addObject("layoutPage", "admin/_layout");
 		}
 		return modelandmap;
@@ -1248,7 +1259,7 @@ public class EventController {
 		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
 			modelandmap.addObject("layoutTitle", "Event Organizer");
 			modelandmap.addObject("layoutPage", "employee/_layout");
-		} else if(customUserDetailsDTO.getIsAdmin() == true) {
+		} else if (customUserDetailsDTO.getIsAdmin() == true) {
 			modelandmap.addObject("layoutPage", "admin/_layout");
 		}
 		return modelandmap;
@@ -1290,7 +1301,7 @@ public class EventController {
 		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
 			modelandmap.addObject("layoutTitle", "Event Organizer");
 			modelandmap.addObject("layoutPage", "employee/_layout");
-		} else if(customUserDetailsDTO.getIsAdmin() == true) {
+		} else if (customUserDetailsDTO.getIsAdmin() == true) {
 			modelandmap.addObject("layoutPage", "admin/_layout");
 		}
 		return modelandmap;

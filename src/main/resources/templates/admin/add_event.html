@@ -145,7 +145,6 @@
 										</div>
 										<p id="startTimeError" class="text-danger mt-1"></p>
 									</div>
-
 								</div>
 								<div class="mb-3 row g-2">
 									<div class="col-md-6">
@@ -562,6 +561,11 @@
 						$("#endTimeError").css('display', 'block');
 						$("#endTimeError").text('End time should be greater than start time.');
 					}
+				}
+				
+				// console.log(isValid);
+				if (isValid === false) {
+					return isValid;
 				}
 
 				if ($('input[type="radio"][name="isStatic"]:checked').val() === "true") {
