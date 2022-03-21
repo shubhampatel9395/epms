@@ -75,8 +75,9 @@
 										<img id="profileImage" th:src="@{/assets/images/img-placeholder.png}"
 											class="img-fluid img-thumbnail" />
 										<input id="imageUpload" type="file" name="banner" placeholder="Photo"
-											accept="image/png, image/jpg, image/jpeg" capture>
+											accept="image/png, image/jpg, image/jpeg" capture />
 									</div>
+									<p class="text-danger mt-1" id="imageError"></p>
 								</div>
 
 								<div class="form-floating mb-3">
@@ -305,12 +306,24 @@
 				}
 			}
 
-			$("#imageUpload").change(function () {
-				fasterPreview(this);
+			$('input[type=file]').change(function () {
+				$('#imageError').css('display', 'none');
+				var val = $(this).val().toLowerCase(),
+					regex = new RegExp("(.*?)\.(jpg|jpeg|png)$");
+
+				if (!(regex.test(val))) {
+					$(this).val('');
+					$('#imageError').css('display', 'block');
+					$('#imageError').text('Please select correct file format');
+					// $('button[type=submit]').prop('disabled', true);
+				} else {
+					fasterPreview(this);
+				}
 			});
 
 			$(document).ready(function () {
 				$("#eventTypeError").css('display', 'none');
+				$('#imageError').css('display', 'none');
 				$("#startDate").datepicker({startDate: "+5d"});
 				$("#endDate").datepicker({startDate: "+5d"});
 				$("#startDateError").css('display', 'none');

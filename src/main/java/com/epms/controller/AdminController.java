@@ -303,7 +303,11 @@ public class AdminController {
 					+ enuVenueFacilityService.findById(item.getFacilityId().longValue()).getFacility();
 		}
 
-		return venueFacilitiesString.substring(1);
+		if (venueFacilitiesString == "") {
+			return venueFacilitiesString;
+		} else {
+			return venueFacilitiesString.substring(1);
+		}
 	}
 
 	public String getVenueEventTypes(Long venueId) {
@@ -316,7 +320,11 @@ public class AdminController {
 					+ enuEventTypeService.findById(item.getEventTypeId().longValue()).getEventType();
 		}
 
-		return venueEventTypesString.substring(1);
+		if (venueEventTypesString == "") {
+			return venueEventTypesString;
+		} else {
+			return venueEventTypesString.substring(1);
+		}
 	}
 
 	@GetMapping("/list-venue")
@@ -550,15 +558,32 @@ public class AdminController {
 	@PostMapping("/add_serviceprovider")
 	public ModelAndView addNewServiceProvider(
 			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO,
-			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
-		final ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
+			BindingResult userResult, @Valid @ModelAttribute("addressDTO") AddressDTO addressDTO,
+			BindingResult addressResult) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
+
+		userResult = checkCustomerResults(serviceProviderDTO, userResult);
+		if (userResult.hasErrors() == true) {
+			modelandmap = new ModelAndView("admin/add_serviceprovider");
+			modelandmap.addObject("serviceTypes", enuServiceTypeService.findAllActive());
+			modelandmap.addObject("serviceProviderDTO", serviceProviderDTO);
+			modelandmap.addObject("countries", enuCountryService.findAll());
+			modelandmap.addObject("addressDTO", addressDTO);
+
+			MapSqlParameterSource paramSourceCountry = new MapSqlParameterSource();
+			paramSourceCountry.addValue("countryId", addressDTO.getCountryId());
+			modelandmap.addObject("states", enuStateService.findByNamedParameters(paramSourceCountry));
+
+			MapSqlParameterSource paramSourceState = new MapSqlParameterSource();
+			paramSourceState.addValue("stateId", addressDTO.getStateId());
+			modelandmap.addObject("cities", enuCityService.findByNamedParameters(paramSourceState));
+			return modelandmap;
+		}
 
 		serviceProviderDTO.setAddressId(addressService.insert(addressDTO).getAddressId());
-
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String encodedPassword = passwordEncoder.encode(serviceProviderDTO.getPassword());
 		serviceProviderDTO.setPassword(encodedPassword);
-
 		serviceProviderService.insert(serviceProviderDTO);
 		return modelandmap;
 	}
@@ -575,15 +600,33 @@ public class AdminController {
 
 	@PostMapping("/add_employee")
 	public ModelAndView addNewEmployee(@Valid @ModelAttribute("employeeDTO") EmployeeDTO employeeDTO,
-			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
-		final ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-employee");
+			BindingResult userResult, @Valid @ModelAttribute("addressDTO") AddressDTO addressDTO,
+			BindingResult addressResult) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-employee");
+
+		userResult = checkCustomerResults(employeeDTO, userResult);
+		if (userResult.hasErrors() == true) {
+			modelandmap = new ModelAndView("admin/add_employee");
+			modelandmap.addObject("employeeRoles", enuEmployeeRoleService.findAll());
+			employeeDTO.setHiringDate(null);
+			employeeDTO.setDOB(null);
+			modelandmap.addObject("employeeDTO", employeeDTO);
+			modelandmap.addObject("addressDTO", addressDTO);
+			modelandmap.addObject("countries", enuCountryService.findAll());
+			MapSqlParameterSource paramSourceCountry = new MapSqlParameterSource();
+			paramSourceCountry.addValue("countryId", addressDTO.getCountryId());
+			modelandmap.addObject("states", enuStateService.findByNamedParameters(paramSourceCountry));
+
+			MapSqlParameterSource paramSourceState = new MapSqlParameterSource();
+			paramSourceState.addValue("stateId", addressDTO.getStateId());
+			modelandmap.addObject("cities", enuCityService.findByNamedParameters(paramSourceState));
+			return modelandmap;
+		}
 
 		employeeDTO.setAddressId(addressService.insert(addressDTO).getAddressId());
-
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String encodedPassword = passwordEncoder.encode(employeeDTO.getPassword());
 		employeeDTO.setPassword(encodedPassword);
-
 		employeeService.insert(employeeDTO);
 		return modelandmap;
 	}
@@ -613,12 +656,133 @@ public class AdminController {
 		return modelandmap;
 	}
 
+	public BindingResult checkVenueResults(@Valid @ModelAttribute("venueDTO") VenueDTO venueDTO,
+			BindingResult venueResult) {
+		// Valid Email
+		final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$",
+				Pattern.CASE_INSENSITIVE);
+		Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(venueDTO.getEmail());
+		boolean isValidEmail = matcher.find();
+		if (isValidEmail == false) {
+			venueResult.addError(new FieldError("venueDTO", "email", "Please enter valid email address."));
+		}
+
+		// Unique Email
+		List<VenueDTO> emailDTO = venueService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("email", venueDTO.getEmail()));
+		if (emailDTO.isEmpty() != true) {
+			if (emailDTO.get(0).getIsActive() == true) {
+				venueResult.addError(new FieldError("venueDTO", "email", "Email address is already registered."));
+			} else {
+				venueResult.addError(new FieldError("venueDTO", "email",
+						"Email address is already registered and account is deactivated.\nPlease contact us to active it."));
+			}
+		}
+
+		// 10 digit Mobile Number
+		if (venueDTO.getContactNumber().length() != 10) {
+			venueResult.addError(new FieldError("venueDTO", "contactNumber", "Please enter 10 digit mobile number."));
+		}
+
+		// Unique Mobile Number
+		List<VenueDTO> mobileNumberDTO = venueService.findByNamedParameters(
+				new MapSqlParameterSource().addValue("contactNumber", venueDTO.getContactNumber()));
+		if (mobileNumberDTO.isEmpty() != true) {
+			if (mobileNumberDTO.get(0).getIsActive() == true) {
+				venueResult
+						.addError(new FieldError("venueDTO", "contactNumber", "Mobile Number is already registered."));
+			} else {
+				venueResult.addError(new FieldError("venueDTO", "contactNumber",
+						"Mobile Number is already registered and account is deactivated.\nPlease contact us to active it."));
+			}
+		}
+
+		return venueResult;
+	}
+
+	public BindingResult checkVenueResultsEdit(@Valid @ModelAttribute("venueDTO") VenueDTO venueDTO,
+			BindingResult venueResult) {
+		// Valid Email
+		final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$",
+				Pattern.CASE_INSENSITIVE);
+		Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(venueDTO.getEmail());
+		boolean isValidEmail = matcher.find();
+		if (isValidEmail == false) {
+			venueResult.addError(new FieldError("venueDTO", "email", "Please enter valid email address."));
+		}
+
+		// Unique Email
+		List<VenueDTO> emailDTO = venueService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("email", venueDTO.getEmail()));
+		if (emailDTO.isEmpty() != true) {
+			if (!(emailDTO.get(0).getVenueId().equals(venueDTO.getVenueId()))) {
+				if (emailDTO.get(0).getIsActive() == true) {
+					venueResult.addError(new FieldError("venueDTO", "email", "Email address is already registered."));
+				} else {
+					venueResult.addError(new FieldError("venueDTO", "email",
+							"Email address is already registered and account is deactivated.\nPlease contact us to active it."));
+				}
+			}
+		}
+
+		// 10 digit Mobile Number
+		if (venueDTO.getContactNumber().length() != 10) {
+			venueResult.addError(new FieldError("venueDTO", "contactNumber", "Please enter 10 digit mobile number."));
+		}
+
+		// Unique Mobile Number
+		List<VenueDTO> mobileNumberDTO = venueService.findByNamedParameters(
+				new MapSqlParameterSource().addValue("contactNumber", venueDTO.getContactNumber()));
+		if (mobileNumberDTO.isEmpty() != true) {
+			if (!(mobileNumberDTO.get(0).getVenueId().equals(venueDTO.getVenueId()))) {
+				if (mobileNumberDTO.get(0).getIsActive() == true) {
+					venueResult.addError(
+							new FieldError("venueDTO", "contactNumber", "Mobile Number is already registered."));
+				} else {
+					venueResult.addError(new FieldError("venueDTO", "contactNumber",
+							"Mobile Number is already registered and account is deactivated.\nPlease contact us to active it."));
+				}
+			}
+		}
+
+		return venueResult;
+	}
+
 	@PostMapping("/add_venue")
-	public ModelAndView addNewVenue(@Valid @ModelAttribute("venueDTO") VenueDTO venueDTO,
+	public ModelAndView addNewVenue(@Valid @ModelAttribute("venueDTO") VenueDTO venueDTO, BindingResult venueResult,
 			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO,
 			@Valid @ModelAttribute("venueTempDTO") VenueTempDTO venueTempDTO,
 			@RequestParam("files") MultipartFile[] files) {
-		final ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-venue");
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-venue");
+
+		venueResult = checkVenueResults(venueDTO, venueResult);
+		if (venueResult.hasErrors() == true) {
+			modelandmap = new ModelAndView("admin/add_venue");
+
+			MapSqlParameterSource paramSource = new MapSqlParameterSource();
+			paramSource.addValue("isActive", true);
+			List<EnuEventTypeDTO> eventTypes = enuEventTypeService.findByNamedParameters(paramSource);
+			List<EnuVenueFacilityDTO> facilities = enuVenueFacilityService.findByNamedParameters(paramSource);
+			List<EnuVenueTypeDTO> venueTypes = enuVenueTypeService.findByNamedParameters(paramSource);
+
+			modelandmap.addObject("facilities", facilities);
+			modelandmap.addObject("eventTypes", eventTypes);
+			modelandmap.addObject("venueTypes", venueTypes);
+			modelandmap.addObject("venueDTO", venueDTO);
+			modelandmap.addObject("addressDTO", addressDTO);
+			modelandmap.addObject("venueTempDTO", venueTempDTO);
+			modelandmap.addObject("countries", enuCountryService.findAll());
+			MapSqlParameterSource paramSourceCountry = new MapSqlParameterSource();
+			paramSourceCountry.addValue("countryId", addressDTO.getCountryId());
+			modelandmap.addObject("states", enuStateService.findByNamedParameters(paramSourceCountry));
+
+			MapSqlParameterSource paramSourceState = new MapSqlParameterSource();
+			paramSourceState.addValue("stateId", addressDTO.getStateId());
+			modelandmap.addObject("cities", enuCityService.findByNamedParameters(paramSourceState));
+
+			return modelandmap;
+		}
+
 		venueDTO.setAddressId(addressService.insert(addressDTO).getAddressId());
 		VenueDTO insertedDTO = venueService.insert(venueDTO);
 		venueFacilityMappingService.insert(insertedDTO.getVenueId().longValue(), venueTempDTO.getSelectedFacilities());
@@ -649,13 +813,13 @@ public class AdminController {
 
 	@GetMapping("/getVenueCost/{venueId}")
 	public Double getVenueCost(@PathVariable Long venueId) {
-		System.out.println(venueService.findById(venueId).getCost());
+		// System.out.println(venueService.findById(venueId).getCost());
 		return venueService.findById(venueId).getCost();
 	}
 
 	@GetMapping("/getServiceProviderCost/{serviceProviderId}")
 	public Double getServiceProviderCost(@PathVariable Long serviceProviderId) {
-		System.out.println(serviceProviderService.findById(serviceProviderId).getCost());
+		// System.out.println(serviceProviderService.findById(serviceProviderId).getCost());
 		return serviceProviderService.findById(serviceProviderId).getCost();
 	}
 
@@ -975,9 +1139,9 @@ public class AdminController {
 		modelandmap.addObject("cities", enuCityService.findByNamedParameters(paramSource));
 		return modelandmap;
 	}
-	
-	public BindingResult checkCustomerResultsEdit(@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
-			BindingResult userResult) {
+
+	public BindingResult checkCustomerResultsEdit(
+			@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO, BindingResult userResult) {
 		// Valid Email
 		final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$",
 				Pattern.CASE_INSENSITIVE);
@@ -1000,7 +1164,7 @@ public class AdminController {
 				}
 			}
 		}
-		
+
 		// 10 digit Mobile Number
 		if (userDetailsDTO.getMobileNumber().length() != 10) {
 			userResult
@@ -1125,9 +1289,9 @@ public class AdminController {
 	@PostMapping("/edit_serviceprovider")
 	public ModelAndView updateServiceProvider(
 			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO,
-			@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
+			@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO, BindingResult userResult,
 			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
-		final ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-serviceprovider");
 
 		ServiceProviderDTO oldserviceProviderDTO = serviceProviderService
 				.findById(serviceProviderDTO.getServiceProviderId().longValue());
@@ -1197,6 +1361,26 @@ public class AdminController {
 			oldAddressDTO.setPostalCode(addressDTO.getPostalCode());
 		}
 
+		userResult = checkCustomerResultsEdit(oldserviceProviderDTO, userResult);
+		if (userResult.hasErrors() == true) {
+			modelandmap = new ModelAndView("admin/edit_serviceprovider");
+			modelandmap.addObject("serviceProviderDTO", serviceProviderDTO);
+			modelandmap.addObject("userDetailsDTO", userDetailsDTO);
+			modelandmap.addObject("serviceTypes", enuServiceTypeService.findAllActive());
+			modelandmap.addObject("addressDTO", addressDTO);
+
+			modelandmap.addObject("countries", enuCountryService.findAll());
+
+			MapSqlParameterSource paramSourceCountry = new MapSqlParameterSource();
+			paramSourceCountry.addValue("countryId", addressDTO.getCountryId());
+			modelandmap.addObject("states", enuStateService.findByNamedParameters(paramSourceCountry));
+
+			MapSqlParameterSource paramSourceState = new MapSqlParameterSource();
+			paramSourceState.addValue("stateId", addressDTO.getStateId());
+			modelandmap.addObject("cities", enuCityService.findByNamedParameters(paramSourceState));
+			return modelandmap;
+		}
+
 		addressService.update(oldAddressDTO);
 		// userDetailsService.update(oldUserDetailsDTO);
 		serviceProviderService.update(oldserviceProviderDTO);
@@ -1237,9 +1421,9 @@ public class AdminController {
 
 	@PostMapping("/edit_employee")
 	public ModelAndView updateEmployee(@Valid @ModelAttribute("employeeDTO") EmployeeDTO employeeDTO,
-			@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
-			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
-		final ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-employee");
+			BindingResult userResult, @Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
+			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO, BindingResult addressResult) {
+		ModelAndView modelandmap = new ModelAndView("redirect:/admin/list-employee");
 
 		EmployeeDTO oldEmployeeDTO = employeeService.findById(employeeDTO.getEmployeeId().longValue());
 		UserDetailsDTO oldUserDetailsDTO = userDetailsService.findById(employeeDTO.getUserDetailsId().longValue());
@@ -1306,6 +1490,24 @@ public class AdminController {
 			oldAddressDTO.setPostalCode(addressDTO.getPostalCode());
 		}
 
+		userResult = checkCustomerResultsEdit(oldEmployeeDTO, userResult);
+		if (userResult.hasErrors() == true) {
+			modelandmap = new ModelAndView("admin/edit_employee");
+			modelandmap.addObject("employeeRoles", enuEmployeeRoleService.findAll());
+			employeeDTO.setDOB(null);
+			modelandmap.addObject("employeeDTO", employeeDTO);
+			modelandmap.addObject("addressDTO", addressDTO);
+			modelandmap.addObject("countries", enuCountryService.findAll());
+			MapSqlParameterSource paramSourceCountry = new MapSqlParameterSource();
+			paramSourceCountry.addValue("countryId", addressDTO.getCountryId());
+			modelandmap.addObject("states", enuStateService.findByNamedParameters(paramSourceCountry));
+
+			MapSqlParameterSource paramSourceState = new MapSqlParameterSource();
+			paramSourceState.addValue("stateId", addressDTO.getStateId());
+			modelandmap.addObject("cities", enuCityService.findByNamedParameters(paramSourceState));
+			return modelandmap;
+		}
+
 		addressService.update(oldAddressDTO);
 		employeeService.update(oldEmployeeDTO);
 		return modelandmap;
@@ -1357,7 +1559,7 @@ public class AdminController {
 	}
 
 	@PostMapping("/edit_venue")
-	public ModelAndView saveVenue(@Valid @ModelAttribute("venueDTO") VenueDTO venueDTO,
+	public ModelAndView saveVenue(@Valid @ModelAttribute("venueDTO") VenueDTO venueDTO, BindingResult venueResult,
 			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO,
 			@Valid @ModelAttribute("venueTempDTO") VenueTempDTO venueTempDTO,
 			@RequestParam("files") MultipartFile[] files) {
@@ -1424,6 +1626,34 @@ public class AdminController {
 
 		if (!(addressDTO.getPostalCode().equals(oldAddressDTO.getPostalCode()))) {
 			oldAddressDTO.setPostalCode(addressDTO.getPostalCode());
+		}
+		
+		venueResult = checkVenueResultsEdit(oldVenueDTO, venueResult);
+		if (venueResult.hasErrors() == true) {
+			modelandmap = new ModelAndView("admin/edit_venue");
+
+			MapSqlParameterSource paramSource = new MapSqlParameterSource();
+			paramSource.addValue("isActive", true);
+			List<EnuEventTypeDTO> eventTypes = enuEventTypeService.findByNamedParameters(paramSource);
+			List<EnuVenueFacilityDTO> facilities = enuVenueFacilityService.findByNamedParameters(paramSource);
+			List<EnuVenueTypeDTO> venueTypes = enuVenueTypeService.findByNamedParameters(paramSource);
+
+			modelandmap.addObject("facilities", facilities);
+			modelandmap.addObject("eventTypes", eventTypes);
+			modelandmap.addObject("venueTypes", venueTypes);
+			modelandmap.addObject("venueDTO", venueDTO);
+			modelandmap.addObject("addressDTO", addressDTO);
+			modelandmap.addObject("venueTempDTO", venueTempDTO);
+			modelandmap.addObject("countries", enuCountryService.findAll());
+			MapSqlParameterSource paramSourceCountry = new MapSqlParameterSource();
+			paramSourceCountry.addValue("countryId", addressDTO.getCountryId());
+			modelandmap.addObject("states", enuStateService.findByNamedParameters(paramSourceCountry));
+
+			MapSqlParameterSource paramSourceState = new MapSqlParameterSource();
+			paramSourceState.addValue("stateId", addressDTO.getStateId());
+			modelandmap.addObject("cities", enuCityService.findByNamedParameters(paramSourceState));
+
+			return modelandmap;
 		}
 
 		addressService.update(oldAddressDTO);

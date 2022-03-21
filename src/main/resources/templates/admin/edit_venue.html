@@ -41,17 +41,21 @@
 										<label for="emailaddress" class="form-label">Email address</label>
 										<input class="form-control" type="email" id="email" required
 											th:field="*{venueDTO.email}" placeholder="Enter your email">
+										<p th:if="${#fields.hasErrors('venueDTO.email')}" class="text-danger mt-1"
+											th:errors="*{venueDTO.email}"></p>
+										<p id="emailError" class="text-danger mt-1"></p>
 									</div>
 								</div>
-								
+
 								<div class="mb-3">
 									<label class="form-label">Upload New Venue Images<small
-																	style="display: block; font-size: 0.75rem; color:  #808080;">
-																	(Old images will be retained)
-																	</small></label>
+											style="display: block; font-size: 0.75rem; color:  #808080;">
+											(Old images will be retained)
+										</small></label>
 									<input class="form-control" type="file" name="files" multiple="multiple"
 										accept="image/png, image/jpg, image/jpeg" capture />
 									<!-- <input value="Upload" type="submit" /> -->
+									<p class="text-danger mt-1" id="imageError"></p>
 								</div>
 
 								<div class="row g-2">
@@ -60,28 +64,37 @@
 										<input type="text" class="form-control" id="contactNumber" required
 											th:field="*{venueDTO.contactNumber}" placeholder="Enter your contact number"
 											data-toggle="input-mask" data-mask-format="0000000000">
+										<p th:if="${#fields.hasErrors('venueDTO.contactNumber')}"
+											class="text-danger mt-1" th:errors="*{venueDTO.contactNumber}"></p>
+										<p id="contactNumberError" class="text-danger mt-1"></p>
 									</div>
 									<div class="mb-3 col-md-6">
 										<label for="guestCapacity" class="form-label">Guest Capacity</label>
 										<input type="number" id="guestCapacity" class="form-control" required
-											th:field="*{venueDTO.guestCapacity}" placeholder="Enter guest capacity">
+											th:field="*{venueDTO.guestCapacity}" placeholder="Enter guest capacity"
+											min="0" oninput="validity.valid || (value='');">
 									</div>
 								</div>
 
 								<div class="row g-2">
 									<div class="mb-3 col-md-6">
-										<label for="cost" class="form-label">Cost</label>
-										<input type="number" id="cost" class="form-control" required
-											th:field="*{venueDTO.cost}" placeholder="Enter cost">
-									</div>
-									<div class="mb-3 col-md-6">
 										<label for="venueType" class="form-label">Venue Type</label>
-										<select id="venueType" th:field=*{venueDTO.venueTypeId} class="form-select">
-											<option value="" readonly>--Select Venue Type--</option>
+										<select id="venueType" th:field=*{venueDTO.venueTypeId} class="form-select"
+											required>
+											<option value="" hidden readonly>--Select Venue Type--</option>
 											<option th:each="venueType : ${venueTypes}"
 												th:value="${venueType.enuVenueTypeId}" th:text="${venueType.venueType}">
 											</option>
 										</select>
+									</div>
+									<div class="mb-3 col-md-6">
+										<label for="cost" class="form-label">Cost
+											<small
+												style="display: inline-block; font-size: 0.75rem; color:  #808080;">(Inluding
+												all facilities and charges)</small></label>
+										<input type="number" id="cost" class="form-control" required
+											th:field="*{venueDTO.cost}" placeholder="Enter cost" min="0"
+											oninput="validity.valid || (value='');">
 									</div>
 								</div>
 								<div class="row g-2">
@@ -90,7 +103,7 @@
 
 										<select class="select2 form-control select2-multiple" data-toggle="select2"
 											th:field=*{venueTempDTO.selectedEventTypes} multiple="multiple"
-											data-placeholder="Select multiple event eype ...">
+											data-placeholder="Select multiple event eype ..." required>
 											<optgroup>
 												<option th:each="eventType : ${eventTypes}"
 													th:value="${eventType.eventTypeId}"
@@ -114,7 +127,7 @@
 									<div class="mb-3">
 										<label for="description" class="form-label">Description</label>
 										<textarea th:field="${venueDTO.description}" class="form-control"
-											id="example-textarea" rows="3"></textarea>
+											id="example-textarea" rows="5" required></textarea>
 									</div>
 								</div>
 
@@ -122,7 +135,7 @@
 									<div class="mb-3 col-md-6">
 										<label for="inputAddress" class="form-label">Address</label>
 										<input type="text" class="form-control" th:field="*{addressDTO.address1}"
-											id="inputAddress" placeholder="1234 Main St">
+											id="inputAddress" placeholder="1234 Main St" required>
 									</div>
 
 									<div class="mb-3 col-md-6">
@@ -136,17 +149,18 @@
 								<div class="row g-2">
 									<div class="mb-3 col-md-6">
 										<label for="inputCountry" class="form-label">Country</label>
-										<select id="inputCountry" th:field="*{addressDTO.countryId}"
-											class="form-select">
-											<option value="" readonly>--Select Country--</option>
+										<select id="inputCountry" th:field="*{addressDTO.countryId}" class="form-select"
+											required>
+											<option value="" hidden readonly>--Select Country--</option>
 											<option th:each="country : ${countries}" th:value="${country.countryId}"
 												th:text="${country.country}"></option>
 										</select>
 									</div>
 									<div class="mb-3 col-md-6">
 										<label for="inputState" class="form-label">State</label>
-										<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select">
-											<option value="">--Select State--</option>
+										<select id="inputState" th:field="*{addressDTO.stateId}" class="form-select"
+											required>
+											<option value="" hidden readonly>--Select State--</option>
 											<option th:each="state : ${states}" th:value="${state.stateId}"
 												th:text="${state.state}"></option>
 										</select>
@@ -156,29 +170,34 @@
 								<div class="row g-2">
 									<div class="mb-3 col-md-6">
 										<label for="inputCity" class="form-label">City</label>
-										<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select">
-											<option value="" readonly>--Select City--</option>
+										<select id="inputCity" th:field="*{addressDTO.cityId}" class="form-select"
+											required>
+											<option value="" hidden readonly>--Select City--</option>
 											<option th:each="city : ${cities}" th:value="${city.cityId}"
-												th:text="${city.city}"></option>
+												th:text="${city.city}">
+											</option>
 										</select>
 									</div>
 									<div class="mb-3 col-md-6">
 										<label for="inputZip" class="form-label">ZIP Code</label>
 										<input type="text" class="form-control" th:field="*{addressDTO.postalCode}"
-											id="inputZip" data-toggle="input-mask" data-mask-format="000000"
-											placeholder="Enter zip code">
+											id="inputZip" data-toggle="input-mask" data-mask-format="000000" required>
 									</div>
 								</div>
 								<div class="row g-2">
 									<div class="mb-3 col-md-6">
 										<label for="latitude" class="form-label">Latitude</label>
 										<input type="text" class="form-control" th:field=*{venueDTO.latitude}
-											id="latitude" data-toggle="input-mask" placeholder="Enter latitude">
+											id="latitude" data-toggle="input-mask" placeholder="Enter latitude"
+											required>
+										<p class="text-danger mt-1" id="latitudeError"></p>
 									</div>
 									<div class="mb-3 col-md-6">
 										<label for="Longitude" class="form-label">Longitude</label>
 										<input type="text" class="form-control" th:field=*{venueDTO.longitude}
-											id="Longitude" data-toggle="input-mask" placeholder="Enter longitude">
+											id="Longitude" data-toggle="input-mask" placeholder="Enter longitude"
+											required>
+										<p class="text-danger mt-1" id="LongitudeError"></p>
 									</div>
 								</div>
 								<div class="mb-0 d-grid text-center">
@@ -198,7 +217,59 @@
 	</th:block>
 
 	<th:block layout:fragment="script">
+		<!-- plugin js -->
+		<script th:src="@{/assets/js/vendor/dropzone.min.js}"></script>
+
+		<!-- init js -->
+		<script th:src="@{/assets/js/ui/component.fileupload.js}"></script>
 		<script type="text/javascript">
+			$(document).ready(function () {
+				if ($("#inputCountry").find(":selected").val() === "") {
+					$("#inputState").prop('disabled', true);
+					$("#inputCity").prop('disabled', true);
+				}
+
+				$('#imageError').css('display', 'none');
+				$('#emailError').css('display', 'none');
+				$('#contactNumberError').css('display', 'none');
+			});
+
+			$('input[type=file]').change(function () {
+				$('#imageError').css('display', 'none');
+				var val = $(this).val().toLowerCase(),
+					regex = new RegExp("(.*?)\.(jpg|jpeg|png)$");
+
+				if (!(regex.test(val))) {
+					$(this).val('');
+					$('#imageError').css('display', 'block');
+					$('#imageError').text('Please select correct file format');
+					// $('button[type=submit]').prop('disabled', true);
+				}
+			});
+
+			$('#latitude').change(function () {
+				$('#latitudeError').css('display', 'none');
+				$('button[type=submit]').prop('disabled', false);
+				var latitude = $("#latitude").val();
+				var pattern = /^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$/;
+				if (pattern.test(latitude) === false) {
+					$('#latitudeError').css('display', 'block');
+					$('#latitudeError').text('Please enter valid latitude.');
+					$('button[type=submit]').prop('disabled', true);
+				}
+			});
+
+			$('#Longitude').change(function () {
+				$('#LongitudeError').css('display', 'none');
+				$('button[type=submit]').prop('disabled', false);
+				var Longitude = $("#Longitude").val();
+				var pattern = /^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$/;
+				if (pattern.test(Longitude) === false) {
+					$('#LongitudeError').css('display', 'block');
+					$('#LongitudeError').text('Please enter valid longitude.');
+					$('button[type=submit]').prop('disabled', true);
+				}
+			});
 
 			$("#inputCountry").change(function () {
 				var selectedValue = $(this)
@@ -217,8 +288,11 @@
 					url: "/getStates/" + selectedValue + '',
 					success: function (result) {
 						$("#inputState").prop('disabled', false);
+						$("#inputCity").prop('disabled', true);
+						$("#inputCity").empty();
+						$("#inputCity").append($("<option hidden readonly></option>").val("").html("--Select City--"));
 						$("#inputState").empty();
-						$("#inputState").append($("<option></option>").val("").html("--Select State--"));
+						$("#inputState").append($("<option hidden readonly></option>").val("").html("--Select State--"));
 						$.each(result, function () {
 							$("#inputState").append($("<option></option>").val(this['stateId']).html(this['state']));
 						});
@@ -241,12 +315,34 @@
 					success: function (result) {
 						$("#inputCity").prop('disabled', false);
 						$("#inputCity").empty();
-						$("#inputCity").append($("<option></option>").val("").html("--Select City--"));
+						$("#inputCity").append($("<option hidden readonly></option>").val("").html("--Select City--"));
 						$.each(result, function () {
 							$("#inputCity").append($("<option></option>").val(this['cityId']).html(this['city']));
 						});
 					}
 				});
+			});
+
+			$("form").submit(function () {
+				$('#emailError').css('display', 'none');
+				$('#contactNumberError').css('display', 'none');
+
+				var emailAddress = $("#email").val();
+				var pattern = /\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/;
+				// console.log(pattern.test(emailAddress));
+				if (pattern.test(emailAddress) === false) {
+					$('#emailError').css('display', 'block');
+					$('#emailError').text('Please enter valid email address.');
+					return false;
+				}
+
+				if (!($('#contactNumber').val().length === 10)) {
+					$('#contactNumberError').css('display', 'block');
+					$('#contactNumberError').text('Please enter 10 digit contact number.');
+					return false;
+				}
+
+				return true;
 			});
 		</script>
 	</th:block>
