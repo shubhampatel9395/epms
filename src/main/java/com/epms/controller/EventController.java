@@ -398,7 +398,7 @@ public class EventController {
 		mail.setMailTo(userDetailsService.findById(newEventDTO.getUserDetailsId().longValue()).getEmail());
 		mail.setMailSubject("Event Created");
 		mail.setContentType("text/html");
-		String content = "<p>We have created an Event<strong>" + newEventDTO.getEventTitle() + " - "
+		String content = "<p>We have created an Event <strong>" + newEventDTO.getEventTitle() + " - "
 				+ newEventDTO.getObjective() + "</strong> on Unico - Event Planning and Management website.</p>"
 				+ "<p>You will be notified about your event details.</p>";
 		mail.setMailContent(content);

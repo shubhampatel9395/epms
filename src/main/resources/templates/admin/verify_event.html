@@ -66,7 +66,7 @@
 								</div>
 
 								<div th:if="${venues} == null">
-									<p style="color: red"> There's no venues available with selected venue type which
+									<p class="mt-1" style="color: red"> There's no venues available with selected venue type which
 										organizes selected event
 										type. </p>
 								</div>
@@ -80,7 +80,7 @@
 								<div th:if="${venues} != null and ${package.isStatic} == false">
 									<div class="mb-3">
 										<label for="inputVenue" class="form-label">Venue</label>
-										<select id="inputVenue" th:field="*{package.venueId}" class="form-select">
+										<select id="inputVenue" th:field="*{package.venueId}" class="form-select" required>
 											<option value="" hidden readonly>--Select Venue--</option>
 											<option th:each="venueName : ${venues}" th:value="${venueName.venueId}"
 												th:text="${venueName.venueName}">
@@ -102,7 +102,7 @@
 										</div>
 										<div class="mb-3 col-md-6">
 											<select th:id="'serviceprovider' + ${serviceType.serviceTypeId}"
-												class="form-select" th:field="*{packageTempDTO.serviceProviderIdList}">
+												class="form-select" th:field="*{packageTempDTO.serviceProviderIdList}" required>
 												<option value="" hidden readonly>--Select Service Provider--</option>
 												<option th:each="serviceProvider : ${serviceProviders}"
 													th:if="${serviceProvider.serviceTypeId} == ${serviceType.serviceTypeId}"
@@ -116,7 +116,7 @@
 								<div class="form-floating mb-3">
 									<select id="inputEventOrganizer" class="form-select"
 										th:field="*{eventDTO.eventOrganizerId}" required>
-										<option value="" selected hidden readonly>--Select Event Organizer --
+										<option value="" hidden readonly>--Select Event Organizer --
 										</option>
 										<option th:each="employee : ${employees}" th:value="${employee.employeeId}"
 											th:text="|${employee.firstName} ${employee.lastName}|">

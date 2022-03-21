@@ -48,7 +48,7 @@
 				<div class="col-12">
 					<div class="card">
 						<div class="card-body">
-							<form th:action="@{/admin/add_event}" method="post"  enctype="multipart/form-data">
+							<form th:action="@{/admin/add_event}" method="post" enctype="multipart/form-data">
 								<div>
 									<i class="mdi mdi-information-outline"
 										style="font-size: 24px;padding-right: 0.5rem;"></i>
@@ -80,6 +80,7 @@
 											</option>
 										</select>
 										<label for="floatingSelect">Event Type</label>
+										<p id="eventTypeError" class="text-danger mt-1"></p>
 									</div>
 								</div>
 
@@ -90,9 +91,10 @@
 									<div class="mb-3" id="profile-container">
 										<img id="profileImage" th:src="@{/assets/images/img-placeholder.png}"
 											class="img-fluid img-thumbnail" />
-										<input  id="imageUpload" type="file" name="banner" placeholder="Photo"
+										<input id="imageUpload" type="file" name="banner" placeholder="Photo"
 											accept="image/png, image/jpg, image/jpeg" capture>
 									</div>
+									<p class="text-danger mt-1" id="imageError"></p>
 								</div>
 
 								<div class="form-floating mb-3">
@@ -110,8 +112,9 @@
 								</div>
 
 								<div class="form-floating mb-3">
-									<input th:field="*{eventDTO.estimatedGuest}" type="text" id="example-helping"
-										class="form-control" placeholder="Helping text" required>
+									<input th:field="*{eventDTO.estimatedGuest}" type="number" id="example-helping"
+										class="form-control" placeholder="Helping text" min="0"
+										oninput="validity.valid || (value='');" required>
 									<label for="floatingInput">Estimated Guests</label>
 								</div>
 
@@ -127,6 +130,7 @@
 													data-provide="datepicker" data-date-autoclose="true"
 													data-date-container="#datepicker4" required>
 											</div>
+											<p id="startDateError" class="text-danger mt-1"></p>
 										</div>
 									</div>
 									<div class="col-md-6">
@@ -139,6 +143,7 @@
 												class="form-control" data-provide='timepicker' data-minute-step="5"
 												data-show-meridian="false" required>
 										</div>
+										<p id="startTimeError" class="text-danger mt-1"></p>
 									</div>
 
 								</div>
@@ -154,6 +159,7 @@
 													data-provide="datepicker" data-date-autoclose="true"
 													data-date-container="#datepicker4" required>
 											</div>
+											<p id="endDateError" class="text-danger mt-1"></p>
 										</div>
 									</div>
 									<div class="col-md-6">
@@ -166,6 +172,7 @@
 												class="form-control" data-provide='timepicker' data-minute-step="5"
 												data-show-meridian="false" required>
 										</div>
+										<p id="endTimeError" class="text-danger mt-1"></p>
 									</div>
 								</div>
 
@@ -207,6 +214,7 @@
 										</div>
 										<div class="mb-3">
 											<label class="form-label">Services available</label>
+											<p class="text-danger mt-1" id="spError"></p>
 										</div>
 										<div class="row g-2" th:each="serviceType : ${serviceTypes}">
 											<div class="mb-3 col-md-6">
@@ -232,7 +240,6 @@
 									</div>
 								</div>
 
-
 								<div class="mb-3">
 									<div>
 										<i class="mdi mdi-account-question-outline"
@@ -244,7 +251,7 @@
 									<div class="form-check">
 										<input checked th:field="*{eventDTO.isPublic}" th:checked="${eventDTO.isPublic}"
 											value="true" type="radio" id="customRadio1" name="customRadio"
-											class="form-check-input">
+											class="form-check-input" required>
 										<label class="form-check-label" for="customRadio1">Public<small
 												style="display: block; font-size: 0.75rem; color:  #808080;">Anyone
 												visiting the website</small></label>
@@ -253,7 +260,7 @@
 									<div class="form-check">
 										<input th:field="*{eventDTO.isPublic}" th:checked="${eventDTO.isPublic}"
 											value="false" type="radio" id="customRadio2" name="customRadio"
-											class="form-check-input">
+											class="form-check-input" required>
 										<label class="form-check-label" for="customRadio2">Private<small
 												style="display: block; font-size: 0.75rem; color:  #808080;">Only
 												available to a selected
@@ -282,14 +289,16 @@
 													style="font-size: 0.75rem; color:  #808080; margin-left: 0.5rem;">(Extra
 													charges applied)</small></label>
 											<input type="number" id="inputRegFee" th:field="*{eventDTO.registrationFee}"
-												class="form-control" placeholder="Enter registration fee for event">
+												class="form-control" placeholder="Enter registration fee for event"
+												min="0" oninput="validity.valid || (value='');" required>
 										</div>
 										<div class="mb-3 col-md-6">
 											<label for="inputRegAvailable" class="form-label">Maximum Registration
 												Available</label>
 											<input type="number" id="inputRegAvailable"
 												th:field="*{eventDTO.registrationAvailable}" class="form-control"
-												required placeholder="Enter total registration available for event">
+												required placeholder="Enter total registration available for event"
+												min="0" oninput="validity.valid || (value='');">
 										</div>
 									</div>
 								</div>
@@ -302,7 +311,7 @@
 								<div class="form-floating mb-3">
 									<select id="inputEventOrganizer" class="form-select"
 										th:field="*{eventDTO.eventOrganizerId}" required>
-										<option value="" selected hidden readonly>--Select Event Organizer --
+										<option value="" hidden readonly>--Select Event Organizer --
 										</option>
 										<option th:each="employee : ${employees}" th:value="${employee.employeeId}"
 											th:text="|${employee.firstName} ${employee.lastName}|">
@@ -310,7 +319,7 @@
 									</select>
 									<label for="floatingSelect">Event Organizer</label>
 								</div>
-								
+
 								<input type="hidden" id="eventTotalCost" th:field="*{eventDTO.totalCost}" />
 
 								<div class="mb-0 d-grid text-center">
@@ -342,8 +351,19 @@
 				}
 			}
 
-			$("#imageUpload").change(function () {
-				fasterPreview(this);
+			$('input[type=file]').change(function () {
+				$('#imageError').css('display', 'none');
+				var val = $(this).val().toLowerCase(),
+					regex = new RegExp("(.*?)\.(jpg|jpeg|png)$");
+
+				if (!(regex.test(val))) {
+					$(this).val('');
+					$('#imageError').css('display', 'block');
+					$('#imageError').text('Please select correct file format');
+					// $('button[type=submit]').prop('disabled', true);
+				} else {
+					fasterPreview(this);
+				}
 			});
 
 			$("#inputEventType").change(function () {
@@ -353,7 +373,7 @@
 					url: "getVenues/" + $(this).find(":selected").val() + '',
 					success: function (result) {
 						$("#inputVenue").empty();
-						$("#inputVenue").append($("<option></option>").val("").html("--Select Venue--"));
+						$("#inputVenue").append($("<option hidden readonly></option>").val("").html("--Select Venue--"));
 						$.each(result, function () {
 							$("#inputVenue").append($("<option></option>").val(this['venueId']).html(this['venueName']));
 						});
@@ -362,6 +382,16 @@
 			});
 
 			$(document).ready(function () {
+				$("#eventTypeError").css('display', 'none');
+				$('#imageError').css('display', 'none');
+				$("#startDate").datepicker({startDate: "+5d"});
+				$("#endDate").datepicker({startDate: "+5d"});
+				$("#startDateError").css('display', 'none');
+				$("#startTimeError").css('display', 'none');
+				$("#endDateError").css('display', 'none');
+				$("#endTimeError").css('display', 'none');
+				$("#spError").css('display', 'none');
+
 				$("#individual").find("input[type='checkbox']").prop('disabled', true);
 				$("#inputVenue").prop('disabled', true);
 				$("#regDiv *").prop('disabled', true);
@@ -392,7 +422,7 @@
 						});
 					}
 				});
-				
+
 				var token = $("meta[name='_csrf']").attr("content");
 				var header = $("meta[name='_csrf_header']").attr("content");
 				$(document).ajaxSend(function (e, xhr, options) {
@@ -483,7 +513,7 @@
 					url: "getVenues/" + $(this).find(":selected").val() + '',
 					success: function (result) {
 						$("#inputVenue").empty();
-						$("#inputVenue").append($("<option></option>").val("").html("--Select Venue--"));
+						$("#inputVenue").append($("<option hidden readonly></option>").val("").html("--Select Venue--"));
 						$.each(result, function () {
 							$("#inputVenue").append($("<option></option>").val(this['venueId']).html(this['venueName']));
 						});
@@ -492,6 +522,48 @@
 			});
 
 			$("form").submit(function () {
+				var isValid = true;
+				$("#spError").css('display', 'none');
+				$("#eventTypeError").css('display', 'none');
+				$("#startDateError").css('display', 'none');
+				$("#startTimeError").css('display', 'none');
+				$("#endDateError").css('display', 'none');
+				$("#endTimeError").css('display', 'none');
+				$("#errorDiv").css('display', 'none');
+
+				if ($("#inputEventType").find(":selected").val() === "-1") {
+					isValid = false;
+					$("#eventTypeError").css('display', 'block');
+					$("#eventTypeError").text('Please select event type.');
+				}
+
+				if (isNaN(Date.parse($("#startDate").val()))) {
+					isValid = false;
+					$("#startDateError").css('display', 'block');
+					$("#startDateError").text('Please enter valid start date.');
+				}
+
+				if (isNaN(Date.parse($("#endDate").val()))) {
+					isValid = false;
+					$("#endDateError").css('display', 'block');
+					$("#endDateError").text('Please enter valid start date.');
+				}
+
+				if ($("#startDate").val() > $("#endDate").val()) {
+					isValid = false;
+					$("#endDateError").css('display', 'block');
+					$("#endDateError").text('End date should be greater than start date.');
+				}
+				// console.log(new Date($("#startDate").val() + ' ' + $("#timepicker2").val()));
+
+				if ($("#startDate").val() === $("#endDate").val()) {
+					if (new Date($("#startDate").val() + ' ' + $("#timepicker2").val()) >= new Date($("#endDate").val() + ' ' + $("#timepicker3").val())) {
+						isValid = false;
+						$("#endTimeError").css('display', 'block');
+						$("#endTimeError").text('End time should be greater than start time.');
+					}
+				}
+
 				if ($('input[type="radio"][name="isStatic"]:checked').val() === "true") {
 					if ($("#inputPackage").find(":selected").val() === "") {
 						$("#errorTxt").text("Please select package.");
@@ -508,19 +580,40 @@
 					}
 
 					var isError = false;
+					var errorMsg = "Please select service provider for the selected service.";
 					$(document.querySelectorAll('[id^="serviceprovider"]')).each(function () {
+						// console.log($(this).prop('disabled') === false);
+						// console.log($(this).find(":selected").val() === "");
 						if ($(this).prop('disabled') === false && $(this).find(":selected").val() === "") {
 							isError = true;
 						}
 					});
 
 					if (isError == true) {
-						$("#errorTxt").text("Please select service provider for the selected service.");
-						$("#errorDiv").css('display', 'block');
+						$("#spError").css('display', 'block');
+						$("#spError").text(errorMsg);
+						return false;
+					}
+
+					$("input:checkbox").each(function () {
+						if (!($(this).attr("id") == "isFree")) {
+							if ($(this).prop('checked') === false) {
+								errorMsg = "Please select at least one service.";
+								isError = true;
+							} else {
+								isError = false;
+								return false;
+							}
+						}
+					});
+
+					if (isError == true) {
+						$("#spError").css('display', 'block');
+						$("#spError").text(errorMsg);
 						return false;
 					}
 				}
-				$("#errorDiv").css('display', 'none');
+				$("#spError").css('display', 'none');
 
 				var messageConfirm = "";
 				var token = $("meta[name='_csrf']").attr("content");
