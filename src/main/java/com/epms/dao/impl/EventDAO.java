@@ -19,6 +19,7 @@ import com.epms.dao.IEventDAO;
 import com.epms.dto.AssignedEmployeesInEventDTO;
 import com.epms.dto.EventDTO;
 import com.epms.dto.PackageDetailsDTO;
+import com.epms.dto.UpcomingWeekEventDTO;
 
 import groovy.util.logging.Slf4j;
 
@@ -267,5 +268,15 @@ public class EventDAO implements IEventDAO {
 				+ "join enuemployeerole er on emp.employeeRoleId=er.employeeRoleId\r\n"
 				+ "join userdetails u on emp.userDetailsId=u.userDetailsId\r\n"
 				+ "where e.isActive=true and e.eventId=:eventId and em.isActive=true", namedParams, new BeanPropertyRowMapper<AssignedEmployeesInEventDTO>(AssignedEmployeesInEventDTO.class));
+	}
+	
+	@Override
+	public List<UpcomingWeekEventDTO> getUpcomingWeekEvents() {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		return jdbcTemplate.query("SELECT e.eventId,e.eventTitle,e.startDate,e.startTime,concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber\r\n"
+				+ "from event e\r\n"
+				+ "join userdetails u on u.userDetailsId= e.userDetailsId\r\n"
+				+ "where e.isActive=true and e.eventStatusId=(SELECT statusId from enueventstatus where status='Verified')\r\n"
+				+ "and e.startDate BETWEEN DATE(NOW()) AND DATE(NOW()) + INTERVAL 6 DAY and IF(e.startDate <=> e.endDate <=> DATE(NOW()), e.startTime >= TIME(NOW()), true) ORDER BY e.startDate", namedParams, new BeanPropertyRowMapper<UpcomingWeekEventDTO>(UpcomingWeekEventDTO.class));
 	}
 }

@@ -12,6 +12,7 @@ import com.epms.dto.AllServiceProvidersPackageDTO;
 import com.epms.dto.EmployeeDTO;
 import com.epms.dto.EmployeeEventWorkDTO;
 import com.epms.dto.EventOrganizerEventWorkDTO;
+import com.epms.dto.UpcomingWeekEventDTO;
 import com.epms.service.IEmployeeService;
 
 import groovy.util.logging.Slf4j;
@@ -116,5 +117,15 @@ public class EmployeeService implements IEmployeeService {
 	@Override
 	public EventOrganizerEventWorkDTO getEventOrganizerEventDetails(long eventId, long eventOrganizerId) {
 		return employeeDAO.getEventOrganizerEventDetails(eventId,eventOrganizerId);
+	}
+
+	@Override
+	public List<UpcomingWeekEventDTO> getUpcomingWeekEventsEmployees(Long employeeId) {
+		return employeeDAO.getUpcomingWeekEventsEmployees(employeeId);
+	}
+
+	@Override
+	public List<UpcomingWeekEventDTO> getUpcomingWeekEventsEventOrganizer(Long eventOrganizerId) {
+		return employeeDAO.getUpcomingWeekEventsEventOrganizer(eventOrganizerId);
 	}
 }

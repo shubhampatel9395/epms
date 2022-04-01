@@ -53,7 +53,7 @@
 								<div class="mb-3">
 									<label for="inputServiceType" class="form-label">Service Type</label>
 									<select id="inputServiceType" th:field="*{serviceProviderDTO.serviceTypeId}"
-										class="form-select" required>
+										class="form-select" required disabled>
 										<option value="" hidden readonly>--Select Service Type--</option>
 										<option th:each="serviceType : ${serviceTypes}"
 											th:value="${serviceType.serviceTypeId}" th:text="${serviceType.service}">
@@ -64,7 +64,7 @@
 									<label for="inputServiceCost" class="form-label">Service Cost</label>
 									<input type="number" th:field="*{serviceProviderDTO.cost}" id="inputServiceCost"
 										class="form-control" required placeholder="Enter your service cost" min="0"
-										oninput="validity.valid || (value='');">
+										oninput="validity.valid || (value='');" disabled>
 								</div>
 								<div class="mb-3">
 									<label for="inputAddress" class="form-label">Address</label>

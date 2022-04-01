@@ -8,6 +8,7 @@ import com.epms.core.ICRUDRepository;
 import com.epms.dto.AssignedEmployeesInEventDTO;
 import com.epms.dto.EventDTO;
 import com.epms.dto.PackageDetailsDTO;
+import com.epms.dto.UpcomingWeekEventDTO;
 
 public interface IEventDAO extends ICRUDRepository<EventDTO, Long> {
 
@@ -30,4 +31,6 @@ public interface IEventDAO extends ICRUDRepository<EventDTO, Long> {
 	public EventDTO insertByCustomer(@Valid EventDTO eventDTO);
 	
 	public List<AssignedEmployeesInEventDTO> getAllAssignedEmployees(Long eventId);
+
+	public List<UpcomingWeekEventDTO> getUpcomingWeekEvents();
 }

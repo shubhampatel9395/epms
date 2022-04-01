@@ -20,6 +20,7 @@ import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.ServiceProviderEventWorkDTO;
 import com.epms.dto.ServiceProviderPackageDTO;
 import com.epms.dto.ShowFeedbackDTO;
+import com.epms.dto.UpcomingWeekEventDTO;
 
 import groovy.util.logging.Slf4j;
 
@@ -314,5 +315,19 @@ public class ServiceProviderDAO implements IServiceProviderDAO {
 				+ "join packageserviceprovidermapping m on p.packageDetailsId=m.packageId\r\n"
 				+ "where p.isStatic=1 and p.isActive=true and m.serviceProviderId=:serviceProviderId)", namedParams,
 				new BeanPropertyRowMapper<AllServiceProvidersPackageDTO>(AllServiceProvidersPackageDTO.class));
+	}
+
+	@Override
+	public List<UpcomingWeekEventDTO> getUpcomingWeekEvents(Long serviceProviderId) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("serviceProviderId", serviceProviderId);
+		return jdbcTemplate.query("SELECT e.eventId,e.eventTitle,e.startDate,e.startTime,concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber\r\n"
+				+ "from event e\r\n"
+				+ "join packagedetails p on e.packageId=p.packageDetailsId\r\n"
+				+ "join packageserviceprovidermapping m on p.packageDetailsId=m.packageId\r\n"
+				+ "join userdetails u on u.userDetailsId= e.userDetailsId\r\n"
+				+ "where e.isActive=true and e.eventStatusId=(SELECT statusId from enueventstatus where status='Verified') \r\n"
+				+ "and m.serviceProviderId=:serviceProviderId\r\n"
+				+ "and e.startDate BETWEEN DATE(NOW()) AND DATE(NOW()) + INTERVAL 6 DAY and IF(e.startDate <=> e.endDate <=> DATE(NOW()), e.startTime >= TIME(NOW()), true) ORDER BY e.startDate", namedParams, new BeanPropertyRowMapper<UpcomingWeekEventDTO>(UpcomingWeekEventDTO.class));
 	}
 }

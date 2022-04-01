@@ -20,6 +20,7 @@ import com.epms.dto.AllServiceProvidersPackageDTO;
 import com.epms.dto.EmployeeDTO;
 import com.epms.dto.EmployeeEventWorkDTO;
 import com.epms.dto.EventOrganizerEventWorkDTO;
+import com.epms.dto.UpcomingWeekEventDTO;
 
 import groovy.util.logging.Slf4j;
 
@@ -328,5 +329,35 @@ public class EmployeeDAO implements IEmployeeDAO {
 				+ "join userdetails u on u.userDetailsId= e.userDetailsId\r\n"
 				+ "join employee emp on emp.employeeId=e.eventOrganizerId\r\n"
 				+ "where e.isActive=true and e.eventOrganizerId=:eventOrganizerId and e.eventId=:eventId", namedParams, new BeanPropertyRowMapper<EventOrganizerEventWorkDTO>(EventOrganizerEventWorkDTO.class)));
+	}
+
+	@Override
+	public List<UpcomingWeekEventDTO> getUpcomingWeekEventsEmployees(Long employeeId) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("employeeId", employeeId);
+		return jdbcTemplate.query("SELECT e.eventId,e.eventTitle,e.startDate,e.startTime,concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber\r\n"
+				+ "from event e\r\n"
+				+ "join packagedetails p on e.packageId=p.packageDetailsId\r\n"
+				+ "join eventemployeemapping em on em.eventId=e.eventId\r\n"
+				+ "join enuemployeeworkingstatus emws on emws.statusId=em.statusId\r\n"
+				+ "join userdetails u on u.userDetailsId= e.userDetailsId\r\n"
+				+ "join employee emp on emp.employeeId=e.eventOrganizerId\r\n"
+				+ "where e.isActive=true and e.eventStatusId=(SELECT statusId from enueventstatus where status='Verified') and em.isActive=true \r\n"
+				+ "and em.employeeId=:employeeId \r\n"
+				+ "and e.startDate BETWEEN DATE(NOW()) AND DATE(NOW()) + INTERVAL 6 DAY and IF(e.startDate <=> e.endDate <=> DATE(NOW()), e.startTime >= TIME(NOW()), true) ORDER BY e.startDate", namedParams, new BeanPropertyRowMapper<UpcomingWeekEventDTO>(UpcomingWeekEventDTO.class));
+	}
+
+	@Override
+	public List<UpcomingWeekEventDTO> getUpcomingWeekEventsEventOrganizer(Long eventOrganizerId) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("eventOrganizerId", eventOrganizerId);
+		return jdbcTemplate.query("SELECT e.eventId,e.eventTitle,e.startDate,e.startTime,concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber\r\n"
+				+ "from event e\r\n"
+				+ "join userdetails u on u.userDetailsId= e.userDetailsId\r\n"
+				+ "join employee emp on emp.employeeId=e.eventOrganizerId\r\n"
+				+ "where e.eventStatusId=(SELECT statusId from enueventstatus where status='Verified') and e.isActive=true \r\n"
+				+ "and e.eventOrganizerId=:eventOrganizerId\r\n"
+				+ "and e.startDate BETWEEN DATE(NOW()) AND DATE(NOW()) + INTERVAL 6 DAY and IF(e.startDate <=> e.endDate <=> DATE(NOW()), e.startTime >= TIME(NOW()), true)\r\n"
+				+ "ORDER BY e.startDate", namedParams, new BeanPropertyRowMapper<UpcomingWeekEventDTO>(UpcomingWeekEventDTO.class));
 	}
 }

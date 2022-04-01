@@ -8,6 +8,7 @@ import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.ServiceProviderEventWorkDTO;
 import com.epms.dto.ServiceProviderPackageDTO;
 import com.epms.dto.ShowFeedbackDTO;
+import com.epms.dto.UpcomingWeekEventDTO;
 
 public interface IServiceProviderDAO extends ICRUDRepository<ServiceProviderDTO, Long> {
 	public List<ServiceProviderDTO> findAllActive();
@@ -22,4 +23,5 @@ public interface IServiceProviderDAO extends ICRUDRepository<ServiceProviderDTO,
 	public List<ShowFeedbackDTO> getFeedbackDetails(Long serviceProviderId);
 	public List<ServiceProviderPackageDTO> getPackageDetails(Long serviceProviderId);
 	public List<AllServiceProvidersPackageDTO> getAllServiceProvidersPackageDetails(Long serviceProviderId);
+	public List<UpcomingWeekEventDTO> getUpcomingWeekEvents(Long serviceProviderId);
 }

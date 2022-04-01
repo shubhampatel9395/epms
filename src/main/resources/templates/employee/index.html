@@ -79,7 +79,7 @@
 					<div class="card">
 						<div class="card-body">
 							<h4 class="header-title mb-2">Participated Events History</h4>
-							<div data-simplebar style="max-height: 525px;">
+							<div data-simplebar style="max-height: 260px;">
 								<div class="timeline-alt pb-0">
 									<div class="timeline-item" th:if="${#lists.isEmpty(completedEventWorkDTOs)}">
 										<div class="timeline-item-info">
@@ -111,6 +111,44 @@
 						<!-- end card-body -->
 					</div>
 					<!-- end card-->
+					<div class="card border-success border">
+						<div class="card-body">
+							<h4 class="header-title mb-2">Upcoming Week's Events</h4>
+							<div data-simplebar style="max-height: 260px;">
+								<div class="timeline-alt pb-0">
+									<div class="timeline-item" th:if="${#lists.isEmpty(upcomingEvents)}">
+										<div class="timeline-item-info">
+											<span class="text-muted" style="display: block;">
+												Currently, there is no event for upcoming week.
+											</span>
+										</div>
+									</div>
+									<div class="timeline-item" th:unless="${#lists.isEmpty(upcomingEvents)}"
+										th:each="upcomingEvent : ${upcomingEvents}">
+										<i class="mdi mdi-calendar-check bg-success-lighten text-success
+										timeline-icon"></i>
+										<div class="timeline-item-info">
+											<li class="d-flex justify-content-between align-items-start">
+												<div class="ms-2 me-auto">
+													<div class="fw-bold text-success"><a class="d-block text-success"
+															th:href="@{'/employee/view_event/' + ${upcomingEvent.eventId}}"
+															th:text="${upcomingEvent.eventTitle}"></a></div>
+													<span class="badge bg-info rounded-pill"
+														th:utext="${#dates.format(upcomingEvent.startDate, 'yyyy-MM-dd')}"></span>
+													<span class="badge bg-danger rounded-pill"
+														th:text="${upcomingEvent.startTime}"></span>
+													<span class="badge bg-primary rounded-pill"
+														th:text="${upcomingEvent.customerName}"></span>
+												</div>
+											</li>
+											<p class="mb-0 pb-2"></p>
+										</div>
+									</div>
+								</div>
+								<!-- end timeline -->
+							</div> <!-- end slimscroll -->
+						</div> <!-- end card-body -->
+					</div> <!-- end card-->
 				</div>
 				<!-- end col -->
 			</div>

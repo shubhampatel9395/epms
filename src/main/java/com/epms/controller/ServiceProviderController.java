@@ -181,6 +181,8 @@ public class ServiceProviderController {
 			completedEventWorkDTOs.sort(Comparator.comparing(ServiceProviderEventWorkDTO::getEndDate));
 			modelandmap.addObject("completedEventWorkDTOs", completedEventWorkDTOs);
 
+			modelandmap.addObject("upcomingEvents",
+					serviceProviderService.getUpcomingWeekEvents(currentUser.getServiceProviderId().longValue()));
 			return modelandmap;
 		}
 	}
@@ -409,9 +411,9 @@ public class ServiceProviderController {
 		rm.addFlashAttribute("fullname", serviceProviderDTO.getServiceProviderName());
 		return modelandmap;
 	}
-	
-	public BindingResult checkCustomerResultsEdit(@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO,
-			BindingResult userResult) {
+
+	public BindingResult checkCustomerResultsEdit(
+			@Valid @ModelAttribute("userDetailsDTO") UserDetailsDTO userDetailsDTO, BindingResult userResult) {
 		// Valid Email
 		final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$",
 				Pattern.CASE_INSENSITIVE);
@@ -496,8 +498,7 @@ public class ServiceProviderController {
 	@PostMapping("/update_serviceprovider")
 	public ModelAndView updateServiceProvider(
 			@Valid @ModelAttribute("serviceProviderDTO") ServiceProviderDTO serviceProviderDTO,
-			@Valid @ModelAttribute("userDetailsDTOEdit") UserDetailsDTO userDetailsDTO,
-			BindingResult userResult,
+			@Valid @ModelAttribute("userDetailsDTOEdit") UserDetailsDTO userDetailsDTO, BindingResult userResult,
 			@Valid @ModelAttribute("addressDTO") AddressDTO addressDTO) {
 		ModelAndView modelandmap = new ModelAndView("redirect:/serviceprovider/dashboard");
 
@@ -521,6 +522,7 @@ public class ServiceProviderController {
 			oldserviceProviderDTO.setMobileNumber(serviceProviderDTO.getMobileNumber());
 		}
 
+		/*
 		if (!(serviceProviderDTO.getServiceTypeId().equals(oldserviceProviderDTO.getServiceTypeId()))) {
 			oldserviceProviderDTO.setServiceTypeId(serviceProviderDTO.getServiceTypeId());
 		}
@@ -528,6 +530,7 @@ public class ServiceProviderController {
 		if (!(serviceProviderDTO.getCost().equals(oldserviceProviderDTO.getCost()))) {
 			oldserviceProviderDTO.setCost(serviceProviderDTO.getCost());
 		}
+		*/
 
 		if (!(addressDTO.getAddress1().equals(oldAddressDTO.getAddress1()))) {
 			oldAddressDTO.setAddress1(addressDTO.getAddress1());
@@ -552,10 +555,13 @@ public class ServiceProviderController {
 		if (!(addressDTO.getPostalCode().equals(oldAddressDTO.getPostalCode()))) {
 			oldAddressDTO.setPostalCode(addressDTO.getPostalCode());
 		}
-		
-		userResult = checkCustomerResultsEdit(oldserviceProviderDTO , userResult);
+
+		userResult = checkCustomerResultsEdit(oldserviceProviderDTO, userResult);
 		if (userResult.hasErrors() == true) {
 			modelandmap = new ModelAndView("serviceprovider/edit_serviceprovider");
+			
+			serviceProviderDTO.setServiceTypeId(oldserviceProviderDTO.getServiceTypeId());
+			serviceProviderDTO.setCost(oldserviceProviderDTO.getCost());
 			modelandmap.addObject("serviceProviderDTO", serviceProviderDTO);
 			modelandmap.addObject("userDetailsDTOEdit", userDetailsDTO);
 			modelandmap.addObject("serviceTypes", enuServiceTypeService.findAllActive());

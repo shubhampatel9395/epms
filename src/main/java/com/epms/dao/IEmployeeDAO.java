@@ -7,6 +7,7 @@ import com.epms.dto.AllServiceProvidersPackageDTO;
 import com.epms.dto.EmployeeDTO;
 import com.epms.dto.EmployeeEventWorkDTO;
 import com.epms.dto.EventOrganizerEventWorkDTO;
+import com.epms.dto.UpcomingWeekEventDTO;
 
 public interface IEmployeeDAO extends ICRUDRepository<EmployeeDTO, Long> {
 	public void activate(Long id);
@@ -21,4 +22,6 @@ public interface IEmployeeDAO extends ICRUDRepository<EmployeeDTO, Long> {
 	public List<AllServiceProvidersPackageDTO> getAllServiceProviderOnPackage(Long eventOrganizerId);
 	public EmployeeEventWorkDTO getEmployeeEventsDetails(long eventId, long employeeId);
 	public EventOrganizerEventWorkDTO getEventOrganizerEventDetails(long eventId, long eventOrganizerId);
+	public List<UpcomingWeekEventDTO> getUpcomingWeekEventsEmployees(Long employeeId);
+	public List<UpcomingWeekEventDTO> getUpcomingWeekEventsEventOrganizer(Long eventOrganizerId);
 }

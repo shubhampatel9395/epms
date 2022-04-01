@@ -13,6 +13,7 @@ import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.ServiceProviderEventWorkDTO;
 import com.epms.dto.ServiceProviderPackageDTO;
 import com.epms.dto.ShowFeedbackDTO;
+import com.epms.dto.UpcomingWeekEventDTO;
 import com.epms.service.IServiceProviderService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -119,5 +120,10 @@ public class ServiceProviderService implements IServiceProviderService {
 	@Override
 	public List<AllServiceProvidersPackageDTO> getAllServiceProvidersPackageDetails(Long serviceProviderId) {
 		return serviceProviderDAO.getAllServiceProvidersPackageDetails(serviceProviderId);
+	}
+
+	@Override
+	public List<UpcomingWeekEventDTO> getUpcomingWeekEvents(Long serviceProviderId) {
+		return serviceProviderDAO.getUpcomingWeekEvents(serviceProviderId);
 	}
 }

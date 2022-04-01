@@ -141,7 +141,7 @@ public class EmployeeController {
 
 	@Autowired
 	Environment env;
-	
+
 	@Autowired
 	IEventEmployeeMappingService eventEmployeeMappingService;
 
@@ -173,6 +173,8 @@ public class EmployeeController {
 				modelandmap.addObject("layoutTitle", "Employee");
 				modelandmap.addObject("completedEventWorkDTOs", completedEventWorkDTOs);
 				modelandmap.addObject("upcomingEventWorkDTOs", upcomingEventWorkDTOs);
+				modelandmap.addObject("upcomingEvents",
+						employeeService.getUpcomingWeekEventsEmployees(currentEmployee.getEmployeeId().longValue()));
 			}
 			if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EVENTORGANIZER")) {
 				employeeDashboardDTO.setParticipatedEventCount(employeeService
@@ -186,6 +188,8 @@ public class EmployeeController {
 				modelandmap.addObject("layoutTitle", "Event Organizer");
 				modelandmap.addObject("completedEventWorkDTOs", completedEventWorkDTOs);
 				modelandmap.addObject("upcomingEventWorkDTOs", upcomingEventWorkDTOs);
+				modelandmap.addObject("upcomingEvents", employeeService
+						.getUpcomingWeekEventsEventOrganizer(currentEmployee.getEmployeeId().longValue()));
 			}
 			modelandmap.addObject("layoutPage", "employee/_layout");
 			modelandmap.addObject("employeeDashboardDTO", employeeDashboardDTO);
@@ -218,7 +222,7 @@ public class EmployeeController {
 		modelandmap.addObject("layoutPage", "employee/_layout");
 		return modelandmap;
 	}
-	
+
 	@GetMapping("/edit_work_details/{eventId}")
 	public ModelAndView editWorkDetails(@PathVariable Long eventId) {
 		// ModelAndView modelandmap = new ModelAndView("employee/assigned-work");
@@ -229,7 +233,9 @@ public class EmployeeController {
 				new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
 
 		if (customUserDetailsDTO.getRole().equalsIgnoreCase("ROLE_EMPLOYEE")) {
-			EventEmployeeMappingDTO employee = DataAccessUtils.singleResult(eventEmployeeMappingService.findByNamedParameters(new MapSqlParameterSource().addValue("eventId", eventId).addValue("employeeId", currentEmployee.getEmployeeId())));
+			EventEmployeeMappingDTO employee = DataAccessUtils
+					.singleResult(eventEmployeeMappingService.findByNamedParameters(new MapSqlParameterSource()
+							.addValue("eventId", eventId).addValue("employeeId", currentEmployee.getEmployeeId())));
 
 			MapSqlParameterSource namedParams = new MapSqlParameterSource();
 			namedParams.addValue("employeeRoleId", employee.getEmployeeTypeId());
@@ -244,8 +250,8 @@ public class EmployeeController {
 			modelandmap.addObject("eventDTO", eventService.findById(employee.getEventId().longValue()));
 			modelandmap.addObject("employee", employee);
 			modelandmap.addObject("selectedEmployees", employees);
-			modelandmap.addObject("employeeRoles",
-					enuEmployeeRoleService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+			modelandmap.addObject("employeeRoles", enuEmployeeRoleService
+					.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 			modelandmap.addObject("workingStatuses", enuEmployeeWorkingStatusService
 					.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 			modelandmap.addObject("layoutTitle", "Employee");
@@ -256,7 +262,7 @@ public class EmployeeController {
 		modelandmap.addObject("layoutPage", "employee/_layout");
 		return modelandmap;
 	}
-	
+
 	@PostMapping("/edit_work_details")
 	public ModelAndView saveEditedEmployeeWorkDetails(@Valid @ModelAttribute("eventDTO") EventDTO eventDTO,
 			@Valid @ModelAttribute("employee") EventEmployeeMappingDTO eventEmployeeMappingDTO) {

@@ -230,6 +230,7 @@ public class AdminController {
 
 			modelandmap.addObject("activityDTOs", activityDTOs);
 			modelandmap.addObject("adminDashboardDTO", adminDashboardDTO);
+			modelandmap.addObject("upcomingEvents", eventService.getUpcomingWeekEvents());
 			return modelandmap;
 		}
 	}

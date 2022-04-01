@@ -9,6 +9,7 @@ import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.ServiceProviderEventWorkDTO;
 import com.epms.dto.ServiceProviderPackageDTO;
 import com.epms.dto.ShowFeedbackDTO;
+import com.epms.dto.UpcomingWeekEventDTO;
 
 public interface IServiceProviderService {
 	public List<ServiceProviderDTO> findAll();
@@ -30,4 +31,5 @@ public interface IServiceProviderService {
 	public List<ShowFeedbackDTO> getFeedbackDetails(Long serviceProviderId);
 	public List<ServiceProviderPackageDTO> getPackageDetails(Long serviceProviderId);
 	public List<AllServiceProvidersPackageDTO> getAllServiceProvidersPackageDetails(Long serviceProviderId);
+	public List<UpcomingWeekEventDTO> getUpcomingWeekEvents(Long serviceProviderId);
 }

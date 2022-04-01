@@ -13,6 +13,7 @@ import com.epms.dao.IEventDAO;
 import com.epms.dto.AssignedEmployeesInEventDTO;
 import com.epms.dto.EventDTO;
 import com.epms.dto.PackageDetailsDTO;
+import com.epms.dto.UpcomingWeekEventDTO;
 import com.epms.service.IEventService;
 
 import groovy.util.logging.Slf4j;
@@ -108,6 +109,11 @@ public class EventService implements IEventService {
 	@Override
 	public List<AssignedEmployeesInEventDTO> getAllAssignedEmployees(Long eventId) {
 		return eventDAO.getAllAssignedEmployees(eventId);
+	}
+
+	@Override
+	public List<UpcomingWeekEventDTO> getUpcomingWeekEvents() {
+		return eventDAO.getUpcomingWeekEvents();
 	}
 
 }
