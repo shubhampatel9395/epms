@@ -49,69 +49,12 @@
 		});
 
 		$.ajax({
-			url: "/create_order",
-			data: JSON.stringify({amount: '6000'}),
+			url: "/refund/pay_JFLQSSHtQBik0I",
 			dataType: 'json',
 			contentType: 'application/json',
-			type: 'POST',
+			type: 'GET',
 			success: function (response) {
 				console.log(response);
-
-				var options = {
-					"key": "rzp_test_IoPDrcNcQJRond",
-					"amount": response.amount,
-					"currency": "INR",
-					"name": "Unico",
-					"description": "Confirming Event",
-					"image": "/assets/images/logoFavicon.png",
-					"order_id": response.id,
-					"handler": function (response) {
-						// var sendData = JSON.stringify(response);
-						response["userDetailsId"] = 15;
-						// console.log(JSON.stringify(response));
-						$.ajax({
-							url: "/save_payment",
-							data: JSON.stringify(response),
-							dataType: 'json',
-							contentType: 'application/json',
-							type: 'POST',
-							success: function (response) {
-								window.location.replace("/home");
-							}
-						});
-						// alert(response.razorpay_payment_id);
-						// alert(response.razorpay_order_id);
-						// alert(response.razorpay_signature);
-					},
-					"prefill": {
-						"name": "Gaurav Kumar",
-						"email": "gaurav.kumar@example.com",
-						"contact": "8735889977"
-					},
-					"notes": {
-						"address": "Razorpay Corporate Office"
-					},
-					"theme": {
-						"color": "#3399cc"
-					}
-				};
-				var rzp1 = new Razorpay(options);
-				rzp1.on('payment.failed', function (response) {
-					alert(response.error.code);
-					alert(response.error.description);
-					alert(response.error.source);
-					alert(response.error.step);
-					alert(response.error.reason);
-					alert(response.error.metadata.order_id);
-					alert(response.error.metadata.payment_id);
-				});
-
-				rzp1.open();
-				e.preventDefault();
-			},
-			error: function (error) {
-				console.log(error);
-				alert("Error while creating order.");
 			}
 		});
 	}
