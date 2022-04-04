@@ -101,19 +101,14 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>com.paypal.sdk</groupId>
-			<artifactId>rest-api-sdk</artifactId>
-			<version>1.14.0</version>
-		</dependency>
-		<dependency>
 			<groupId>com.sun.mail</groupId>
 			<artifactId>javax.mail</artifactId>
 			<version>1.6.2</version>
 		</dependency>
 		<dependency>
-			<groupId>com.paytm</groupId>
-			<artifactId>paytm-checksum</artifactId>
-			<version>1.2.0</version>
+			<groupId>com.razorpay</groupId>
+			<artifactId>razorpay-java</artifactId>
+			<version>1.3.9</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

@@ -17,11 +17,12 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaytmDTO {
-	private String merchantId;
+	private String mid;
 	private String merchantKey;
 	private String channelId;
 	private String website;
 	private String industryTypeId;
 	private String paytmUrl;
+	private String callbackUrl;
 	private Map<String, String> details;
 }
