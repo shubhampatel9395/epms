@@ -72,6 +72,12 @@
 			overflow: hidden;
 		}
 
+		.avatar img {
+			vertical-align: baseline;
+			height: 32px;
+			width: 32px;
+		}
+
 		@media (min-width:992px) {
 			.navbar-custom .topnav-navbar .container-fluid {
 				display: none;
@@ -120,6 +126,13 @@
 				overflow: hidden;
 			}
 
+			.nav-user .account-position {
+				display: block;
+			}
+			
+			.nav-user {
+				padding: calc(31px * .5) 20px calc(31px * .5) 20px !important;
+			}
 		}
 	</style>
 
@@ -213,25 +226,33 @@
 										<a class="nav-link dropdown-toggle nav-user arrow-none me-0"
 											data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false"
 											aria-expanded="false">
-											<span th:if ="${userDetailsDTO}==null">
-												<span sec:authentication="principal.fullName"></span>
-												<span class="account-position">Customer</span>
+											<span class="avatar">
+												<img th:src="@{/assets/images/userp.png}" alt="user-image"
+													class="rounded-circle">
 											</span>
-												<span th:unless ="${userDetailsDTO}==null">
-												<span th:text="${userDetailsDTO.firstName}"></span>
-												<span class="account-position">Customer</span>
-											</span>
+											<div style="display: inline-block; padding-left: 0.5rem;">
+												<span th:if="${userDetailsDTO}==null">
+													<span sec:authentication="principal.fullName"></span>
+													<span class="account-position">Customer</span>
+												</span>
+												<span th:unless="${userDetailsDTO}==null">
+													<span th:text="${userDetailsDTO.firstName}"></span>
+													<span class="account-position">Customer</span>
+												</span>
+											</div>
 										</a>
 										<div class="dropdown-menu dropdown-menu-end dropdown-menu-animated topbar-dropdown-menu profile-dropdown"
 											style="min-width: 200px;">
 											<!-- item-->
-											<div class=" dropdown-header noti-title" th:if ="${userDetailsDTO==null}">
-												<h6  class="text-overflow m-0">Welcome <span
+											<div class=" dropdown-header noti-title" th:if="${userDetailsDTO==null}">
+												<h6 class="text-overflow m-0">Welcome <span
 														sec:authentication="principal.fullName"></span>!</h6>
 											</div>
-											<div class=" dropdown-header noti-title" th:unless ="${userDetailsDTO==null}">
-												<h6  class="text-overflow m-0">Welcome <span
-														th:text="|${userDetailsDTO.firstName}  ${userDetailsDTO.lastName}| "></span>!</h6>
+											<div class=" dropdown-header noti-title"
+												th:unless="${userDetailsDTO==null}">
+												<h6 class="text-overflow m-0">Welcome <span
+														th:text="|${userDetailsDTO.firstName} ${userDetailsDTO.lastName}| "></span>!
+												</h6>
 											</div>
 
 											<!-- item-->
