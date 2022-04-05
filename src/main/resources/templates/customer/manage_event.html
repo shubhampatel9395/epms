@@ -147,17 +147,16 @@
 														</div> <!-- end modal dialog-->
 													</div> <!-- end modal-->
 												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
 							</div>
-							</td>
-							</tr>
-							</tbody>
-							</table>
-						</div>
-					</div> <!-- end card-body-->
-				</div> <!-- end card-->
-			</div> <!-- end col -->
-		</div>
-		<!-- end row -->
+						</div> <!-- end card-body-->
+					</div> <!-- end card-->
+				</div> <!-- end col -->
+			</div>
+			<!-- end row -->
 
 		</div> <!-- container -->
 	</th:block>
@@ -177,6 +176,7 @@
 
 		<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 		<script type="text/javascript">
+			var canComplete = false;
 			$(document).ready(function () {
 				$('[id^="btnComplete"]').click(function (e) {
 					var token = $("meta[name='_csrf']").attr("content");
@@ -185,88 +185,96 @@
 						xhr.setRequestHeader(header, token);
 					});
 
-					var currentId = $(this).attr('id');
+					if (canComplete === false) {
+						var currentId = $(this).attr('id');
 
-					$.ajax({
-						async: false,
-						url: "/getEventDetails/" + $(this).attr('id').replace('btnComplete', ''),
-						dataType: 'json',
-						type: 'GET',
-						success: function (res) {
-							$.ajax({
-								async: false,
-								url: "/create_order",
-								data: JSON.stringify({amount: (res.totalCost) - 500}),
-								dataType: 'json',
-								contentType: 'application/json',
-								type: 'POST',
-								success: function (response) {
-									// console.log(response);
-									$('#staticBackdropComplete' + currentId.replace('btnComplete', '') + ' .close').click();
-									// $('body').removeClass('modal-open');
-									// $('.modal-backdrop').remove();
-									var options = {
-										"key": "rzp_test_IoPDrcNcQJRond",
-										"amount": response.amount,
-										"currency": "INR",
-										"name": "Unico",
-										"description": "Completing Event",
-										"image": "/assets/images/logoFavicon.png",
-										"order_id": response.id,
-										"handler": function (response) {
-											// var sendData = JSON.stringify(response);
-											response["userDetailsId"] = res.userDetailsId;
-											response["eventId"] = res.eventId;
-											// console.log(JSON.stringify(response));
-											$.ajax({
-												async: false,
-												url: "/save_complete_payment",
-												data: JSON.stringify(response),
-												dataType: 'json',
-												contentType: 'application/json',
-												type: 'POST',
-												success: function (response) {
-													return true;
-													// window.location.replace("/home");
-												}
-											});
-											// alert(response.razorpay_payment_id);
-											// alert(response.razorpay_order_id);
-											// alert(response.razorpay_signature);
-										},
-										"notes": {
-											"address": "Razorpay Corporate Office"
-										},
-										"theme": {
-											"color": "#3399cc"
-										}
-									};
-									var rzp1 = new Razorpay(options);
-									rzp1.on('payment.failed', function (response) {
+						$.ajax({
+							async: false,
+							url: "/getEventDetails/" + $(this).attr('id').replace('btnComplete', ''),
+							dataType: 'json',
+							type: 'GET',
+							success: function (res) {
+								$.ajax({
+									async: false,
+									url: "/create_order",
+									data: JSON.stringify({amount: (res.totalCost) - 500}),
+									dataType: 'json',
+									contentType: 'application/json',
+									type: 'POST',
+									success: function (response) {
+										// console.log(response);
+										$('#staticBackdropComplete' + currentId.replace('btnComplete', '') + ' .close').click();
+										$('body').css('overflow','visible');
+										var options = {
+											"key": "rzp_test_IoPDrcNcQJRond",
+											"amount": response.amount,
+											"currency": "INR",
+											"name": "Unico",
+											"description": "Completing Event",
+											"image": "/assets/images/logoFavicon.png",
+											"order_id": response.id,
+											"handler": function (response) {
+												// var sendData = JSON.stringify(response);
+												response["userDetailsId"] = res.userDetailsId;
+												response["eventId"] = res.eventId;
+												// console.log(JSON.stringify(response));
+												$.ajax({
+													async: false,
+													url: "/save_complete_payment",
+													data: JSON.stringify(response),
+													contentType: 'application/json',
+													type: 'POST',
+													success: function (response) {
+														canComplete = true;
+														console.log($('#' + currentId).attr('href'));
+														// window.location.href($('#' + currentId).attr('href'));
+														$('#' + currentId)[0].click();
+														// return true;
+														// window.location.replace("/home");
+													}
+												});
+												// alert(response.razorpay_payment_id);
+												// alert(response.razorpay_order_id);
+												// alert(response.razorpay_signature);
+											},
+											"notes": {
+												"address": "Razorpay Corporate Office"
+											},
+											"theme": {
+												"color": "#3399cc"
+											}
+										};
+										var rzp1 = new Razorpay(options);
+										rzp1.on('payment.failed', function (response) {
+											return false;
+											alert("Payment failed.\nPlease try again to complete the event.")
+											// alert(response.error.code);
+											// alert(response.error.description);
+											// alert(response.error.source);
+											// alert(response.error.step);
+											// alert(response.error.reason);
+											// alert(response.error.metadata.order_id);
+											// alert(response.error.metadata.payment_id);
+										});
+
+										rzp1.open();
+										e.preventDefault();
+									},
+									error: function (error) {
+										// console.log(error);
 										return false;
-										alert("Payment failed.\nPlease try again to complete the event.")
-										// alert(response.error.code);
-										// alert(response.error.description);
-										// alert(response.error.source);
-										// alert(response.error.step);
-										// alert(response.error.reason);
-										// alert(response.error.metadata.order_id);
-										// alert(response.error.metadata.payment_id);
-									});
-
-									rzp1.open();
-									e.preventDefault();
-								},
-								error: function (error) {
-									// console.log(error);
-									return false;
-									alert("Error while creating order.");
-								}
-							});
-						}, error: function (error) {
-							e.preventDefault();
-						}
-					});
+										alert("Error while creating order.");
+									}
+								});
+							}, error: function (error) {
+								alert("Error!!!");
+								return false;
+								e.preventDefault();
+							}
+						});
+					} else {
+						return true;
+					}
 				});
 			});
 		</script>
