@@ -45,7 +45,13 @@
 				<div class="col-12">
 					<div class="card">
 						<div class="card-body">
-							<form th:action="@{/add_event}" method="post" enctype="multipart/form-data">
+							<form id="formId" th:action="@{/add_event}" method="post" enctype="multipart/form-data">
+								<input type="hidden" id="payment_id" name="payment_id" value="0" />
+								<input type="hidden" id="userId" th:value="${user.userDetailsId}" />
+								<input type="hidden" id="userName" th:value="|${user.firstName} ${user.lastName}|" />
+								<input type="hidden" id="userEmail" th:value="${user.email}" />
+								<input type="hidden" id="userMobile" th:value="${user.mobileNumber}" />
+
 								<div>
 									<i class="mdi mdi-information-outline"
 										style="font-size: 24px;padding-right: 0.5rem;"></i>
@@ -294,6 +300,7 @@
 	</th:block>
 
 	<th:block layout:fragment="script">
+		<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 		<script type="text/javascript">
 			$("#profileImage").click(function (e) {
 				$("#imageUpload").click();
@@ -421,81 +428,167 @@
 				});
 			});
 
-			$("form").submit(function () {
-				var isValid = true;
-				$("#eventTypeError").css('display', 'none');
-				$("#startDateError").css('display', 'none');
-				$("#startTimeError").css('display', 'none');
-				$("#endDateError").css('display', 'none');
-				$("#endTimeError").css('display', 'none');
-				$("#errorDiv").css('display', 'none');
+			var canSubmit = false;
 
-				if ($("#inputEventType").find(":selected").val() === "-1") {
-					isValid = false;
-					$("#eventTypeError").css('display', 'block');
-					$("#eventTypeError").text('Please select event type.');
-				}
+			$("form").submit(function (e) {
+				if (canSubmit === false) {
+					var isValid = true;
+					$("#eventTypeError").css('display', 'none');
+					$("#startDateError").css('display', 'none');
+					$("#startTimeError").css('display', 'none');
+					$("#endDateError").css('display', 'none');
+					$("#endTimeError").css('display', 'none');
+					$("#errorDiv").css('display', 'none');
 
-				if (isNaN(Date.parse($("#startDate").val()))) {
-					isValid = false;
-					$("#startDateError").css('display', 'block');
-					$("#startDateError").text('Please enter valid start date.');
-				}
-
-				if (isNaN(Date.parse($("#endDate").val()))) {
-					isValid = false;
-					$("#endDateError").css('display', 'block');
-					$("#endDateError").text('Please enter valid start date.');
-				}
-
-				if ($("#startDate").val() > $("#endDate").val()) {
-					isValid = false;
-					$("#endDateError").css('display', 'block');
-					$("#endDateError").text('End date should be greater than start date.');
-				}
-				// console.log(new Date($("#startDate").val() + ' ' + $("#timepicker2").val()));
-
-				if ($("#startDate").val() === $("#endDate").val()) {
-					if (new Date($("#startDate").val() + ' ' + $("#timepicker2").val()) >= new Date($("#endDate").val() + ' ' + $("#timepicker3").val())) {
+					if ($("#inputEventType").find(":selected").val() === "-1") {
 						isValid = false;
-						$("#endTimeError").css('display', 'block');
-						$("#endTimeError").text('End time should be greater than start time.');
+						$("#eventTypeError").css('display', 'block');
+						$("#eventTypeError").text('Please select event type.');
 					}
-				}
 
-				if ($('input[type="radio"][name="isStatic"]:checked').val() === "true") {
-					if ($("#inputPackage").find(":selected").val() === "") {
-						$("#errorTxt").text("Please select package.");
-						$("#errorDiv").css('display', 'block');
-						return false;
+					if (isNaN(Date.parse($("#startDate").val()))) {
+						isValid = false;
+						$("#startDateError").css('display', 'block');
+						$("#startDateError").text('Please enter valid start date.');
 					}
-				}
 
-				if ($('input[type="radio"][name="isStatic"]:checked').val() === "false") {
-					if ($("#inputVenueType :selected").val() === "") {
-						$("#errorTxt").text("Please select venue type.");
-						$("#errorDiv").css('display', 'block');
-						return false;
+					if (isNaN(Date.parse($("#endDate").val()))) {
+						isValid = false;
+						$("#endDateError").css('display', 'block');
+						$("#endDateError").text('Please enter valid start date.');
 					}
-				}
 
-				// console.log(isValid);
-				if (isValid === false) {
-					return isValid;
-				}
+					if ($("#startDate").val() > $("#endDate").val()) {
+						isValid = false;
+						$("#endDateError").css('display', 'block');
+						$("#endDateError").text('End date should be greater than start date.');
+					}
+					// console.log(new Date($("#startDate").val() + ' ' + $("#timepicker2").val()));
 
-				// 1000 Advance Fixed
-				var messageConfirm = "You have to pay 1000 advance to confirm the event.\nDo you want to continue?";
-				var isDone = false;
-				$("#eventTotalCost").val(0);
-				if (confirm(messageConfirm) == true) {
-					isDone = true;
-				}
+					if ($("#startDate").val() === $("#endDate").val()) {
+						if (new Date($("#startDate").val() + ' ' + $("#timepicker2").val()) >= new Date($("#endDate").val() + ' ' + $("#timepicker3").val())) {
+							isValid = false;
+							$("#endTimeError").css('display', 'block');
+							$("#endTimeError").text('End time should be greater than start time.');
+						}
+					}
+
+					if ($('input[type="radio"][name="isStatic"]:checked').val() === "true") {
+						if ($("#inputPackage").find(":selected").val() === "") {
+							$("#errorTxt").text("Please select package.");
+							$("#errorDiv").css('display', 'block');
+							return false;
+						}
+					}
+
+					if ($('input[type="radio"][name="isStatic"]:checked').val() === "false") {
+						if ($("#inputVenueType :selected").val() === "") {
+							$("#errorTxt").text("Please select venue type.");
+							$("#errorDiv").css('display', 'block');
+							return false;
+						}
+					}
+
+					// console.log(isValid);
+					if (isValid === false) {
+						return isValid;
+					}
+
+					// 1000 Advance Fixed
+					var messageConfirm = "You have to pay 500 advance to confirm the event.\nDo you want to continue?";
+					var isDone = false;
+					$("#eventTotalCost").val(0);
+					if (confirm(messageConfirm) == true) {
+						$.ajax({
+							async: false,
+							url: "/create_order",
+							data: JSON.stringify({amount: '500'}),
+							dataType: 'json',
+							contentType: 'application/json',
+							type: 'POST',
+							success: function (response) {
+								console.log(response);
+
+								var options = {
+									"key": "rzp_test_IoPDrcNcQJRond",
+									"amount": response.amount,
+									"currency": "INR",
+									"name": "Unico",
+									"description": "Confirming Event",
+									"image": "/assets/images/logoFavicon.png",
+									"order_id": response.id,
+									"handler": function (response) {
+										// var sendData = JSON.stringify(response);
+										$("#payment_id").val(response.razorpay_payment_id);
+										response["userDetailsId"] = $("#userId").val();
+										// console.log(JSON.stringify(response));
+										$.ajax({
+											async: false,
+											url: "/save_payment",
+											data: JSON.stringify(response),
+											contentType: 'application/json',
+											type: 'POST',
+											success: function (response) {
+												// isDone = true;
+												// console.log("OK");
+												// return true;
+												canSubmit = true;
+												$("#formId").submit();
+												// window.location.replace("/home");
+											},
+											error: function (response) {
+												alert("Error!!!");
+											}
+										});
+										// $("#formId").submit();
+										// alert(response.razorpay_payment_id);
+										// alert(response.razorpay_order_id);
+										// alert(response.razorpay_signature);
+									},
+									"prefill": {
+										"name": $("#userName").val(),
+										"email": $("#userEmail").val(),
+										"contact": $("#userMobile").val()
+									},
+									"notes": {
+										"address": "Razorpay Corporate Office"
+									},
+									"theme": {
+										"color": "#3399cc"
+									}
+								}
+								var rzp1 = new Razorpay(options);
+								rzp1.on('payment.failed', function (response) {
+									isDone = false;
+									alert("Payment failed.\nPlease try again to confirm the event.")
+									// alert(response.error.code);
+									// alert(response.error.description);
+									// alert(response.error.source);
+									// alert(response.error.step);
+									// alert(response.error.reason);
+									// alert(response.error.metadata.order_id);
+									// alert(response.error.metadata.payment_id);
+								});
+
+								rzp1.open();
+								e.preventDefault();
+							},
+							error: function (error) {
+								console.log(error);
+								alert("Error while creating order.");
+							}
+						});
+						isDone = true;
+					}
+					else {
+						isDone = false;
+					}
+
+					return isDone;
+				} 
 				else {
-					isDone = false;
+					return true;
 				}
-
-				return isDone;
 			});
 		</script>
 

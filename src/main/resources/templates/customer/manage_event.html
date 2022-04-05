@@ -6,6 +6,8 @@
 	<!-- third party css -->
 	<link th:href="@{/assets/css/vendor/dataTables.bootstrap5.css}" rel="stylesheet" type="text/css" />
 	<link th:href="@{/assets/css/vendor/responsive.bootstrap5.css}" rel="stylesheet" type="text/css" />
+	<meta id="_csrf" name="_csrf" th:content="${_csrf.token}" />
+	<meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
 
 <body>
@@ -83,15 +85,17 @@
 																		aria-hidden="true"></button>
 																</div> <!-- end modal header -->
 																<div class="modal-body">
-																	You will be redirected to payment page. <br/>
+																	You will be redirected to payment page. <br />
 																	Are you sure you want to complete this event?
 																</div>
 																<div class="modal-footer">
-																	<button type="button" class="btn btn-secondary"
+																	<button type="button"
+																		class="close btn btn-secondary"
 																		data-bs-dismiss="modal">Close</button>
 																	<a type="button"
 																		th:href="@{'/customer/complete_event/' + ${event.eventId}}"
-																		class="btn btn-success">Complete</a>
+																		class="btn btn-success"
+																		th:id="'btnComplete' + ${event.eventId}">Complete</a>
 																</div> <!-- end modal footer -->
 															</div> <!-- end modal content-->
 														</div> <!-- end modal dialog-->
@@ -99,10 +103,10 @@
 												</div>
 
 												<a th:if="${event.isActive} and ${eventStatuses[eventStat.index] == 'Completed'}"
-													th:href="@{'/view_bill/' + ${event.eventId}}"
-													class="action-icon"><i class="mdi mdi-receipt"></i></a>
-													
-													<a th:if="${event.isActive} and ${eventStatuses[eventStat.index] == 'Completed'}"
+													th:href="@{'/view_bill/' + ${event.eventId}}" class="action-icon"><i
+														class="mdi mdi-receipt"></i></a>
+
+												<a th:if="${event.isActive} and ${eventStatuses[eventStat.index] == 'Completed'}"
 													th:href="@{'/customer/feedback/' + ${event.eventId}}"
 													class="action-icon"><i class="mdi mdi-star-face"></i></a>
 
@@ -170,6 +174,102 @@
 		<!-- demo app -->
 		<script th:src="@{/assets/js/pages/demo.datatable-init.js}"></script>
 		<!-- end demo js-->
+
+		<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function () {
+				$('[id^="btnComplete"]').click(function (e) {
+					var token = $("meta[name='_csrf']").attr("content");
+					var header = $("meta[name='_csrf_header']").attr("content");
+					$(document).ajaxSend(function (e, xhr, options) {
+						xhr.setRequestHeader(header, token);
+					});
+
+					var currentId = $(this).attr('id');
+
+					$.ajax({
+						async: false,
+						url: "/getEventDetails/" + $(this).attr('id').replace('btnComplete', ''),
+						dataType: 'json',
+						type: 'GET',
+						success: function (res) {
+							$.ajax({
+								async: false,
+								url: "/create_order",
+								data: JSON.stringify({amount: (res.totalCost) - 500}),
+								dataType: 'json',
+								contentType: 'application/json',
+								type: 'POST',
+								success: function (response) {
+									// console.log(response);
+									$('#staticBackdropComplete' + currentId.replace('btnComplete', '') + ' .close').click();
+									// $('body').removeClass('modal-open');
+									// $('.modal-backdrop').remove();
+									var options = {
+										"key": "rzp_test_IoPDrcNcQJRond",
+										"amount": response.amount,
+										"currency": "INR",
+										"name": "Unico",
+										"description": "Completing Event",
+										"image": "/assets/images/logoFavicon.png",
+										"order_id": response.id,
+										"handler": function (response) {
+											// var sendData = JSON.stringify(response);
+											response["userDetailsId"] = res.userDetailsId;
+											response["eventId"] = res.eventId;
+											// console.log(JSON.stringify(response));
+											$.ajax({
+												async: false,
+												url: "/save_complete_payment",
+												data: JSON.stringify(response),
+												dataType: 'json',
+												contentType: 'application/json',
+												type: 'POST',
+												success: function (response) {
+													return true;
+													// window.location.replace("/home");
+												}
+											});
+											// alert(response.razorpay_payment_id);
+											// alert(response.razorpay_order_id);
+											// alert(response.razorpay_signature);
+										},
+										"notes": {
+											"address": "Razorpay Corporate Office"
+										},
+										"theme": {
+											"color": "#3399cc"
+										}
+									};
+									var rzp1 = new Razorpay(options);
+									rzp1.on('payment.failed', function (response) {
+										return false;
+										alert("Payment failed.\nPlease try again to complete the event.")
+										// alert(response.error.code);
+										// alert(response.error.description);
+										// alert(response.error.source);
+										// alert(response.error.step);
+										// alert(response.error.reason);
+										// alert(response.error.metadata.order_id);
+										// alert(response.error.metadata.payment_id);
+									});
+
+									rzp1.open();
+									e.preventDefault();
+								},
+								error: function (error) {
+									// console.log(error);
+									return false;
+									alert("Error while creating order.");
+								}
+							});
+						}, error: function (error) {
+							e.preventDefault();
+						}
+					});
+				});
+			});
+		</script>
 	</th:block>
 </body>
 

@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 import com.epms.dto.AddressDTO;
-import com.epms.dto.UserDetailsDTO;
 
 public interface IAddressService {
 	public List<AddressDTO> findAll();

@@ -5,6 +5,7 @@ import java.sql.Blob;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 import javax.sql.rowset.serial.SerialBlob;
 import javax.validation.Valid;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.support.DataAccessUtils;
@@ -54,6 +56,7 @@ import com.epms.dto.InvoiceServiceProviderDTO;
 import com.epms.dto.PackageDetailsDTO;
 import com.epms.dto.PackageServiceProviderMappingDTO;
 import com.epms.dto.PackageTempDTO;
+import com.epms.dto.PaymentDTO;
 import com.epms.dto.ServiceProviderDTO;
 import com.epms.dto.UserDetailsDTO;
 import com.epms.dto.VenueDTO;
@@ -82,12 +85,15 @@ import com.epms.service.IFeedbackService;
 import com.epms.service.IInvoiceService;
 import com.epms.service.IPackageDetailsService;
 import com.epms.service.IPackageServiceProviderMappingService;
+import com.epms.service.IPaymentService;
 import com.epms.service.IServiceProviderService;
 import com.epms.service.IUserDetailsService;
 import com.epms.service.IVenueEventTypeMappingService;
 import com.epms.service.IVenueFacilityMappingService;
 import com.epms.service.IVenueImageMappingService;
 import com.epms.service.IVenueService;
+import com.razorpay.Payment;
+import com.razorpay.RazorpayClient;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -186,6 +192,9 @@ public class EventController {
 
 	@Autowired
 	IFeedbackService feedbackService;
+
+	@Autowired
+	IPaymentService paymentService;
 
 	@GetMapping("/admin/list-event")
 	public ModelAndView listEvent() {
@@ -501,6 +510,11 @@ public class EventController {
 				enuEventTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
 		modelandmap.addObject("venueTypes",
 				enuVenueTypeService.findByNamedParameters(new MapSqlParameterSource().addValue("isActive", true)));
+
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		modelandmap.addObject("user", userDetailsService.findById(customUserDetailsDTO.getUserDetailsId().longValue()));
+
 		return modelandmap;
 	}
 
@@ -508,7 +522,7 @@ public class EventController {
 	public ModelAndView saveCustomerEvent(@Valid @ModelAttribute("eventDTO") EventDTO eventDTO,
 			@Valid @ModelAttribute("packageDetailsDTO") PackageDetailsDTO packageDetailsDTO,
 			@Valid @ModelAttribute("serviceIds") CustomerCreateEventTempDTO serviceIds,
-			@RequestParam("banner") MultipartFile banner) {
+			@RequestParam("banner") MultipartFile banner, @RequestParam("payment_id") String payment_id) {
 		System.out.println(serviceIds.getServiceTypeIds());
 		ModelAndView modelandmap = new ModelAndView("redirect:/customer/index");
 		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
@@ -548,6 +562,8 @@ public class EventController {
 			}
 			eventBannerService.insert(obj);
 		}
+
+		paymentService.addEventId(payment_id, newEventDTO.getEventId().longValue());
 
 		Mail mail = new Mail();
 		mail.setMailTo(userDetailsService.findById(customUserDetailsDTO.getUserDetailsId().longValue()).getEmail());
@@ -1458,8 +1474,20 @@ public class EventController {
 		return modelandmap;
 	}
 
+	public void refund(EventDTO eventDTO) throws Exception {
+		RazorpayClient razorpayClient = new RazorpayClient("rzp_test_IoPDrcNcQJRond", "32vpdmrOBsG0eimt2PqQzCnV");
+		PaymentDTO paymentDTO = DataAccessUtils.singleResult(paymentService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("eventId", eventDTO.getEventId())
+						.addValue("userDetailsId", eventDTO.getUserDetailsId())));
+		JSONObject options = new JSONObject();
+		options.put("payment_id", paymentDTO.getPaymentId());
+		options.put("amount", 100 * paymentDTO.getAmount());
+		options.put("speed", "optimum");
+		razorpayClient.Refunds.create(options);
+	}
+
 	@GetMapping("/customer/delete_event/{eventId}")
-	public ModelAndView deleteEventByCustomer(@PathVariable("eventId") long eventId) {
+	public ModelAndView deleteEventByCustomer(@PathVariable("eventId") long eventId) throws Exception {
 		ModelAndView modelandmap = new ModelAndView("redirect:/customer/manage-events");
 		PackageDetailsDTO packageDetailsDTO = packageDetailsService
 				.findById(eventService.findById(eventId).getPackageId().longValue());
@@ -1477,15 +1505,31 @@ public class EventController {
 		eventBannerService.delete(eventId);
 
 		EventDTO eventDTO = eventService.findById(eventId);
+		refund(eventDTO);
+
 		Mail mail = new Mail();
 		mail.setMailTo(userDetailsService.findById(eventDTO.getUserDetailsId().longValue()).getEmail());
 		mail.setMailSubject("Event Deleted");
 		mail.setContentType("text/html");
 		String content = "<p>Your event <strong>" + eventDTO.getEventTitle() + " - " + eventDTO.getObjective()
 				+ "</strong> on Unico - Event Planning and Management website has been removed by you.</p>"
+				+ "<p>Refund while confirming the event is processed.</p>"
 				+ "<p>We apologize for the inconvenience we caused you.</p>";
 		mail.setMailContent(content);
 		mailService.sendEmail(mail);
+
+		RazorpayClient razorpayClient = new RazorpayClient("rzp_test_IoPDrcNcQJRond", "32vpdmrOBsG0eimt2PqQzCnV");
+		PaymentDTO paymentDTO = DataAccessUtils.singleResult(paymentService
+				.findByNamedParameters(new MapSqlParameterSource().addValue("eventId", eventDTO.getEventId())
+						.addValue("userDetailsId", eventDTO.getUserDetailsId())));
+		Payment payment = razorpayClient.Payments.fetch(paymentDTO.getPaymentId());
+		PaymentDTO newPaymentDTO = new PaymentDTO();
+		newPaymentDTO.setPaymentId(paymentDTO.getPaymentId());
+		newPaymentDTO.setDescription("Refund Processed");
+		newPaymentDTO.setStatus(payment.get("status"));
+		newPaymentDTO.setRefundStatus(payment.get("refund_status"));
+		newPaymentDTO.setCreatedAt((Date) payment.get("created_at"));
+		paymentService.refund(newPaymentDTO);
 
 		// event isActive False
 		// if dynamic Pacakge set isactive false && packageserviceprovidermapping set
