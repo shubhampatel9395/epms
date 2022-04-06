@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import com.epms.dao.IPaymentDAO;
 import com.epms.dto.PaymentDTO;
+import com.epms.dto.PaymentDetailsDTO;
 
 import groovy.util.logging.Slf4j;
 
@@ -120,5 +122,27 @@ public class PaymentDAO implements IPaymentDAO {
 		jdbcTemplate.update(
 				"update payment set description=:description,status=:status,refundStatus=:refundStatus,createdAt=:createdAt where paymentId=:paymentId",
 				parameterSource);
+	}
+
+	@Override
+	public List<PaymentDetailsDTO> getAllPaymentDetails() {
+		return jdbcTemplate.query(
+				"SELECT p.paymentId,p.orderId,concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber,p.eventId,\r\n"
+						+ "p.method,p.amount,p.description,p.status,p.refundStatus,p.createdAt\r\n"
+						+ "from payment p\r\n" + "INNER JOIN userdetails u ON p.userDetailsId=u.userDetailsId\r\n"
+						+ "ORDER BY p.createdAt",
+				new BeanPropertyRowMapper<PaymentDetailsDTO>(PaymentDetailsDTO.class));
+	}
+
+	@Override
+	public PaymentDetailsDTO getPaymentDetails(String paymentId) {
+		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+		parameterSource.addValue("paymentId", paymentId);
+		return DataAccessUtils.singleResult(jdbcTemplate.query(
+				"SELECT p.paymentId,p.orderId,concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber,p.eventId,\r\n"
+						+ "p.method,p.amount,p.description,p.status,p.refundStatus,p.createdAt\r\n"
+						+ "from payment p\r\n" + "INNER JOIN userdetails u ON p.userDetailsId=u.userDetailsId\r\n"
+						+ "WHERE p.paymentId=:paymentId\r\n" + "ORDER BY p.createdAt",
+				parameterSource, new BeanPropertyRowMapper<PaymentDetailsDTO>(PaymentDetailsDTO.class)));
 	}
 }

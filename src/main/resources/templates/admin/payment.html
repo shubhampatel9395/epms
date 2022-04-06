@@ -17,10 +17,12 @@
 			<div class="row">
 				<div class="col-12">
 					<div class="page-title-box">
+						<!--
 						<div class="page-title-right">
 							<a href="#" class="btn btn-danger mb-2"><i
 									class="mdi mdi-plus-circle me-2"></i> Create Payment</a>
 						</div>
+						-->
 						<h4 class="page-title">Payments</h4>
 					</div>
 				</div>
@@ -31,12 +33,45 @@
 				<div class="col-12">
 					<div class="card">
 						<div class="card-body">
-							Payments List
+							<div class="table-responsive">
+								<table id="basic-datatable" class="table dt-responsive nowrap w-100">
+									<thead>
+										<tr>
+											<th>Payment Id</th>
+											<th>Order Id</th>
+											<th>Customer</th>
+											<th>Description</th>
+											<th>Status</th>
+											<th>Amount</th>
+											<th style="width: 85px;">Action</th>
+										</tr>
+									</thead>
+
+									<tbody>
+										<tr th:each="payment : ${payments}">
+											<td th:text="${payment.paymentId}"></td>
+											<td th:text="${payment.orderId}"></td>
+											<td th:text="${payment.customerName}"></td>
+											<td th:text="${payment.description}"></td>
+											<td th:if="${#strings.equalsIgnoreCase(payment.status,'refunded')}">
+												<span class="badge bg-danger" th:text="${payment.status}"></span>
+											</td>
+											<td th:if="${#strings.equalsIgnoreCase(payment.status,'captured')}">
+												<span class="badge bg-success" th:text="${payment.status}"></span>
+											</td>
+											<td th:text="${payment.amount}"></td>
+											<td class="table-action">
+												<a th:href="@{'/admin/view_payment/' + ${payment.paymentId}}"
+													class="action-icon"> <i class="mdi mdi-eye"></i></a>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
 						</div> <!-- end card-body-->
 					</div> <!-- end card-->
 				</div> <!-- end col -->
 			</div>
-			<!-- end row -->
 
 		</div> <!-- container -->
 	</th:block>

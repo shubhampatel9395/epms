@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.epms.dao.IAddressDAO;
 import com.epms.dao.IPaymentDAO;
 import com.epms.dto.PaymentDTO;
+import com.epms.dto.PaymentDetailsDTO;
 import com.epms.service.IPaymentService;
 
 import groovy.util.logging.Slf4j;
@@ -70,6 +71,16 @@ public class PaymentService implements IPaymentService {
 	@Override
 	public void refund(PaymentDTO paymentDTO) {
 		paymentDAO.refund(paymentDTO);
+	}
+
+	@Override
+	public List<PaymentDetailsDTO> getAllPaymentDetails() {
+		return paymentDAO.getAllPaymentDetails();
+	}
+
+	@Override
+	public PaymentDetailsDTO getPaymentDetails(String paymentId) {
+		return paymentDAO.getPaymentDetails(paymentId);
 	}
 
 }

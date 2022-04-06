@@ -1466,7 +1466,7 @@ public class EventController {
 		String content = "<p>Your event <strong>" + eventDTO.getEventTitle() + " - " + eventDTO.getObjective()
 				+ "</strong> on Unico - Event Planning and Management website has been completed.</p>"
 				+ "<p>We apologize for the inconvenience we caused you at any stage of event planning.</p>"
-				+ "<p>You can provide your invaluable feedback at the website.</p>"
+				+ "<p>You can see the bill and can also provide your invaluable feedback at the website.</p>"
 				+ "<p>Hoping to meet you again on the next event organized by us.</p>";
 		mail.setMailContent(content);
 		mailService.sendEmail(mail);
@@ -1513,7 +1513,7 @@ public class EventController {
 		mail.setContentType("text/html");
 		String content = "<p>Your event <strong>" + eventDTO.getEventTitle() + " - " + eventDTO.getObjective()
 				+ "</strong> on Unico - Event Planning and Management website has been removed by you.</p>"
-				+ "<p>Refund while confirming the event is processed.</p>"
+				+ "<p>Refund of amount 500 while confirming the event is processed.</p>"
 				+ "<p>We apologize for the inconvenience we caused you.</p>";
 		mail.setMailContent(content);
 		mailService.sendEmail(mail);

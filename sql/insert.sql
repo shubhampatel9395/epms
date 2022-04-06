@@ -443,7 +443,7 @@ join venue v on p.venueId = v.venueId
 join enueventtype et on et.eventTypeId = e.eventTypeId
 join userdetails u on u.userDetailsId= e.userDetailsId
 join employee emp on emp.employeeId=e.eventOrganizerId
-where e.eventStatusId=(SELECT statusId from enueventstatus where status='Completed') and e.isActive=true and em.employeeId=15 and em.isActive=true ORDER BY e.endDate DESC;
+where e.eventStatusId=(SELECT statusId from enueventstatus where status='Completed') and e.isActive=true and em.employeeId=5 and em.isActive=true ORDER BY e.endDate DESC;
 
 -- Event Organizer Upcoming Event Details
 SELECT e.eventId,e.eventTitle,e.objective,(SELECT bannerId from eventbanner where e.eventId=eventId and isActive=true) as bannerId,et.eventType,e.startDate,e.startTime,e.endDate,e.endTime,e.isPublic,e.isFree,e.updatedAt,
@@ -461,12 +461,12 @@ join employee emp on emp.employeeId=e.eventOrganizerId
 where e.eventStatusId=(SELECT statusId from enueventstatus where status='Verified') and e.isActive=true and e.eventOrganizerId=1 ORDER BY e.startDate;
 
 -- Event Organizer Completed Event Details
-SELECT e.eventId,e.eventTitle,e.objective,(SELECT bannerId from eventbanner where e.eventId=eventId and isActive=true) as bannerId,et.eventType,e.startDate,e.startTime,e.endDate,e.endTime,e.isPublic,e.isFree,e.updatedAt,
+SELECT e.eventId,e.eventTitle,e.objective,(SELECT bannerId from eventbanner where e.eventId=eventId and isActive=true) as bannerId,et.eventType,e.startDate,e.startTime,e.endDate,e.endTime,e.isPublic,e.updatedAt,
 concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber,
 (SELECT concat(firstName,' ',lastName) from userDetails where userDetailsId=emp.userDetailsId) as eventOrganizerName,
 (SELECT email from userDetails where userDetailsId=emp.userDetailsId) as eventOrganizerEmail,
 (SELECT mobileNumber from userDetails where userDetailsId=emp.userDetailsId) as eventOrganizerMobileNumber,
-v.venueName,v.addressId,v.email as venueEmail,v.contactNumber
+v.venueName,v.addressId,v.email as venueEmail,v.contactNumber,e.isFree,e.packageId
 from event e
 join packagedetails p on e.packageId=p.packageDetailsId
 join venue v on p.venueId = v.venueId
@@ -487,3 +487,101 @@ where p.packageDetailsId IN (SELECT e.packageId
 from event e
 join packagedetails p on e.packageId=p.packageDetailsId
 where e.eventOrganizerId=3);
+
+-- Employee Any Event Details
+SELECT e.eventId,e.eventTitle,e.objective,(SELECT bannerId from eventbanner where e.eventId=eventId and isActive=true) as bannerId,et.eventType,e.startDate,e.startTime,e.endDate,e.endTime,e.isPublic,e.isFree,e.updatedAt,
+concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber,
+(SELECT concat(firstName,' ',lastName) from userDetails where userDetailsId=emp.userDetailsId) as eventOrganizerName,
+(SELECT email from userDetails where userDetailsId=emp.userDetailsId) as eventOrganizerEmail,
+(SELECT mobileNumber from userDetails where userDetailsId=emp.userDetailsId) as eventOrganizerMobileNumber,
+v.venueName,v.addressId,v.email as venueEmail,v.contactNumber,em.workDescription,emws.status
+from event e
+join packagedetails p on e.packageId=p.packageDetailsId
+join eventemployeemapping em on em.eventId=e.eventId
+join enuemployeeworkingstatus emws on emws.statusId=em.statusId
+join venue v on p.venueId = v.venueId
+join enueventtype et on et.eventTypeId = e.eventTypeId
+join userdetails u on u.userDetailsId= e.userDetailsId
+join employee emp on emp.employeeId=e.eventOrganizerId
+where e.isActive=true and em.employeeId=8 and e.eventId=11 and em.isActive=true;
+
+-- Event Organizer Any Event Details
+SELECT e.eventId,e.eventTitle,e.objective,(SELECT bannerId from eventbanner where e.eventId=eventId and isActive=true) as bannerId,et.eventType,e.startDate,e.startTime,e.endDate,e.endTime,e.isPublic,e.updatedAt,
+concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber,
+(SELECT concat(firstName,' ',lastName) from userDetails where userDetailsId=emp.userDetailsId) as eventOrganizerName,
+(SELECT email from userDetails where userDetailsId=emp.userDetailsId) as eventOrganizerEmail,
+(SELECT mobileNumber from userDetails where userDetailsId=emp.userDetailsId) as eventOrganizerMobileNumber,
+v.venueName,v.addressId,v.email as venueEmail,v.contactNumber,e.isFree,e.packageId
+from event e
+join packagedetails p on e.packageId=p.packageDetailsId
+join venue v on p.venueId = v.venueId
+join enueventtype et on et.eventTypeId = e.eventTypeId
+join userdetails u on u.userDetailsId= e.userDetailsId
+join employee emp on emp.employeeId=e.eventOrganizerId
+where e.isActive=true and e.eventOrganizerId=3 and e.eventId=9;
+
+-- All Assigned Employees Details
+SELECT em.eventEmployeemappingId,concat(u.firstName,' ',u.lastName) as employeeName,er.role as employeeRole,u.email,u.mobileNumber,em.workDescription,emws.status as workingStatus from event e
+join eventemployeemapping em on em.eventId=e.eventId
+join enuemployeeworkingstatus emws on emws.statusId=em.statusId
+join employee emp on emp.employeeId=em.employeeId
+join enuemployeerole er on emp.employeeRoleId=er.employeeRoleId
+join userdetails u on emp.userDetailsId=u.userDetailsId
+where e.isActive=true and e.eventId=5 and em.isActive=true;
+
+select DATE(NOW());
+select TIME(NOW());
+
+-- Service Provider Next Week's Events
+SELECT e.eventId,e.eventTitle,e.startDate,e.startTime,concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber
+from event e
+join packagedetails p on e.packageId=p.packageDetailsId
+join packageserviceprovidermapping m on p.packageDetailsId=m.packageId
+join userdetails u on u.userDetailsId= e.userDetailsId
+where e.isActive=true and e.eventStatusId=(SELECT statusId from enueventstatus where status='Verified') 
+and m.serviceProviderId=1
+and e.startDate BETWEEN DATE(NOW()) AND DATE(NOW()) + INTERVAL 6 DAY and e.startTime >= TIME(NOW()) ORDER BY e.startDate;
+
+-- Admin Next Week's Events
+SELECT e.eventId,e.eventTitle,e.startDate,e.startTime,concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber
+from event e
+join userdetails u on u.userDetailsId= e.userDetailsId
+where e.isActive=true and e.eventStatusId=(SELECT statusId from enueventstatus where status='Verified')
+and e.startDate BETWEEN DATE(NOW()) AND DATE(NOW()) + INTERVAL 6 DAY and IF(e.startDate <=> e.endDate <=> DATE(NOW()), e.startTime >= TIME(NOW()), true)  ORDER BY e.startDate;
+
+-- Employee Next Week's Events
+SELECT e.eventId,e.eventTitle,e.startDate,e.startTime,concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber
+from event e
+join packagedetails p on e.packageId=p.packageDetailsId
+join eventemployeemapping em on em.eventId=e.eventId
+join enuemployeeworkingstatus emws on emws.statusId=em.statusId
+join userdetails u on u.userDetailsId= e.userDetailsId
+join employee emp on emp.employeeId=e.eventOrganizerId
+where e.isActive=true and e.eventStatusId=(SELECT statusId from enueventstatus where status='Verified') and em.isActive=true 
+and em.employeeId=15 
+and e.startDate BETWEEN DATE(NOW()) AND DATE(NOW()) + INTERVAL 6 DAY and IF(e.startDate <=> e.endDate <=> DATE(NOW()), e.startTime >= TIME(NOW()), true) ORDER BY e.startDate;
+
+-- EO Next Week's Events
+SELECT e.eventId,e.eventTitle,e.startDate,e.startTime,concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber
+from event e
+join userdetails u on u.userDetailsId= e.userDetailsId
+join employee emp on emp.employeeId=e.eventOrganizerId
+where e.eventStatusId=(SELECT statusId from enueventstatus where status='Verified') and e.isActive=true 
+and e.eventOrganizerId=3
+and e.startDate BETWEEN DATE(NOW()) AND DATE(NOW()) + INTERVAL 6 DAY and IF(e.startDate <=> e.endDate <=> DATE(NOW()), e.startTime >= TIME(NOW()), true) 
+ORDER BY e.startDate;
+
+-- Payment Details
+SELECT p.paymentId,p.orderId,concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber,p.eventId,
+p.method,p.amount,p.description,p.status,p.refundStatus,p.createdAt
+from payment p
+INNER JOIN userdetails u ON p.userDetailsId=u.userDetailsId
+ORDER BY p.createdAt;
+
+-- Particular Payment Details
+SELECT p.paymentId,p.orderId,concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber,p.eventId,
+p.method,p.amount,p.description,p.status,p.refundStatus,p.createdAt
+from payment p
+INNER JOIN userdetails u ON p.userDetailsId=u.userDetailsId
+WHERE p.paymentId='pay_JG4UDc9uX0h4EH'
+ORDER BY p.createdAt;

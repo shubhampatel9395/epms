@@ -19,6 +19,23 @@
 	<link th:href="@{/assets/css/app.min.css}" rel="stylesheet" type="text/css" id="light-style" />
 	<link th:href="@{/assets/css/app-dark.min.css}" rel="stylesheet" type="text/css" id="dark-style" />
 
+	<style>
+		.avatar img {
+			vertical-align: baseline;
+			height: 32px;
+			width: 32px;
+		}
+		
+		@media (max-width:991.98px) {
+			.nav-user .account-position {
+				display: block;
+			}
+
+			.nav-user {
+				padding: calc(31px * .5) 20px calc(31px * .5) 20px !important;
+			}
+		}
+	</style>
 </head>
 
 <body class="loading"
@@ -133,10 +150,15 @@
 						<li class="dropdown notification-list">
 							<a class="nav-link dropdown-toggle nav-user arrow-none me-0" data-bs-toggle="dropdown"
 								href="#" role="button" aria-haspopup="false" aria-expanded="false">
-								<span>
-									<span sec:authentication="principal.fullName"></span>
-									<span class="account-position" th:text="${layoutTitle}"></span>
+								<span class="avatar">
+									<img th:src="@{/assets/images/userp.png}" alt="user-image" class="rounded-circle">
 								</span>
+								<div style="display: inline-block; padding-left: 0.5rem;">
+									<span>
+										<span sec:authentication="principal.fullName"></span>
+										<span class="account-position" th:text="${layoutTitle}"></span>
+									</span>
+								</div>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end dropdown-menu-animated topbar-dropdown-menu profile-dropdown"
 								style="min-width: 200px;">

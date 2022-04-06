@@ -1,0 +1,83 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/_layout}">
+
+<head>
+	<title>Payment Details</title>
+	<style>
+		.page-title-box .page-title-right {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<!-- Start Content-->
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="page-title-box">
+						<div class="page-title-right">
+							<a th:href="@{/admin/list-payment}" class="btn btn-secondary mb-2">Back</a>
+						</div>
+						<h4 class="page-title">Payment Details</h4>
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="card">
+						<div class="card-body">
+							<dl class="row mb-0">
+								<dt class="col-sm-3">Payment Id</dt>
+								<dd class="col-sm-9" th:text="${payment.paymentId}"></dd>
+
+								<dt class="col-sm-3">Order Id</dt>
+								<dd class="col-sm-9" th:text="${payment.orderId}"></dd>
+
+								<dt class="col-sm-3">Method</dt>
+								<dd class="col-sm-9" th:text="${payment.method}"></dd>
+
+								<dt class="col-sm-3">Description</dt>
+								<dd class="col-sm-9" th:text="${payment.description}"></dd>
+
+								<dt class="col-sm-3">Amount</dt>
+								<dd class="col-sm-9" th:text="${payment.amount}"></dd>
+
+								<dt class="col-sm-3">Payment Status</dt>
+								<dd class="col-sm-9" th:text="${payment.status}"></dd>
+
+								<dt class="col-sm-3">Created At</dt>
+								<dd class="col-sm-9" th:text="${payment.createdAt}"></dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="page-title-box">
+				<h4 class="page-title"> Customer Details</h4>
+			</div>
+			<div class="col-12">
+				<div class="card">
+					<div class="card-body">
+						<dl class="row mb-0">
+							<dt class="col-sm-3">Name</dt>
+							<dd class="col-sm-9" th:utext="${payment.customerName}"></dd>
+
+							<dt class="col-sm-3">Email Address</dt>
+							<dd class="col-sm-9" th:utext="${payment.email}"></dd>
+
+							<dt class="col-sm-3">Mobile Number</dt>
+							<dd class="col-sm-9" th:utext="${payment.mobileNumber}"></dd>
+						</dl>
+					</div>
+				</div>
+			</div>
+
+		</div> <!-- container -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+	</th:block>
+</body>
+
+</html>

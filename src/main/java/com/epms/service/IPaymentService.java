@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 import com.epms.dto.PaymentDTO;
+import com.epms.dto.PaymentDetailsDTO;
 
 public interface IPaymentService {
 	public List<PaymentDTO> findAll();
@@ -17,4 +18,6 @@ public interface IPaymentService {
 	public PaymentDTO update(PaymentDTO entity);
 	public void addEventId(String payment_id, Long eventId);
 	public void refund(PaymentDTO paymentDTO);
+	public List<PaymentDetailsDTO> getAllPaymentDetails();
+	public PaymentDetailsDTO getPaymentDetails(String paymentId);
 }

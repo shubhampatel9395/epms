@@ -83,6 +83,7 @@ import com.epms.service.IEventBannerService;
 import com.epms.service.IEventService;
 import com.epms.service.IPackageDetailsService;
 import com.epms.service.IPackageServiceProviderMappingService;
+import com.epms.service.IPaymentService;
 import com.epms.service.IServiceProviderService;
 import com.epms.service.IUserDetailsService;
 import com.epms.service.IVenueEventTypeMappingService;
@@ -173,6 +174,9 @@ public class AdminController {
 
 	@Autowired
 	Environment env;
+	
+	@Autowired
+	IPaymentService paymentService;
 
 	public String getAddress(AddressDTO addressDTO) {
 		String address;
@@ -373,6 +377,14 @@ public class AdminController {
 	@GetMapping("/list-payment")
 	public ModelAndView listPayment() {
 		ModelAndView modelandmap = new ModelAndView("admin/payment");
+		modelandmap.addObject("payments", paymentService.getAllPaymentDetails());
+		return modelandmap;
+	}
+	
+	@GetMapping("/view_payment/{paymentId}")
+	public ModelAndView viewPayment(@PathVariable String paymentId) {
+		ModelAndView modelandmap = new ModelAndView("admin/view_payment");
+		modelandmap.addObject("payment", paymentService.getPaymentDetails(paymentId));
 		return modelandmap;
 	}
 
