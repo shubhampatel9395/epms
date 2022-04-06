@@ -652,7 +652,7 @@
 					data: JSON.stringify(forCost),
 					success: function (result) {
 						$("#eventTotalCost").val(result);
-						messageConfirm = "Total event cost will be " + result + "." + "\nYou have to pay 10% advance to confirm the event.\nDo you want to continue?"
+						messageConfirm = "Total event cost will be " + result + "." + "\nYou have to accept 500 in advance to confirm the event.\nDo you want to continue?";
 						if (confirm(messageConfirm) == true) {
 							isDone = true;
 						}
