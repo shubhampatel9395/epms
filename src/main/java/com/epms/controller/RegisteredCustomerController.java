@@ -49,6 +49,7 @@ import com.epms.service.IEnuCountryService;
 import com.epms.service.IEnuEventSubTypeService;
 import com.epms.service.IEnuEventTypeService;
 import com.epms.service.IEnuStateService;
+import com.epms.service.IPaymentService;
 import com.epms.service.IUserDetailsService;
 
 import groovyjarjarantlr4.v4.runtime.misc.NotNull;
@@ -82,6 +83,9 @@ public class RegisteredCustomerController {
 
 	@Autowired
 	IUserDetailsService userDetailsService;
+
+	@Autowired
+	IPaymentService paymentService;
 
 	@GetMapping("/index")
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -354,6 +358,23 @@ public class RegisteredCustomerController {
 
 		addressService.update(oldAddressDTO);
 		userDetailsService.update(oldUserDetailsDTO);
+		return modelandmap;
+	}
+
+	@GetMapping("/list-payment")
+	public ModelAndView listPayments() {
+		ModelAndView modelandmap = new ModelAndView("customer/payment");
+		CustomUserDetailsDTO customUserDetailsDTO = (CustomUserDetailsDTO) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		modelandmap.addObject("payments", paymentService.findByNamedParameters(
+				new MapSqlParameterSource().addValue("userDetailsId", customUserDetailsDTO.getUserDetailsId())));
+		return modelandmap;
+	}
+
+	@GetMapping("/view_payment/{paymentId}")
+	public ModelAndView getPayments(@PathVariable String paymentId) {
+		ModelAndView modelandmap = new ModelAndView("customer/view_payment");
+		modelandmap.addObject("payment", paymentService.getPaymentDetails(paymentId));
 		return modelandmap;
 	}
 }

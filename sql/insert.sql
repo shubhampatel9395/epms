@@ -585,3 +585,11 @@ from payment p
 INNER JOIN userdetails u ON p.userDetailsId=u.userDetailsId
 WHERE p.paymentId='pay_JG4UDc9uX0h4EH'
 ORDER BY p.createdAt;
+
+-- Customer All Payment Details
+SELECT p.paymentId,p.orderId,concat(u.firstName,' ',u.lastName) as customerName,u.email,u.mobileNumber,p.eventId,
+p.method,p.amount,p.description,p.status,p.refundStatus,p.createdAt
+from payment p
+INNER JOIN userdetails u ON p.userDetailsId=u.userDetailsId
+WHERE p.userDetailsId=3
+ORDER BY p.createdAt;
