@@ -1597,7 +1597,7 @@ public class EventController {
 		List<FeedbackDTO> oldFeedbackDTO = feedbackService
 				.findByNamedParameters(new MapSqlParameterSource().addValue("eventId", eventDTO.getEventId()));
 		oldFeedbackDTO = oldFeedbackDTO.stream().filter(e -> e.getEventRating() != null).collect(Collectors.toList());
-		if (oldFeedbackDTO == null) {
+		if (oldFeedbackDTO == null || oldFeedbackDTO.size() == 0) {
 			feedbackDTO.setEventId(eventDTO.getEventId());
 			feedbackService.insert(feedbackDTO);
 		} else {
